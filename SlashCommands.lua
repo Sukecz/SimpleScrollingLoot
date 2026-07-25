@@ -9,15 +9,16 @@ local function PrintHelp()
     local msg = {
         "|cff00ccff" .. (L.ADDON_NAME or "Simple Scrolling Loot") .. "|r",
         L.COMMAND_HELP or "Available slash commands:",
-        L.HELP_ON or " - /ssloot on : Enable addon",
-        L.HELP_OFF or " - /ssloot off : Disable addon",
-        L.HELP_TEST or " - /ssloot test : Display test notifications",
-        L.HELP_UNLOCK or " - /ssloot unlock : Unlock and drag notification anchor",
-        L.HELP_LOCK or " - /ssloot lock : Lock notification anchor",
-        L.HELP_RESET or " - /ssloot reset : Reset options to default values",
-        L.HELP_DEBUG or " - /ssloot debug : Toggle debug mode",
-        L.HELP_DEBUG_API or " - /ssloot debug api : Print API compatibility report",
-        L.HELP_HELP or " - /ssloot help : Show command help",
+        " - /ssl or /ssloot : Open options window",
+        " - /ssl on : Enable addon",
+        " - /ssl off : Disable addon",
+        " - /ssl test : Display test notifications",
+        " - /ssl unlock : Unlock and drag notification anchor",
+        " - /ssl lock : Lock notification anchor",
+        " - /ssl reset : Reset options to default values",
+        " - /ssl debug : Toggle debug mode",
+        " - /ssl debug api : Print API compatibility report",
+        " - /ssl help : Show command help",
     }
     for _, line in ipairs(msg) do
         if DEFAULT_CHAT_FRAME then
@@ -64,5 +65,6 @@ end
 function SlashCommands.Initialize()
     _G.SLASH_SIMPLESCROLLINGLOOT1 = "/simplescrollingloot"
     _G.SLASH_SIMPLESCROLLINGLOOT2 = "/ssloot"
+    _G.SLASH_SIMPLESCROLLINGLOOT3 = "/ssl"
     SlashCmdList["SIMPLESCROLLINGLOOT"] = HandleSlashCommand
 end
