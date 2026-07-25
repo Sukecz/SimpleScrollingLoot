@@ -27,6 +27,7 @@ function CompatibilityProbe.RunReport()
     local apis = {
         { name = "GetItemInfo (Legacy)", available = type(GetItemInfo) == "function" },
         { name = "C_Item.GetItemInfo (Modern)", available = C_Item and type(C_Item.GetItemInfo) == "function" },
+        { name = "Item icon API", available = (C_Item and type(C_Item.GetItemIconByID) == "function") or type(GetItemIcon) == "function" },
         { name = "C_Item.RequestLoadItemDataByID", available = C_Item and type(C_Item.RequestLoadItemDataByID) == "function" },
         { name = "GetItemQualityColor", available = type(GetItemQualityColor) == "function" or (C_Item and type(C_Item.GetItemQualityColor) == "function") },
         { name = "GetMoney", available = type(GetMoney) == "function" },

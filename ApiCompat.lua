@@ -10,6 +10,8 @@ local hasLegacyItemAPI      = type(GetItemInfo) == "function"
 local hasModernQualityAPI   = C_Item and type(C_Item.GetItemQualityColor) == "function"
 local hasLegacyQualityAPI   = type(GetItemQualityColor) == "function"
 local hasModernItemLoadAPI  = C_Item and type(C_Item.RequestLoadItemDataByID) == "function"
+local hasModernItemIconAPI  = C_Item and type(C_Item.GetItemIconByID) == "function"
+local hasLegacyItemIconAPI  = type(GetItemIcon) == "function"
 
 -- Capture environment information
 function ApiCompat.GetEnvironmentInfo()
@@ -57,6 +59,24 @@ function ApiCompat.RequestItemData(itemIdentifier)
         end
     end
     return false
+end
+
+-- Returns the client-provided icon for an item ID or link. Test notifications
+-- use this wrapper too, so their visuals match real resolved item records.
+function ApiCompat.GetItemIcon(itemIdentifier)
+    if not itemIdentifier then return nil end
+
+    local itemID = tonumber(itemIdentifier) or tonumber(string.match(tostring(itemIdentifier), "item:(%d+)"))
+    if hasModernItemIconAPI and itemID then
+        local icon = C_Item.GetItemIconByID(itemID)
+        if icon then return icon end
+    end
+
+    if hasLegacyItemIconAPI then
+        return GetItemIcon(itemIdentifier)
+    end
+
+    return nil
 end
 
 -- Item Quality Colors wrapper
