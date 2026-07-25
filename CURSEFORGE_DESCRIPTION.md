@@ -13,6 +13,8 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
 - Shows positive money gains with gold, silver, and copper formatting.
 - Supports configurable minimum item quality, icon size, font size, opacity,
   spacing, duration, travel distance, scale, and maximum visible rows.
+- Lets you select solid, rounded-tooltip, or dark-dialog backgrounds and adjust
+  their RGB colour, fill opacity, border opacity, and padding.
 - Offers upward, downward, and static-fade notification modes.
 - Includes a movable, previewable anchor and test notifications.
 - Can safely hide the Blizzard loot window only when the selected mode permits

@@ -47,6 +47,33 @@ local function CreateSlider(parent, name, labelText, minVal, maxVal, step, dbKey
     return slider
 end
 
+-- Settings stored as 0.0–1.0 use an integer 0–10 slider for precise,
+-- readable controls in the Blizzard options template.
+local function CreateUnitIntervalSlider(parent, name, labelText, dbKey, x, y)
+    local slider = CreateSlider(parent, name, labelText, 0, 10, 1, dbKey, x, y)
+
+    slider:SetScript("OnValueChanged", function(self, value)
+        value = math.floor(value + 0.5)
+        local realValue = value / 10
+        _G[name .. "Text"]:SetText(string.format("%s: %.1f", labelText, realValue))
+        ns.Database.Set(dbKey, realValue)
+    end)
+
+    slider.Refresh = function(self)
+        local value = ns.Database.Get(dbKey) or 0
+        self:SetValue(math.floor(value * 10 + 0.5))
+        _G[name .. "Text"]:SetText(string.format("%s: %.1f", labelText, value))
+    end
+
+    local initialValue = ns.Database.Get(dbKey) or 0
+    slider:SetValue(math.floor(initialValue * 10 + 0.5))
+    _G[name .. "Text"]:SetText(string.format("%s: %.1f", labelText, initialValue))
+    _G[name .. "Low"]:SetText("0.0")
+    _G[name .. "High"]:SetText("1.0")
+
+    return slider
+end
+
 local function CreateCheckButton(parent, labelText, dbKey, x, y)
     local btn = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
     btn:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
@@ -132,7 +159,7 @@ local function CreateOptionsWindow()
     if optionsWindowFrame then return optionsWindowFrame end
 
     local frame = CreateFrame("Frame", "SimpleScrollingLootOptionsWindow", UIParent, "DialogBoxFrame")
-    frame:SetSize(580, 640)
+    frame:SetSize(620, 860)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     frame:SetMovable(true)
     frame:EnableMouse(true)
@@ -235,6 +262,17 @@ local function CreateOptionsWindow()
         _G["SSLSliderBgOpacityLow"]:SetText("0.0")
         _G["SSLSliderBgOpacityHigh"]:SetText("1.0")
     end
+    yRight = yRight - 50
+
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgRed", ns.L.OPT_BG_RED or "Background Red", "backgroundRed", xRight, yRight)
+    yRight = yRight - 50
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgGreen", ns.L.OPT_BG_GREEN or "Background Green", "backgroundGreen", xRight, yRight)
+    yRight = yRight - 50
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBlue", ns.L.OPT_BG_BLUE or "Background Blue", "backgroundBlue", xRight, yRight)
+    yRight = yRight - 50
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgPadding", ns.L.OPT_BG_PADDING or "Background Padding (px)", 0, 16, 1, "backgroundPadding", xRight, yRight)
+    yRight = yRight - 50
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBorderOpacity", ns.L.OPT_BG_BORDER_OPACITY or "Border Opacity", "backgroundBorderOpacity", xRight, yRight)
 
     -- -----------------------------------------------------------------------
     -- Dropdowns – beneath column 1
@@ -271,6 +309,17 @@ local function CreateOptionsWindow()
             { value = "SHIFT", label = "Shift" },
             { value = "CTRL",  label = "Ctrl"  },
             { value = "ALT",   label = "Alt"   },
+        },
+        xLeft, yLeft)
+    yLeft = yLeft - 60
+
+    widgets[#widgets + 1] = CreateDropdown(frame,
+        ns.L.OPT_BG_STYLE or "Background Style",
+        "backgroundStyle",
+        {
+            { value = "SOLID", label = ns.L.OPT_BG_STYLE_SOLID or "Solid" },
+            { value = "TOOLTIP", label = ns.L.OPT_BG_STYLE_TOOLTIP or "Rounded Tooltip" },
+            { value = "DIALOG", label = ns.L.OPT_BG_STYLE_DIALOG or "Dark Dialog" },
         },
         xLeft, yLeft)
 

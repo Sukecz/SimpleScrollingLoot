@@ -1,5 +1,9 @@
 # Simple Scrolling Loot
 
+<p align="center">
+  <img src="assets/ssl.png" alt="Simple Scrolling Loot logo" width="280">
+</p>
+
 **Simple Scrolling Loot** (`SimpleScrollingLoot`) is a lightweight,
 zero-dependency loot notification addon for World of Warcraft Classic Era. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
@@ -19,6 +23,8 @@ Text.
 - **Standalone Rendering**: Completely independent frame rendering (does NOT rely on Blizzard Scrolling Combat Text or `CombatText_AddMessage`).
 - **Movable & Configurable Anchor**: Unlock and position your loot notifications anywhere on screen.
 - **Customizable Appearance & Animation**: Adjust font size, icon size, scroll direction (UP/DOWN), duration, travel distance, opacity, max visible rows, and optional static mode.
+- **Background Styling**: Choose solid, rounded tooltip, or dark dialog styling;
+  adjust RGB colour, fill opacity, border opacity, and padding.
 - **Optional Loot Frame Hiding**: Configurable behavior for hiding the standard Blizzard loot window during auto-looting, with modifier key bypass (e.g. SHIFT) and safety checks for quest items, BoP, and group loot.
 - **Diagnostic Compatibility Probe**: Included `/ssl debug api` command to verify client API compatibility.
 
@@ -53,7 +59,9 @@ Restart WoW or reload UI with `/reload`.
 Open settings with `/ssloot`. The panel includes controls for item-quality
 filtering, icons, vendor value, background, scale, font/icon sizes, duration,
 fade, travel distance, spacing, scrolling direction, static mode, visible-row
-limit, and Blizzard loot-frame behaviour.
+limit, and Blizzard loot-frame behaviour. Background settings include style,
+RGB colour, fill opacity, border opacity, and padding. Choose **Rounded
+Tooltip** for Blizzard-styled rounded corners.
 
 Use `/ssloot unlock` to place the anchor, `/ssloot test` to preview the result,
 and `/ssloot lock` when finished. The Blizzard loot-frame option always fails

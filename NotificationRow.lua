@@ -5,9 +5,28 @@ ns.NotificationRow = {}
 local NotificationRow = ns.NotificationRow
 local rowIdCounter = 0
 
+local BACKDROP_STYLES = {
+    TOOLTIP = {
+        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true,
+        tileSize = 16,
+        edgeSize = 12,
+        inset = 4,
+    },
+    DIALOG = {
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true,
+        tileSize = 16,
+        edgeSize = 10,
+        inset = 3,
+    },
+}
+
 function NotificationRow.Create(parent)
     rowIdCounter = rowIdCounter + 1
-    local frame = CreateFrame("Button", "SimpleScrollingLootRow" .. rowIdCounter, parent)
+    local frame = CreateFrame("Button", "SimpleScrollingLootRow" .. rowIdCounter, parent, "BackdropTemplate")
     frame:SetSize(200, 28)
     frame:SetFrameStrata("HIGH")
     -- Mouse interaction is disabled by default so notifications do not block
@@ -22,6 +41,46 @@ function NotificationRow.Create(parent)
     bg:SetColorTexture(0, 0, 0, 0.35)
     bg:Hide()
     frame.bg = bg
+
+    function frame:ApplyBackground(config)
+        local opacity = config.backgroundOpacity or 0.35
+        local red = config.backgroundRed or 0.0
+        local green = config.backgroundGreen or 0.0
+        local blue = config.backgroundBlue or 0.0
+        local padding = config.backgroundPadding or 0
+        local style = config.backgroundStyle or "SOLID"
+
+        self.bg:ClearAllPoints()
+        self.bg:SetPoint("TOPLEFT", self, "TOPLEFT", padding, -padding)
+        self.bg:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -padding, padding)
+
+        if not config.showBackground then
+            self.bg:Hide()
+            self:SetBackdrop(nil)
+            return
+        end
+
+        local backdrop = BACKDROP_STYLES[style]
+        if backdrop then
+            self.bg:Hide()
+            local inset = backdrop.inset + padding
+            self:SetBackdrop({
+                bgFile = backdrop.bgFile,
+                edgeFile = backdrop.edgeFile,
+                tile = backdrop.tile,
+                tileSize = backdrop.tileSize,
+                edgeSize = backdrop.edgeSize,
+                insets = { left = inset, right = inset, top = inset, bottom = inset },
+            })
+            self:SetBackdropColor(red, green, blue, opacity)
+            self:SetBackdropBorderColor(1.0, 1.0, 1.0, config.backgroundBorderOpacity or 0.8)
+            return
+        end
+
+        self:SetBackdrop(nil)
+        self.bg:SetColorTexture(red, green, blue, opacity)
+        self.bg:Show()
+    end
 
     -- Icon texture
     local icon = frame:CreateTexture(nil, "ARTWORK")
@@ -100,13 +159,7 @@ function NotificationRow.Create(parent)
         -- Scale vendor text proportionally; no arbitrary fixed floor.
         self.vendorText:SetFont(fontPath, math.max(6, fontSize - 2), fontFlags)
 
-        -- Background
-        if config.showBackground then
-            self.bg:SetColorTexture(0, 0, 0, config.backgroundOpacity or 0.35)
-            self.bg:Show()
-        else
-            self.bg:Hide()
-        end
+        self:ApplyBackground(config)
 
         if record.kind == "item" then
             local r, g, b = ns.ApiCompat.GetItemQualityColor(record.quality)
