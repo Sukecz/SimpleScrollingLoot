@@ -159,7 +159,7 @@ local function CreateOptionsWindow()
     if optionsWindowFrame then return optionsWindowFrame end
 
     local frame = CreateFrame("Frame", "SimpleScrollingLootOptionsWindow", UIParent, "DialogBoxFrame")
-    frame:SetSize(620, 860)
+    frame:SetSize(850, 640)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     frame:SetMovable(true)
     frame:EnableMouse(true)
@@ -183,34 +183,36 @@ local function CreateOptionsWindow()
     local widgets = {}
 
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_ENABLE or "Enable Addon", "enabled", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_ITEMS or "Show Item Loot", "showItems", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_MONEY or "Show Money Loot", "showMoney", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_HONOR or "Show Honor Gains", "showHonor", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_VENDOR or "Show Vendor Value", "showVendorValue", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_QUANTITY or "Show Stack Quantity", "showQuantity", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_ICONS or "Show Item Icons", "showIcons", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_BG or "Show Background", "showBackground", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_STATIC_MODE or "Static Mode (No scroll)", "staticMode", xLeft, yLeft)
-    yLeft = yLeft - 30
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_DEBUG or "Enable Debug Logging", "debug", xLeft, yLeft)
 
     -- -----------------------------------------------------------------------
-    -- Column 2 (Right) – Sliders
+    -- Columns 2 and 3 – compact sliders
     -- -----------------------------------------------------------------------
-    local xRight = 310
-    local yRight = -60
+    local xMiddle = 285
+    local yMiddle = -55
+    local xBackground = 570
+    local yBackground = -55
 
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderFontSize",    ns.L.OPT_FONT_SIZE    or "Font Size",        8,   32, 1,   "fontSize",        xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderIconSize",    ns.L.OPT_ICON_SIZE    or "Icon Size",       12,   64, 2,   "iconSize",        xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderScale",       ns.L.OPT_SCALE        or "UI Scale (x10)",   5,   30, 1,   "scale",           xRight, yRight)
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderFontSize",    ns.L.OPT_FONT_SIZE    or "Font Size",        8,   32, 1,   "fontSize",        xMiddle, yMiddle) ; yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderIconSize",    ns.L.OPT_ICON_SIZE    or "Icon Size",       12,   64, 2,   "iconSize",        xMiddle, yMiddle) ; yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderScale",       ns.L.OPT_SCALE        or "UI Scale (x10)",   5,   30, 1,   "scale",           xMiddle, yMiddle)
     -- Note: scale stored as 0.5–3.0 but slider uses 5–30 (×0.1) for step granularity.
     -- Override OnValueChanged for scale to divide by 10.
     do
@@ -233,15 +235,15 @@ local function CreateOptionsWindow()
         _G["SSLSliderScaleLow"]:SetText("0.5")
         _G["SSLSliderScaleHigh"]:SetText("3.0")
     end
-    yRight = yRight - 50
+    yMiddle = yMiddle - 42
 
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderDuration",    ns.L.OPT_DURATION     or "Duration (s)",    0.5,  15,  0.5, "duration",        xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderFadeDuration",ns.L.OPT_FADE_DURATION or "Fade (s)",       0.1,   5,  0.1, "fadeDuration",    xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderTravel",      ns.L.OPT_TRAVEL_DIST  or "Travel (px)",      10, 300, 10,  "travelDistance",  xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMaxVisible",  ns.L.OPT_MAX_VISIBLE  or "Max Visible",       1,  15,  1,   "maxVisible",      xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderRowSpacing",  ns.L.OPT_ROW_SPACING  or "Row Spacing (px)",  0,  30,  1,   "rowSpacing",      xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMinQuality",  ns.L.OPT_MIN_QUALITY  or "Min Quality (0-5)", 0,   5,  1,   "minQuality",      xRight, yRight) ; yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgOpacity",   ns.L.OPT_BG_OPACITY   or "BG Opacity",        0,  10,  1,   "backgroundOpacity", xRight, yRight)
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderDuration",    ns.L.OPT_DURATION     or "Duration (s)",    0.5,  15,  0.5, "duration",        xMiddle, yMiddle) ; yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderFadeDuration",ns.L.OPT_FADE_DURATION or "Fade (s)",       0.1,   5,  0.1, "fadeDuration",    xMiddle, yMiddle) ; yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderTravel",      ns.L.OPT_TRAVEL_DIST  or "Travel (px)",      10, 300, 10,  "travelDistance",  xMiddle, yMiddle) ; yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMaxVisible",  ns.L.OPT_MAX_VISIBLE  or "Max Visible",       1,  15,  1,   "maxVisible",      xMiddle, yMiddle) ; yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderRowSpacing",  ns.L.OPT_ROW_SPACING  or "Row Spacing (px)",  0,  30,  1,   "rowSpacing",      xMiddle, yMiddle) ; yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMinQuality",  ns.L.OPT_MIN_QUALITY  or "Min Quality (0-5)", 0,   5,  1,   "minQuality",      xMiddle, yMiddle)
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgOpacity",   ns.L.OPT_BG_OPACITY   or "BG Opacity",        0,  10,  1,   "backgroundOpacity", xBackground, yBackground)
     -- Override for backgroundOpacity (stored 0–1, slider 0–10)
     do
         local s = widgets[#widgets]
@@ -262,24 +264,24 @@ local function CreateOptionsWindow()
         _G["SSLSliderBgOpacityLow"]:SetText("0.0")
         _G["SSLSliderBgOpacityHigh"]:SetText("1.0")
     end
-    yRight = yRight - 50
+    yBackground = yBackground - 42
 
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgRed", ns.L.OPT_BG_RED or "Background Red", "backgroundRed", xRight, yRight)
-    yRight = yRight - 50
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgGreen", ns.L.OPT_BG_GREEN or "Background Green", "backgroundGreen", xRight, yRight)
-    yRight = yRight - 50
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBlue", ns.L.OPT_BG_BLUE or "Background Blue", "backgroundBlue", xRight, yRight)
-    yRight = yRight - 50
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgPadding", ns.L.OPT_BG_PADDING or "Background Padding (px)", 0, 16, 1, "backgroundPadding", xRight, yRight)
-    yRight = yRight - 50
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBorderOpacity", ns.L.OPT_BG_BORDER_OPACITY or "Border Opacity", "backgroundBorderOpacity", xRight, yRight)
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgRed", ns.L.OPT_BG_RED or "Background Red", "backgroundRed", xBackground, yBackground)
+    yBackground = yBackground - 42
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgGreen", ns.L.OPT_BG_GREEN or "Background Green", "backgroundGreen", xBackground, yBackground)
+    yBackground = yBackground - 42
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBlue", ns.L.OPT_BG_BLUE or "Background Blue", "backgroundBlue", xBackground, yBackground)
+    yBackground = yBackground - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgPadding", ns.L.OPT_BG_PADDING or "Background Padding (px)", 0, 16, 1, "backgroundPadding", xBackground, yBackground)
+    yBackground = yBackground - 42
+    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBorderOpacity", ns.L.OPT_BG_BORDER_OPACITY or "Border Opacity", "backgroundBorderOpacity", xBackground, yBackground)
 
     -- -----------------------------------------------------------------------
     -- Dropdowns – beneath column 1
     -- -----------------------------------------------------------------------
     -- Leave a full row between the final checkbox and the first dropdown;
     -- the dropdown label otherwise overlaps the Debug Logging text.
-    yLeft = yLeft - 55
+    yLeft = yLeft - 40
 
     widgets[#widgets + 1] = CreateDropdown(frame,
         ns.L.OPT_DIRECTION or "Scroll Direction",
@@ -289,7 +291,7 @@ local function CreateOptionsWindow()
             { value = "DOWN", label = ns.L.OPT_DIRECTION_DOWN or "Downwards" },
         },
         xLeft, yLeft)
-    yLeft = yLeft - 60
+    yLeft = yLeft - 50
 
     widgets[#widgets + 1] = CreateDropdown(frame,
         ns.L.OPT_LOOT_FRAME or "Blizzard Loot Frame",
@@ -300,7 +302,7 @@ local function CreateOptionsWindow()
             { value = "ALWAYS_HIDE", label = ns.L.OPT_LOOT_FRAME_ALWAYS_HIDE or "Always hide (where safe)" },
         },
         xLeft, yLeft)
-    yLeft = yLeft - 60
+    yLeft = yLeft - 50
 
     widgets[#widgets + 1] = CreateDropdown(frame,
         ns.L.OPT_BYPASS_MOD or "Bypass Modifier Key",
@@ -311,7 +313,7 @@ local function CreateOptionsWindow()
             { value = "ALT",   label = "Alt"   },
         },
         xLeft, yLeft)
-    yLeft = yLeft - 60
+    yLeft = yLeft - 50
 
     widgets[#widgets + 1] = CreateDropdown(frame,
         ns.L.OPT_BG_STYLE or "Background Style",
