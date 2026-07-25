@@ -239,7 +239,9 @@ local function CreateOptionsWindow()
     -- -----------------------------------------------------------------------
     -- Dropdowns – beneath column 1
     -- -----------------------------------------------------------------------
-    yLeft = yLeft - 20
+    -- Leave a full row between the final checkbox and the first dropdown;
+    -- the dropdown label otherwise overlaps the Debug Logging text.
+    yLeft = yLeft - 55
 
     widgets[#widgets + 1] = CreateDropdown(frame,
         ns.L.OPT_DIRECTION or "Scroll Direction",

@@ -94,22 +94,11 @@ function LootParser.ParseLootMessage(msg, event)
         end
     end
 
-    -- Fallback: search directly for an item link; handles unusual message formats.
-    local itemLink = string.match(msg, "(|c%x+|Hitem:%d+:.-|h%[.-%]|h|r)") or string.match(msg, "(|c%x+|Hitem:%d+:.-|h.-|h|r)")
-    if itemLink then
-        local quantity = string.match(msg, "x(%d+)") or string.match(msg, "(%d+)x") or 1
-        local itemID = LootParser.ExtractItemID(itemLink)
-        return {
-            kind = "item",
-            itemLink = itemLink,
-            itemID = itemID,
-            quantity = math.max(1, tonumber(quantity) or 1),
-            sourceEvent = event or "CHAT_MSG_LOOT",
-            timestamp = GetTime(),
-        }
-    end
-
-    -- If unparsed, report to debug log
+    -- Do not fall back to extracting any item link from the chat text. Party,
+    -- raid, and nearby-player loot messages contain identical links. Only the
+    -- verified Blizzard *_SELF formats above are allowed to create a row.
+    -- Failing closed is preferable to displaying loot that does not belong to
+    -- the player when Blizzard changes a message format.
     ns.Debug.LogUnrecognizedLoot(event, msg)
     return nil
 end

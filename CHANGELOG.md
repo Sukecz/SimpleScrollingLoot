@@ -2,6 +2,18 @@
 
 All notable changes to Simple Scrolling Loot will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- Ignore party and raid member loot messages; notifications now accept only
+  verified Blizzard self-loot formats.
+- Add spacing between Debug Logging and the Scroll Direction dropdown.
+
+### Changed
+- Publish an Alpha build to CurseForge for every push to `main`.
+- Add complete installation, configuration, support, and CurseForge project
+  descriptions.
+
 ## [0.1.0-alpha.2] - 2026-07-25
 
 ### Added
