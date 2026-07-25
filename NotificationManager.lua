@@ -78,7 +78,7 @@ function NotificationManager.AddNotification(record)
     if not ns.Database.Get("enabled") then return end
     if not record then return end
 
-    -- Check minimum quality filter for items
+    -- Filter checks
     if record.kind == "item" then
         if not ns.Database.Get("showItems") then return end
         local minQuality = ns.Database.Get("minQuality") or 0
@@ -88,6 +88,8 @@ function NotificationManager.AddNotification(record)
         end
     elseif record.kind == "money" then
         if not ns.Database.Get("showMoney") then return end
+    elseif record.kind == "honor" then
+        if not ns.Database.Get("showHonor") then return end
     end
 
     local anchor = CreateAnchor()
@@ -114,7 +116,7 @@ function NotificationManager.AddNotification(record)
         travelDistance = ns.Database.Get("travelDistance") or 90,
     }
 
-    table.insert(activeRows, 1, entry) -- insert newest at top of list
+    table.insert(activeRows, 1, entry)
 
     -- Limit visible rows
     local maxVisible = ns.Database.Get("maxVisible") or 6
@@ -165,12 +167,10 @@ function NotificationManager.OnUpdate(elapsed)
         local fadeDuration = entry.fadeDuration
 
         if age >= totalDuration then
-            -- Expired! Recycle
             RecycleRow(entry.row)
             table.remove(activeRows, i)
             NotificationManager.UpdateLayout()
         else
-            -- Calculate opacity fade
             local alpha = 1.0
             local remaining = totalDuration - age
             if remaining < fadeDuration then
@@ -178,11 +178,9 @@ function NotificationManager.OnUpdate(elapsed)
             end
             entry.row:SetAlpha(alpha)
 
-            -- Smooth scrolling travel if not static
             if not staticMode then
                 local progress = math.min(1.0, age / totalDuration)
                 local travelDelta = progress * entry.travelDistance * dirMultiplier
-                -- Shift current point
                 local point, rel, relPoint, x, baseOffset = entry.row:GetPoint()
                 if point then
                     entry.row:SetPoint(point, rel, relPoint, x, baseOffset + (travelDelta * 0.05))
@@ -215,6 +213,7 @@ function NotificationManager.ShowTestNotifications()
         { kind = "item", name = ns.L.TEST_ITEM_2 or "Heavy Leather", itemLink = "|cffffffff|Hitem:4234:0:0:0:0:0:0:0|h[Heavy Leather]|h|r", quality = 1, quantity = 2, sellPrice = 150, texture = "Interface\\Icons\\INV_Misc_LeatherScrap_03" },
         { kind = "item", name = ns.L.TEST_ITEM_3 or "Arcanite Bar", itemLink = "|cffa335ee|Hitem:12360:0:0:0:0:0:0:0|h[Arcanite Bar]|h|r", quality = 4, quantity = 1, sellPrice = 50000, texture = "Interface\\Icons\\INV_Misc_Bar_03" },
         { kind = "money", copper = 12580, formattedText = ns.ApiCompat.FormatMoney(12580), coinIconsText = ns.ApiCompat.GetCoinIconsText(12580), texture = "Interface\\Icons\\INV_Misc_Coin_01" },
+        { kind = "honor", amount = 142, formattedText = "+142 Honor", texture = "Interface\\Icons\\PVPCurrency_Honor_Horde" },
     }
 
     for _, rec in ipairs(testItems) do

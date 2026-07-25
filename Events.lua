@@ -14,6 +14,7 @@ function Events.Initialize()
     eventFrame:RegisterEvent("CHAT_MSG_LOOT")
     eventFrame:RegisterEvent("CHAT_MSG_MONEY")
     eventFrame:RegisterEvent("PLAYER_MONEY")
+    eventFrame:RegisterEvent("CHAT_MSG_COMBAT_HONOR_GAIN")
     eventFrame:RegisterEvent("GET_ITEM_INFO_RECEIVED")
 
     eventFrame:SetScript("OnEvent", function(self, event, ...)
@@ -53,6 +54,14 @@ function Events.OnEvent(event, ...)
                 ns.NotificationManager.AddNotification(record)
             end
         end)
+    elseif event == "CHAT_MSG_COMBAT_HONOR_GAIN" then
+        if not ns.Database.Get("enabled") then return end
+        if not ns.Database.Get("showHonor") then return end
+        local text = ...
+        local record = ns.LootParser.ParseHonorMessage(text, event)
+        if record then
+            ns.NotificationManager.AddNotification(record)
+        end
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID, success = ...
         ns.ItemResolver.OnItemInfoReceived(itemID)

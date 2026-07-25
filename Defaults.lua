@@ -6,6 +6,7 @@ ns.Defaults = {
     minQuality = 0,
     showItems = true,
     showMoney = true,
+    showHonor = true,
     showVendorValue = true,
     showQuantity = true,
     showIcons = true,

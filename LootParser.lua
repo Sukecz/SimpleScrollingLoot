@@ -12,7 +12,6 @@ local function FormatStringToRegex(fmt)
     -- Escape special regex chars except %s and %d
     local pattern = fmt:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
     -- Replace %s and %d pattern placeholders
-    -- Note: in WoW loot strings, usually %s is itemLink and %d is quantity, or %s is player and second %s is itemLink.
     pattern = pattern:gsub("%%%%s", "(.-)"):gsub("%%%%d", "(%%d+)")
     return "^" .. pattern .. "$"
 end
@@ -69,7 +68,6 @@ function LootParser.ParseLootMessage(msg, event)
         if match1 then
             local itemLink, quantity
             if p.hasQuantity then
-                -- Could be match1 = link, match2 = count OR vice-versa depending on localized format string
                 if string.find(match1, "|Hitem:") or string.find(match1, "|c") then
                     itemLink = match1
                     quantity = tonumber(match2) or 1
@@ -112,6 +110,29 @@ function LootParser.ParseLootMessage(msg, event)
     end
 
     -- If unparsed, report to debug log
+    ns.Debug.LogUnrecognizedLoot(event, msg)
+    return nil
+end
+
+-- Parse raw chat message from CHAT_MSG_COMBAT_HONOR_GAIN
+function LootParser.ParseHonorMessage(msg, event)
+    if not msg or type(msg) ~= "string" then return nil end
+
+    local amount = string.match(msg, "(%d+)%s+[Hh]onor") or string.match(msg, "[Hh]onor.-(%d+)") or string.match(msg, "(%d+)")
+    amount = tonumber(amount)
+    if amount and amount > 0 then
+        local faction = UnitFactionGroup and UnitFactionGroup("player") or "Horde"
+        local honorIcon = (faction == "Alliance") and "Interface\\Icons\\PVPCurrency_Honor_Alliance" or "Interface\\Icons\\PVPCurrency_Honor_Horde"
+        return {
+            kind = "honor",
+            amount = amount,
+            formattedText = string.format("+%d Honor", amount),
+            texture = honorIcon,
+            sourceEvent = event or "CHAT_MSG_COMBAT_HONOR_GAIN",
+            timestamp = GetTime(),
+        }
+    end
+
     ns.Debug.LogUnrecognizedLoot(event, msg)
     return nil
 end

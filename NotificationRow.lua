@@ -8,7 +8,7 @@ local rowIdCounter = 0
 function NotificationRow.Create(parent)
     rowIdCounter = rowIdCounter + 1
     local frame = CreateFrame("Button", "SimpleScrollingLootRow" .. rowIdCounter, parent)
-    frame:SetSize(400, 28)
+    frame:SetSize(200, 28)
     frame:SetFrameStrata("HIGH")
     frame:EnableMouse(true)
     frame:RegisterForClicks("AnyUp")
@@ -26,7 +26,7 @@ function NotificationRow.Create(parent)
     icon:SetPoint("LEFT", frame, "LEFT", 4, 0)
     frame.icon = icon
 
-    -- Main text (Item Name or Money String)
+    -- Main text (Item Name, Money String, or Honor String)
     local mainText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     mainText:SetPoint("LEFT", icon, "RIGHT", 6, 0)
     mainText:SetJustifyH("LEFT")
@@ -83,7 +83,7 @@ function NotificationRow.Create(parent)
             self.mainText:SetPoint("LEFT", self.icon, "RIGHT", 6, 0)
         else
             self.icon:Hide()
-            self.mainText:SetPoint("LEFT", self, "LEFT", 4, 0)
+            self.mainText:SetPoint("LEFT", self, "LEFT", 6, 0)
         end
 
         -- Font sizing
@@ -105,7 +105,6 @@ function NotificationRow.Create(parent)
             self.mainText:SetText(record.name or record.itemLink or "Unknown Item")
             self.mainText:SetTextColor(r, g, b, 1.0)
 
-            -- Quantity (do not show x1)
             if config.showQuantity and record.quantity and record.quantity > 1 then
                 self.quantityText:SetText("x" .. record.quantity)
                 self.quantityText:Show()
@@ -114,7 +113,6 @@ function NotificationRow.Create(parent)
                 self.quantityText:SetText("")
             end
 
-            -- Vendor Value
             if config.showVendorValue and record.sellPrice and record.sellPrice > 0 then
                 self.vendorText:SetText(ns.ApiCompat.FormatMoney(record.sellPrice))
                 self.vendorText:Show()
@@ -128,7 +126,27 @@ function NotificationRow.Create(parent)
             self.mainText:SetTextColor(1.0, 1.0, 1.0, 1.0)
             self.quantityText:Hide()
             self.vendorText:Hide()
+
+        elseif record.kind == "honor" then
+            self.mainText:SetText(record.formattedText or "+ Honor")
+            self.mainText:SetTextColor(1.0, 0.82, 0.0, 1.0) -- Gold/yellow honor color
+            self.quantityText:Hide()
+            self.vendorText:Hide()
         end
+
+        -- Calculate content width dynamically to center row perfectly on anchor
+        local mainWidth = self.mainText:GetStringWidth() or 0
+        local quantWidth = self.quantityText:IsShown() and (self.quantityText:GetStringWidth() or 0) or 0
+        local vendorWidth = self.vendorText:IsShown() and (self.vendorText:GetStringWidth() or 0) or 0
+        local iconWidth = self.icon:IsShown() and iconSize or 0
+
+        local contentWidth = iconWidth
+        if iconWidth > 0 then contentWidth = contentWidth + 6 end
+        contentWidth = contentWidth + mainWidth
+        if quantWidth > 0 then contentWidth = contentWidth + 6 + quantWidth end
+        if vendorWidth > 0 then contentWidth = contentWidth + 10 + vendorWidth end
+
+        self:SetWidth(math.max(80, contentWidth + 12))
 
         self:SetAlpha(1.0)
         self:Show()
