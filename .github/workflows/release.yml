@@ -13,8 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
-      GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # BigWigs packager reads these names. The CurseForge credential remains
+      # stored only as the repository secret CF_API_TOKEN.
+      CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout repository

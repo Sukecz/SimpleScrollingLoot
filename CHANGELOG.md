@@ -2,7 +2,7 @@
 
 All notable changes to Simple Scrolling Loot will be documented in this file.
 
-## [0.1.0-alpha.1] - 2026-07-25
+## [0.1.0-alpha.2] - 2026-07-25
 
 ### Added
 - Initial project structure for Simple Scrolling Loot.
