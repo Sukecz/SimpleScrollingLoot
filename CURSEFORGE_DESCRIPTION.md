@@ -45,11 +45,11 @@ Extract the `SimpleScrollingLoot` folder into
 `World of Warcraft/<client>/Interface/AddOns/`, then restart the game or run
 `/reload`.
 
-## Development status and support
+## Support
 
-This project is currently in Alpha. Please report reproducible issues, your
-WoW client build, locale, and the output of `/ssloot debug api` at the GitHub
-repository: https://github.com/Sukecz/SimpleScrollingLoot
+Please report reproducible issues, your WoW client build, locale, and the
+output of `/ssloot debug api` at the GitHub repository:
+https://github.com/Sukecz/SimpleScrollingLoot
 
 The addon is original code and is not affiliated with, copied from, or
 dependent on SLoTe or Blizzard Scrolling Combat Text.

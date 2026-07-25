@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-07-25
+
 ### Fixed
 - Ignore party and raid member loot messages; notifications now accept only
   verified Blizzard self-loot formats.
@@ -12,7 +14,7 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
   hard-coded texture paths.
 
 ### Changed
-- Publish an Alpha build to CurseForge for every push to `main`.
+- Publish Alpha development builds to CurseForge for every push to `main`.
 - Add complete installation, configuration, support, and CurseForge project
   descriptions.
 - Replace ineffective background colour and style controls with a working

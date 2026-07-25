@@ -9,8 +9,7 @@ zero-dependency loot notification addon for World of Warcraft. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
 Text.
 
-> Development status: Alpha. Please test on the intended WoW client and
-> report reproducible issues through GitHub.
+> Current release: 0.1.0. Please report reproducible issues through GitHub.
 
 ## Client coverage
 
@@ -81,10 +80,10 @@ account, API, or authentication secrets in a report.
 
 ## Releases
 
-Every push to `main` creates an Alpha build and uploads it to CurseForge project
-`1624616`. Version tags in the form `v*` additionally create a matching GitHub
-release. Tags containing `alpha` or `beta` publish that release type; other
-version tags publish a Release.
+Every push to `main` creates an Alpha development build and uploads it to
+CurseForge project `1624616`. Version tags in the form `v*` additionally create
+a matching GitHub release. Tags containing `alpha` or `beta` publish that
+release type; other version tags, including `v0.1.0`, publish a Release.
 
 Before creating the first release tag, add a repository Actions secret named
 `CF_API_TOKEN` with a CurseForge author upload token. The token is never stored
