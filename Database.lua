@@ -59,6 +59,14 @@ local function RunMigrations(db)
         version = 2
     end
 
+    if version < 3 then
+        -- The addon must never alter the Blizzard loot window. These settings
+        -- were retired together with the controller that used them.
+        db.lootFrameMode = nil
+        db.lootFrameBypassModifier = nil
+        version = 3
+    end
+
     db.version = version
 end
 

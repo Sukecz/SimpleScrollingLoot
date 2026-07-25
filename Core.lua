@@ -12,7 +12,6 @@ function Core.OnAddonLoaded()
     ns.Database.Initialize()
     ns.MoneyTracker.Initialize()
     ns.NotificationManager.Initialize()
-    ns.LootFrameController.Initialize()
     ns.Options.Initialize()
     ns.SlashCommands.Initialize()
 

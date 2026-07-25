@@ -18,7 +18,6 @@ ItemResolver.lua
 MoneyTracker.lua
 NotificationRow.lua
 NotificationManager.lua
-LootFrameController.lua
 Options.lua
 SlashCommands.lua
 Events.lua

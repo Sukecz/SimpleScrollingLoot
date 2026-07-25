@@ -13,11 +13,13 @@ SimpleScrollingLootDB = {
     backgroundBlue = 0.1,
     backgroundPadding = 12,
     backgroundBorderOpacity = 0.4,
+    lootFrameMode = "ALWAYS_HIDE",
+    lootFrameBypassModifier = "SHIFT",
 }
 
 ns.Database.Initialize()
 
-assert(SimpleScrollingLootDB.version == 2, "database must migrate to version 2")
+assert(SimpleScrollingLootDB.version == 3, "database must migrate to version 3")
 assert(SimpleScrollingLootDB.backgroundRounded == false, "rounded corners must default safely")
 assert(SimpleScrollingLootDB.backgroundStyle == nil, "obsolete style must be removed")
 assert(SimpleScrollingLootDB.backgroundRed == nil, "obsolete red must be removed")
@@ -25,5 +27,7 @@ assert(SimpleScrollingLootDB.backgroundGreen == nil, "obsolete green must be rem
 assert(SimpleScrollingLootDB.backgroundBlue == nil, "obsolete blue must be removed")
 assert(SimpleScrollingLootDB.backgroundPadding == nil, "obsolete padding must be removed")
 assert(SimpleScrollingLootDB.backgroundBorderOpacity == nil, "obsolete border opacity must be removed")
+assert(SimpleScrollingLootDB.lootFrameMode == nil, "loot frame mode must be removed")
+assert(SimpleScrollingLootDB.lootFrameBypassModifier == nil, "loot frame bypass must be removed")
 
 print("Database migration tests passed")

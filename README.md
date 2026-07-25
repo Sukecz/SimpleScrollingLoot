@@ -32,7 +32,7 @@ after that client has been tested.
 - **Customizable Appearance & Animation**: Adjust font size, icon size, scroll direction (UP/DOWN), duration, travel distance, opacity, max visible rows, and optional static mode.
 - **Background Styling**: Enable a Blizzard-styled rounded-corner frame and
   adjust its opacity.
-- **Optional Loot Frame Hiding**: Configurable behavior for hiding the standard Blizzard loot window during auto-looting, with modifier key bypass (e.g. SHIFT) and safety checks for quest items, BoP, and group loot.
+- **Untouched Loot Window**: Never hooks, hides, or otherwise changes the Blizzard loot window.
 - **Diagnostic Compatibility Probe**: Included `/ssl debug api` command to verify client API compatibility.
 
 ## Slash Commands
@@ -65,13 +65,12 @@ Restart WoW or reload UI with `/reload`.
 
 Open settings with `/ssloot`. The panel includes controls for item-quality
 filtering, icons, vendor value, background, scale, font/icon sizes, duration,
-fade, travel distance, spacing, scrolling direction, static mode, visible-row
-limit, and Blizzard loot-frame behaviour. Enable **Rounded Corners** for a
-Blizzard-styled rounded frame, then adjust its opacity.
+fade, travel distance, spacing, scrolling direction, static mode, and visible-row
+limit. Enable **Rounded Corners** for a Blizzard-styled rounded frame, then
+adjust its opacity.
 
 Use `/ssloot unlock` to place the anchor, `/ssloot test` to preview the result,
-and `/ssloot lock` when finished. The Blizzard loot-frame option always fails
-open for loot that may require normal Blizzard interaction.
+and `/ssloot lock` when finished.
 
 ## Support
 

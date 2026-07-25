@@ -34,7 +34,6 @@ function CompatibilityProbe.RunReport()
         { name = "CreateFrame", available = type(CreateFrame) == "function" },
         { name = "Settings API (Modern)", available = Settings and type(Settings.RegisterAddOnCategory) == "function" },
         { name = "InterfaceOptions_AddCategory (Legacy)", available = type(InterfaceOptions_AddCategory) == "function" },
-        { name = "LootFrame global", available = LootFrame ~= nil },
         { name = "LOOT_ITEM_SELF string", available = _G.LOOT_ITEM_SELF ~= nil },
         { name = "LOOT_ITEM_SELF_MULTIPLE string", available = _G.LOOT_ITEM_SELF_MULTIPLE ~= nil },
     }

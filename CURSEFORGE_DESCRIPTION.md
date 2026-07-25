@@ -17,8 +17,7 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
   opacity.
 - Offers upward, downward, and static-fade notification modes.
 - Includes a movable, previewable anchor and test notifications.
-- Can safely hide the Blizzard loot window only when the selected mode permits
-  it, with a modifier-key bypass and fail-open handling for unsafe loot.
+- Never hooks, hides, or otherwise changes the Blizzard loot window.
 - Uses no external libraries and does not depend on Blizzard Scrolling Combat
   Text.
 

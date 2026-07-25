@@ -253,28 +253,6 @@ local function CreateOptionsWindow()
             { value = "DOWN", label = ns.L.OPT_DIRECTION_DOWN or "Downwards" },
         },
         xLeft, yLeft)
-    yLeft = yLeft - 50
-
-    widgets[#widgets + 1] = CreateDropdown(frame,
-        ns.L.OPT_LOOT_FRAME or "Blizzard Loot Frame",
-        "lootFrameMode",
-        {
-            { value = "DEFAULT",     label = ns.L.OPT_LOOT_FRAME_DEFAULT    or "Default (keep)"         },
-            { value = "HIDE_AUTO",   label = ns.L.OPT_LOOT_FRAME_HIDE_AUTO  or "Hide while auto-looting" },
-            { value = "ALWAYS_HIDE", label = ns.L.OPT_LOOT_FRAME_ALWAYS_HIDE or "Always hide (where safe)" },
-        },
-        xLeft, yLeft)
-    yLeft = yLeft - 50
-
-    widgets[#widgets + 1] = CreateDropdown(frame,
-        ns.L.OPT_BYPASS_MOD or "Bypass Modifier Key",
-        "lootFrameBypassModifier",
-        {
-            { value = "SHIFT", label = "Shift" },
-            { value = "CTRL",  label = "Ctrl"  },
-            { value = "ALT",   label = "Alt"   },
-        },
-        xLeft, yLeft)
     -- -----------------------------------------------------------------------
     -- Bottom action buttons
     -- -----------------------------------------------------------------------

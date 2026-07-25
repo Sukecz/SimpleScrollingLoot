@@ -1,7 +1,7 @@
 local addonName, ns = ...
 
 ns.Defaults = {
-    version = 2,
+    version = 3,
     enabled = true,
     minQuality = 1,
     showItems = true,
@@ -29,8 +29,6 @@ ns.Defaults = {
         x = 0,
         y = 120,
     },
-    lootFrameMode = "DEFAULT", -- "DEFAULT", "HIDE_AUTO", "ALWAYS_HIDE"
-    lootFrameBypassModifier = "SHIFT", -- "SHIFT", "CTRL", "ALT"
     debug = false,
 }
 
