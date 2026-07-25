@@ -7,4 +7,6 @@ ignore:
   - .env
   - .env.*
   - AGENTS.md
+  - CURSEFORGE_DESCRIPTION.md
+  - tests
   - "*.code-workspace"
