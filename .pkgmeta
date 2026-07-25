@@ -5,6 +5,6 @@ ignore:
   - .github
   - .release
   - .env
+  - .env.*
   - AGENTS.md
-  - SLoTe-inspirace
   - "*.code-workspace"

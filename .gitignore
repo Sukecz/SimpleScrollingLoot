@@ -13,3 +13,11 @@ Thumbs.db
 # Local build artifacts
 *.zip
 .release/
+
+# Local instructions and credentials must never be published.
+AGENTS.md
+.env
+.env.*
+!.env.example
+secrets.lua
+secrets*.lua

@@ -4,6 +4,8 @@
 ## Author: Simple Scrolling Loot Authors
 ## Version: 0.1.0
 ## SavedVariables: SimpleScrollingLootDB
+## X-Curse-Project-ID: 1624616
+## IconTexture: Interface\AddOns\SimpleScrollingLoot\assets\ssl
 
 Locales\enUS.lua
 Defaults.lua

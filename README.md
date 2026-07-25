@@ -36,6 +36,17 @@ Extract the `SimpleScrollingLoot` directory into your World of Warcraft installa
 
 Restart WoW or reload UI with `/reload`.
 
+## Releases
+
+Version tags in the form `v*` trigger GitHub Actions. The workflow packages a
+single `SimpleScrollingLoot` folder, creates the matching GitHub release, and
+uploads it to CurseForge project `1624616`.
+
+Before creating the first release tag, add a repository Actions secret named
+`CF_API_TOKEN` with a CurseForge author upload token. The token is never stored
+in this repository. Use `alpha` tags while the addon is in development; only
+publish a Release after testing it in the current WoW Classic Era client.
+
 ## License
 
 MIT License
