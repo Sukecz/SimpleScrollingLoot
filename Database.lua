@@ -43,6 +43,25 @@ local function ValidateSettings(db)
     end
 end
 
+local function RunMigrations(db)
+    local version = tonumber(db.version) or 0
+
+    if version < 2 then
+        -- Version 1 exposed colour/style controls that were never passed to
+        -- rendered rows. Remove those ineffective saved values and retain the
+        -- single supported rounded-corner setting instead.
+        db.backgroundStyle = nil
+        db.backgroundRed = nil
+        db.backgroundGreen = nil
+        db.backgroundBlue = nil
+        db.backgroundPadding = nil
+        db.backgroundBorderOpacity = nil
+        version = 2
+    end
+
+    db.version = version
+end
+
 function Database.Initialize()
     if not _G.SimpleScrollingLootDB then
         _G.SimpleScrollingLootDB = CopyTable(ns.Defaults)
@@ -50,7 +69,7 @@ function Database.Initialize()
         MergeDefaults(_G.SimpleScrollingLootDB, ns.Defaults)
     end
 
-    -- Run migrations if version changes in future
+    RunMigrations(_G.SimpleScrollingLootDB)
     if _G.SimpleScrollingLootDB.version < ns.Defaults.version then
         _G.SimpleScrollingLootDB.version = ns.Defaults.version
     end

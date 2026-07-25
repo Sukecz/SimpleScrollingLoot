@@ -5,12 +5,19 @@
 </p>
 
 **Simple Scrolling Loot** (`SimpleScrollingLoot`) is a lightweight,
-zero-dependency loot notification addon for World of Warcraft Classic Era. It
+zero-dependency loot notification addon for World of Warcraft. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
 Text.
 
-> Development status: Alpha. Please test on the current Classic Era client and
+> Development status: Alpha. Please test on the intended WoW client and
 > report reproducible issues through GitHub.
+
+## Client coverage
+
+The addon is designed to work across WoW client variants through capability
+detection rather than a runtime version gate. Run `/ssloot debug api` on every
+target client before relying on a build there; compatibility is only claimed
+after that client has been tested.
 
 ## Features
 
@@ -23,8 +30,8 @@ Text.
 - **Standalone Rendering**: Completely independent frame rendering (does NOT rely on Blizzard Scrolling Combat Text or `CombatText_AddMessage`).
 - **Movable & Configurable Anchor**: Unlock and position your loot notifications anywhere on screen.
 - **Customizable Appearance & Animation**: Adjust font size, icon size, scroll direction (UP/DOWN), duration, travel distance, opacity, max visible rows, and optional static mode.
-- **Background Styling**: Choose solid, rounded tooltip, or dark dialog styling;
-  adjust RGB colour, fill opacity, border opacity, and padding.
+- **Background Styling**: Enable a Blizzard-styled rounded-corner frame and
+  adjust its opacity.
 - **Optional Loot Frame Hiding**: Configurable behavior for hiding the standard Blizzard loot window during auto-looting, with modifier key bypass (e.g. SHIFT) and safety checks for quest items, BoP, and group loot.
 - **Diagnostic Compatibility Probe**: Included `/ssl debug api` command to verify client API compatibility.
 
@@ -49,7 +56,7 @@ Extract the `SimpleScrollingLoot` directory into your World of Warcraft
 installation folder:
 
 ```text
-World of Warcraft/_classic_era_/Interface/AddOns/
+World of Warcraft/<client>/Interface/AddOns/
 ```
 
 Restart WoW or reload UI with `/reload`.
@@ -59,9 +66,8 @@ Restart WoW or reload UI with `/reload`.
 Open settings with `/ssloot`. The panel includes controls for item-quality
 filtering, icons, vendor value, background, scale, font/icon sizes, duration,
 fade, travel distance, spacing, scrolling direction, static mode, visible-row
-limit, and Blizzard loot-frame behaviour. Background settings include style,
-RGB colour, fill opacity, border opacity, and padding. Choose **Rounded
-Tooltip** for Blizzard-styled rounded corners.
+limit, and Blizzard loot-frame behaviour. Enable **Rounded Corners** for a
+Blizzard-styled rounded frame, then adjust its opacity.
 
 Use `/ssloot unlock` to place the anchor, `/ssloot test` to preview the result,
 and `/ssloot lock` when finished. The Blizzard loot-frame option always fails
@@ -83,8 +89,8 @@ version tags publish a Release.
 
 Before creating the first release tag, add a repository Actions secret named
 `CF_API_TOKEN` with a CurseForge author upload token. The token is never stored
-in this repository. Only publish a Release after testing it in the current WoW
-Classic Era client.
+in this repository. Only publish a Release after testing it in the intended WoW
+client.
 
 ## License
 

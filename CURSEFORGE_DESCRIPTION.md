@@ -1,7 +1,7 @@
 # Simple Scrolling Loot
 
 Simple Scrolling Loot is a lightweight, standalone loot notification addon for
-World of Warcraft Classic Era. It shows your own item and money gains near the
+World of Warcraft. It shows your own item and money gains near the
 center of the screen without relying on Blizzard Scrolling Combat Text.
 
 ## Features
@@ -13,14 +13,20 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
 - Shows positive money gains with gold, silver, and copper formatting.
 - Supports configurable minimum item quality, icon size, font size, opacity,
   spacing, duration, travel distance, scale, and maximum visible rows.
-- Lets you select solid, rounded-tooltip, or dark-dialog backgrounds and adjust
-  their RGB colour, fill opacity, border opacity, and padding.
+- Includes an optional Blizzard-styled rounded-corner frame with configurable
+  opacity.
 - Offers upward, downward, and static-fade notification modes.
 - Includes a movable, previewable anchor and test notifications.
 - Can safely hide the Blizzard loot window only when the selected mode permits
   it, with a modifier-key bypass and fail-open handling for unsafe loot.
 - Uses no external libraries and does not depend on Blizzard Scrolling Combat
   Text.
+
+## Client coverage
+
+Simple Scrolling Loot uses capability checks instead of a runtime client-version
+gate. Run `/ssloot debug api` on each target client before relying on a build;
+compatibility is only claimed after that client has been tested.
 
 ## Commands
 
@@ -37,8 +43,8 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
 ## Installation
 
 Extract the `SimpleScrollingLoot` folder into
-`World of Warcraft/_classic_era_/Interface/AddOns/`, then restart the game or
-run `/reload`.
+`World of Warcraft/<client>/Interface/AddOns/`, then restart the game or run
+`/reload`.
 
 ## Development status and support
 

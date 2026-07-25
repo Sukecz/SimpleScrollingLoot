@@ -8,6 +8,20 @@ local activeRows = {}
 local rowPool = {}
 local animDriverFrame = nil
 
+local function GetRowConfig()
+    return {
+        showIcons = ns.Database.Get("showIcons"),
+        showQuantity = ns.Database.Get("showQuantity"),
+        showVendorValue = ns.Database.Get("showVendorValue"),
+        showBackground = ns.Database.Get("showBackground"),
+        backgroundOpacity = ns.Database.Get("backgroundOpacity"),
+        backgroundRounded = ns.Database.Get("backgroundRounded"),
+        iconSize = ns.Database.Get("iconSize") or 24,
+        fontSize = ns.Database.Get("fontSize") or 14,
+        scale = ns.Database.Get("scale") or 1.0,
+    }
+end
+
 local function CreateAnchor()
     if anchorFrame then return anchorFrame end
 
@@ -72,6 +86,15 @@ function NotificationManager.Initialize()
     animDriverFrame:SetScript("OnUpdate", function(self, elapsed)
         NotificationManager.OnUpdate(elapsed)
     end)
+
+    local appearanceSettings = {
+        "showBackground",
+        "backgroundOpacity",
+        "backgroundRounded",
+    }
+    for _, key in ipairs(appearanceSettings) do
+        ns.Database.RegisterCallback(key, NotificationManager.RefreshActiveRows)
+    end
 end
 
 function NotificationManager.AddNotification(record)
@@ -92,17 +115,8 @@ function NotificationManager.AddNotification(record)
         if not ns.Database.Get("showHonor") then return end
     end
 
-    local anchor = CreateAnchor()
-    local config = {
-        showIcons = ns.Database.Get("showIcons"),
-        showQuantity = ns.Database.Get("showQuantity"),
-        showVendorValue = ns.Database.Get("showVendorValue"),
-        showBackground = ns.Database.Get("showBackground"),
-        backgroundOpacity = ns.Database.Get("backgroundOpacity"),
-        iconSize = ns.Database.Get("iconSize") or 24,
-        fontSize = ns.Database.Get("fontSize") or 14,
-        scale = ns.Database.Get("scale") or 1.0,
-    }
+    CreateAnchor()
+    local config = GetRowConfig()
 
     local row = GetRowFromPool()
     row:SetScale(config.scale)
@@ -127,6 +141,15 @@ function NotificationManager.AddNotification(record)
         RecycleRow(oldest.row)
     end
 
+    NotificationManager.UpdateLayout()
+end
+
+function NotificationManager.RefreshActiveRows()
+    local config = GetRowConfig()
+    for _, entry in ipairs(activeRows) do
+        entry.row:SetScale(config.scale)
+        entry.row:SetRecord(entry.row.record, config)
+    end
     NotificationManager.UpdateLayout()
 end
 

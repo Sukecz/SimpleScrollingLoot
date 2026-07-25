@@ -47,33 +47,6 @@ local function CreateSlider(parent, name, labelText, minVal, maxVal, step, dbKey
     return slider
 end
 
--- Settings stored as 0.0–1.0 use an integer 0–10 slider for precise,
--- readable controls in the Blizzard options template.
-local function CreateUnitIntervalSlider(parent, name, labelText, dbKey, x, y)
-    local slider = CreateSlider(parent, name, labelText, 0, 10, 1, dbKey, x, y)
-
-    slider:SetScript("OnValueChanged", function(self, value)
-        value = math.floor(value + 0.5)
-        local realValue = value / 10
-        _G[name .. "Text"]:SetText(string.format("%s: %.1f", labelText, realValue))
-        ns.Database.Set(dbKey, realValue)
-    end)
-
-    slider.Refresh = function(self)
-        local value = ns.Database.Get(dbKey) or 0
-        self:SetValue(math.floor(value * 10 + 0.5))
-        _G[name .. "Text"]:SetText(string.format("%s: %.1f", labelText, value))
-    end
-
-    local initialValue = ns.Database.Get(dbKey) or 0
-    slider:SetValue(math.floor(initialValue * 10 + 0.5))
-    _G[name .. "Text"]:SetText(string.format("%s: %.1f", labelText, initialValue))
-    _G[name .. "Low"]:SetText("0.0")
-    _G[name .. "High"]:SetText("1.0")
-
-    return slider
-end
-
 local function CreateCheckButton(parent, labelText, dbKey, x, y)
     local btn = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
     btn:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
@@ -159,7 +132,7 @@ local function CreateOptionsWindow()
     if optionsWindowFrame then return optionsWindowFrame end
 
     local frame = CreateFrame("Frame", "SimpleScrollingLootOptionsWindow", UIParent, "DialogBoxFrame")
-    frame:SetSize(850, 640)
+    frame:SetSize(760, 580)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     frame:SetMovable(true)
     frame:EnableMouse(true)
@@ -198,17 +171,17 @@ local function CreateOptionsWindow()
     yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_BG or "Show Background", "showBackground", xLeft, yLeft)
     yLeft = yLeft - 25
+    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_BG_ROUNDED or "Rounded Corners", "backgroundRounded", xLeft, yLeft)
+    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_STATIC_MODE or "Static Mode (No scroll)", "staticMode", xLeft, yLeft)
     yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_DEBUG or "Enable Debug Logging", "debug", xLeft, yLeft)
 
     -- -----------------------------------------------------------------------
-    -- Columns 2 and 3 – compact sliders
+    -- Column 2 – compact sliders
     -- -----------------------------------------------------------------------
-    local xMiddle = 285
+    local xMiddle = 320
     local yMiddle = -55
-    local xBackground = 570
-    local yBackground = -55
 
     widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderFontSize",    ns.L.OPT_FONT_SIZE    or "Font Size",        8,   32, 1,   "fontSize",        xMiddle, yMiddle) ; yMiddle = yMiddle - 42
     widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderIconSize",    ns.L.OPT_ICON_SIZE    or "Icon Size",       12,   64, 2,   "iconSize",        xMiddle, yMiddle) ; yMiddle = yMiddle - 42
@@ -243,7 +216,8 @@ local function CreateOptionsWindow()
     widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMaxVisible",  ns.L.OPT_MAX_VISIBLE  or "Max Visible",       1,  15,  1,   "maxVisible",      xMiddle, yMiddle) ; yMiddle = yMiddle - 42
     widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderRowSpacing",  ns.L.OPT_ROW_SPACING  or "Row Spacing (px)",  0,  30,  1,   "rowSpacing",      xMiddle, yMiddle) ; yMiddle = yMiddle - 42
     widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMinQuality",  ns.L.OPT_MIN_QUALITY  or "Min Quality (0-5)", 0,   5,  1,   "minQuality",      xMiddle, yMiddle)
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgOpacity",   ns.L.OPT_BG_OPACITY   or "BG Opacity",        0,  10,  1,   "backgroundOpacity", xBackground, yBackground)
+    yMiddle = yMiddle - 42
+    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgOpacity",   ns.L.OPT_BG_OPACITY   or "BG Opacity",        0,  10,  1,   "backgroundOpacity", xMiddle, yMiddle)
     -- Override for backgroundOpacity (stored 0–1, slider 0–10)
     do
         local s = widgets[#widgets]
@@ -264,18 +238,6 @@ local function CreateOptionsWindow()
         _G["SSLSliderBgOpacityLow"]:SetText("0.0")
         _G["SSLSliderBgOpacityHigh"]:SetText("1.0")
     end
-    yBackground = yBackground - 42
-
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgRed", ns.L.OPT_BG_RED or "Background Red", "backgroundRed", xBackground, yBackground)
-    yBackground = yBackground - 42
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgGreen", ns.L.OPT_BG_GREEN or "Background Green", "backgroundGreen", xBackground, yBackground)
-    yBackground = yBackground - 42
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBlue", ns.L.OPT_BG_BLUE or "Background Blue", "backgroundBlue", xBackground, yBackground)
-    yBackground = yBackground - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgPadding", ns.L.OPT_BG_PADDING or "Background Padding (px)", 0, 16, 1, "backgroundPadding", xBackground, yBackground)
-    yBackground = yBackground - 42
-    widgets[#widgets + 1] = CreateUnitIntervalSlider(frame, "SSLSliderBgBorderOpacity", ns.L.OPT_BG_BORDER_OPACITY or "Border Opacity", "backgroundBorderOpacity", xBackground, yBackground)
-
     -- -----------------------------------------------------------------------
     -- Dropdowns – beneath column 1
     -- -----------------------------------------------------------------------
@@ -313,18 +275,6 @@ local function CreateOptionsWindow()
             { value = "ALT",   label = "Alt"   },
         },
         xLeft, yLeft)
-    yLeft = yLeft - 50
-
-    widgets[#widgets + 1] = CreateDropdown(frame,
-        ns.L.OPT_BG_STYLE or "Background Style",
-        "backgroundStyle",
-        {
-            { value = "SOLID", label = ns.L.OPT_BG_STYLE_SOLID or "Solid" },
-            { value = "TOOLTIP", label = ns.L.OPT_BG_STYLE_TOOLTIP or "Rounded Tooltip" },
-            { value = "DIALOG", label = ns.L.OPT_BG_STYLE_DIALOG or "Dark Dialog" },
-        },
-        xLeft, yLeft)
-
     -- -----------------------------------------------------------------------
     -- Bottom action buttons
     -- -----------------------------------------------------------------------

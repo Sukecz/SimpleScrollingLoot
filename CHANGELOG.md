@@ -13,8 +13,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 - Publish an Alpha build to CurseForge for every push to `main`.
 - Add complete installation, configuration, support, and CurseForge project
   descriptions.
-- Add background style, RGB colour, padding, and border-opacity controls;
-  Rounded Tooltip uses Blizzard-styled rounded corners.
+- Replace ineffective background colour and style controls with a working
+  Rounded Corners option and immediate preview updates.
 
 ## [0.1.0-alpha.2] - 2026-07-25
 

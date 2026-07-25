@@ -5,23 +5,13 @@ ns.NotificationRow = {}
 local NotificationRow = ns.NotificationRow
 local rowIdCounter = 0
 
-local BACKDROP_STYLES = {
-    TOOLTIP = {
-        bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        tile = true,
-        tileSize = 16,
-        edgeSize = 12,
-        inset = 4,
-    },
-    DIALOG = {
-        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        tile = true,
-        tileSize = 16,
-        edgeSize = 10,
-        inset = 3,
-    },
+local ROUNDED_BACKDROP = {
+    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile = true,
+    tileSize = 16,
+    edgeSize = 12,
+    insets = { left = 4, right = 4, top = 4, bottom = 4 },
 }
 
 function NotificationRow.Create(parent)
@@ -44,15 +34,9 @@ function NotificationRow.Create(parent)
 
     function frame:ApplyBackground(config)
         local opacity = config.backgroundOpacity or 0.35
-        local red = config.backgroundRed or 0.0
-        local green = config.backgroundGreen or 0.0
-        local blue = config.backgroundBlue or 0.0
-        local padding = config.backgroundPadding or 0
-        local style = config.backgroundStyle or "SOLID"
 
         self.bg:ClearAllPoints()
-        self.bg:SetPoint("TOPLEFT", self, "TOPLEFT", padding, -padding)
-        self.bg:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -padding, padding)
+        self.bg:SetAllPoints(self)
 
         if not config.showBackground then
             self.bg:Hide()
@@ -60,25 +44,16 @@ function NotificationRow.Create(parent)
             return
         end
 
-        local backdrop = BACKDROP_STYLES[style]
-        if backdrop then
+        if config.backgroundRounded then
             self.bg:Hide()
-            local inset = backdrop.inset + padding
-            self:SetBackdrop({
-                bgFile = backdrop.bgFile,
-                edgeFile = backdrop.edgeFile,
-                tile = backdrop.tile,
-                tileSize = backdrop.tileSize,
-                edgeSize = backdrop.edgeSize,
-                insets = { left = inset, right = inset, top = inset, bottom = inset },
-            })
-            self:SetBackdropColor(red, green, blue, opacity)
-            self:SetBackdropBorderColor(1.0, 1.0, 1.0, config.backgroundBorderOpacity or 0.8)
+            self:SetBackdrop(ROUNDED_BACKDROP)
+            self:SetBackdropColor(0.0, 0.0, 0.0, opacity)
+            self:SetBackdropBorderColor(1.0, 1.0, 1.0, opacity)
             return
         end
 
         self:SetBackdrop(nil)
-        self.bg:SetColorTexture(red, green, blue, opacity)
+        self.bg:SetColorTexture(0.0, 0.0, 0.0, opacity)
         self.bg:Show()
     end
 

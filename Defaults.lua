@@ -1,7 +1,7 @@
 local addonName, ns = ...
 
 ns.Defaults = {
-    version = 1,
+    version = 2,
     enabled = true,
     minQuality = 0,
     showItems = true,
@@ -11,13 +11,8 @@ ns.Defaults = {
     showQuantity = true,
     showIcons = true,
     showBackground = false,
-    backgroundStyle = "SOLID", -- "SOLID", "TOOLTIP", "DIALOG"
     backgroundOpacity = 0.35,
-    backgroundRed = 0.0,
-    backgroundGreen = 0.0,
-    backgroundBlue = 0.0,
-    backgroundPadding = 2,
-    backgroundBorderOpacity = 0.8,
+    backgroundRounded = false,
     direction = "UP",
     staticMode = false,
     duration = 4.0,
@@ -50,9 +45,4 @@ ns.ValidationRanges = {
     rowSpacing = { min = 0, max = 50 },
     scale = { min = 0.5, max = 3.0 },
     backgroundOpacity = { min = 0.0, max = 1.0 },
-    backgroundRed = { min = 0.0, max = 1.0 },
-    backgroundGreen = { min = 0.0, max = 1.0 },
-    backgroundBlue = { min = 0.0, max = 1.0 },
-    backgroundPadding = { min = 0, max = 16 },
-    backgroundBorderOpacity = { min = 0.0, max = 1.0 },
 }

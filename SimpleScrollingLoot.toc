@@ -1,6 +1,6 @@
 ## Interface: 11506
 ## Title: Simple Scrolling Loot
-## Notes: Compact scrolling notifications for looted items and money in WoW Classic Era.
+## Notes: Compact scrolling notifications for looted items and money in World of Warcraft.
 ## Author: Simple Scrolling Loot Authors
 ## Version: 0.1.0-alpha.2
 ## SavedVariables: SimpleScrollingLootDB
