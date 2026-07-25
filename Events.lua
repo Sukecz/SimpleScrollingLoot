@@ -27,6 +27,8 @@ function Events.OnEvent(event, ...)
         local loadedAddon = ...
         if loadedAddon == addonName then
             ns.Core.OnAddonLoaded()
+            -- Unregister immediately; we have no further interest in other addons loading.
+            eventFrame:UnregisterEvent("ADDON_LOADED")
         end
     elseif event == "PLAYER_LOGIN" then
         ns.Core.OnPlayerLogin()

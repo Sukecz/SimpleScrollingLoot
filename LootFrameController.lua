@@ -14,33 +14,31 @@ local function ShouldForceShowLootFrame()
     end
 
     -- Check if loot is active
-    local numLootItems = GetNumLootItems and GetNumLootItems() or 0
+    local numLootItems = ns.ApiCompat.GetNumLootItems()
     if numLootItems == 0 then
         return true
     end
 
-    -- Scan loot slots for special items
+    -- Scan loot slots for special items (quest items, locked/BoP items).
+    -- All loot APIs are routed through ApiCompat for safe version-agnostic access.
     for slot = 1, numLootItems do
-        if GetLootSlotInfo then
-            local texture, item, quantity, currency, quality, locked, isQuest, questID, isActive = GetLootSlotInfo(slot)
-            if isQuest or locked then
-                return true
-            end
+        local texture, item, quantity, currency, quality, locked, isQuest = ns.ApiCompat.GetLootSlotInfo(slot)
+        if isQuest or locked then
+            return true
         end
-        if GetLootSlotLink then
-            local link = GetLootSlotLink(slot)
-            if link then
-                local _, _, quality, _, _, _, _, _, _, _, _, _, _, bindType = ns.ApiCompat.GetItemInfo(link)
-                -- Bind on Pickup (bindType == 1 or LE_ITEM_BIND_ON_PICKUP)
-                if bindType == 1 then
-                    return true
-                end
+
+        local link = ns.ApiCompat.GetLootSlotLink(slot)
+        if link then
+            local _, _, _, _, _, _, _, _, _, _, _, _, _, bindType = ns.ApiCompat.GetItemInfo(link)
+            -- Bind on Pickup (bindType == 1 or LE_ITEM_BIND_ON_PICKUP)
+            if bindType == 1 then
+                return true
             end
         end
     end
 
-    -- Check loot threshold / group loot / master loot
-    local lootMethod = GetLootMethod and GetLootMethod()
+    -- Show the frame for group/master loot so players can interact normally.
+    local lootMethod = ns.ApiCompat.GetLootMethod()
     if lootMethod and lootMethod ~= "freeforall" and lootMethod ~= "personalloot" then
         return true
     end
@@ -65,13 +63,18 @@ function LootFrameController.Initialize()
             end
 
             local isAutoLoot = (GetCVar("autoLootDefault") == "1") or IsModifiedClick("AUTOLOOTTOGGLE")
-            if mode == "HIDE_AUTO" and isAutoLoot then
-                ns.Debug.Log("Hiding LootFrame (HIDE_AUTO mode)")
-                self:Hide()
-            elseif mode == "ALWAYS_HIDE" then
-                ns.Debug.Log("Hiding LootFrame (ALWAYS_HIDE mode)")
-                self:Hide()
-            end
+            if mode == "HIDE_AUTO" and not isAutoLoot then return end
+
+            -- Defer Hide() to the next frame tick.
+            -- Hiding inside OnShow can cause Blizzard layout scripts to see an
+            -- inconsistent state and raise UI taint.  C_Timer.After(0) lets the
+            -- current OnShow execution path finish before we intervene.
+            C_Timer.After(0, function()
+                if LootFrame:IsShown() then
+                    ns.Debug.Log("Hiding LootFrame (mode=%s)", mode)
+                    LootFrame:Hide()
+                end
+            end)
         end)
     end
 end

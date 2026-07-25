@@ -10,7 +10,10 @@ function NotificationRow.Create(parent)
     local frame = CreateFrame("Button", "SimpleScrollingLootRow" .. rowIdCounter, parent)
     frame:SetSize(200, 28)
     frame:SetFrameStrata("HIGH")
-    frame:EnableMouse(true)
+    -- Mouse interaction is disabled by default so notifications do not block
+    -- camera rotation or character clicks.  OnEnter re-enables it temporarily
+    -- to allow tooltip and shift-click behaviour.
+    frame:EnableMouse(false)
     frame:RegisterForClicks("AnyUp")
 
     -- Background texture
@@ -46,6 +49,9 @@ function NotificationRow.Create(parent)
 
     -- Tooltip events
     frame:SetScript("OnEnter", function(self)
+        -- Enable mouse on hover so the tooltip and click handler work,
+        -- without blocking the camera when the cursor is not over the row.
+        self:EnableMouse(true)
         if self.itemLink and GameTooltip then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetHyperlink(self.itemLink)
@@ -54,6 +60,7 @@ function NotificationRow.Create(parent)
     end)
 
     frame:SetScript("OnLeave", function(self)
+        self:EnableMouse(false)
         if GameTooltip then
             GameTooltip:Hide()
         end
@@ -90,7 +97,8 @@ function NotificationRow.Create(parent)
         local fontPath, _, fontFlags = GameFontHighlight:GetFont()
         self.mainText:SetFont(fontPath, fontSize, fontFlags)
         self.quantityText:SetFont(fontPath, fontSize, fontFlags)
-        self.vendorText:SetFont(fontPath, math.max(9, fontSize - 2), fontFlags)
+        -- Scale vendor text proportionally; no arbitrary fixed floor.
+        self.vendorText:SetFont(fontPath, math.max(6, fontSize - 2), fontFlags)
 
         -- Background
         if config.showBackground then

@@ -94,8 +94,8 @@ function LootParser.ParseLootMessage(msg, event)
         end
     end
 
-    -- Fallback: Regex search directly for item link and quantity suffix
-    local itemLink = string.match(msg, "(|c%x+|Hitem:%d+:.-|h%[.-%] |h|r)") or string.match(msg, "(|c%x+|Hitem:%d+:.-|h.-|h|r)")
+    -- Fallback: search directly for an item link; handles unusual message formats.
+    local itemLink = string.match(msg, "(|c%x+|Hitem:%d+:.-|h%[.-%]|h|r)") or string.match(msg, "(|c%x+|Hitem:%d+:.-|h.-|h|r)")
     if itemLink then
         local quantity = string.match(msg, "x(%d+)") or string.match(msg, "(%d+)x") or 1
         local itemID = LootParser.ExtractItemID(itemLink)

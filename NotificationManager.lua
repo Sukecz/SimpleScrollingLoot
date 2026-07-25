@@ -114,6 +114,8 @@ function NotificationManager.AddNotification(record)
         duration = ns.Database.Get("duration") or 4.0,
         fadeDuration = ns.Database.Get("fadeDuration") or 0.8,
         travelDistance = ns.Database.Get("travelDistance") or 90,
+        -- baseOffset is assigned by UpdateLayout() after insert.
+        baseOffset = 0,
     }
 
     table.insert(activeRows, 1, entry)
@@ -132,6 +134,7 @@ function NotificationManager.UpdateLayout()
     local direction = ns.Database.Get("direction") or "UP"
     local rowSpacing = ns.Database.Get("rowSpacing") or 4
     local staticMode = ns.Database.Get("staticMode") or false
+    local dirMultiplier = (direction == "UP") and 1 or -1
 
     local currentOffset = 0
     for i, entry in ipairs(activeRows) do
@@ -139,14 +142,17 @@ function NotificationManager.UpdateLayout()
         local rowHeight = row:GetHeight()
 
         row:ClearAllPoints()
-        local dirMultiplier = (direction == "UP") and 1 or -1
 
         if staticMode then
+            -- In static mode rows are stacked from the anchor; no animation offset.
             local yPos = (i - 1) * (rowHeight + rowSpacing) * dirMultiplier
+            entry.baseOffset = yPos
             row:SetPoint("CENTER", anchorFrame, "CENTER", 0, yPos)
         else
-            row:SetPoint("CENTER", anchorFrame, "CENTER", 0, currentOffset * dirMultiplier)
+            -- Record the base slot position; OnUpdate will add the travel offset on top.
+            entry.baseOffset = currentOffset * dirMultiplier
             currentOffset = currentOffset + rowHeight + rowSpacing
+            -- Position will be applied by the next OnUpdate tick.
         end
     end
 end
@@ -155,10 +161,9 @@ function NotificationManager.OnUpdate(elapsed)
     if #activeRows == 0 then return end
 
     local now = GetTime()
-    local direction = ns.Database.Get("direction") or "UP"
     local staticMode = ns.Database.Get("staticMode") or false
-    local dirMultiplier = (direction == "UP") and 1 or -1
 
+    local needsLayoutUpdate = false
     local i = 1
     while i <= #activeRows do
         local entry = activeRows[i]
@@ -169,26 +174,32 @@ function NotificationManager.OnUpdate(elapsed)
         if age >= totalDuration then
             RecycleRow(entry.row)
             table.remove(activeRows, i)
-            NotificationManager.UpdateLayout()
+            needsLayoutUpdate = true
+            -- Do not increment i; the next entry slides into index i.
         else
-            local alpha = 1.0
+            -- Fade: full opacity for most of the lifetime, fade at the end.
             local remaining = totalDuration - age
-            if remaining < fadeDuration then
-                alpha = math.max(0.0, remaining / fadeDuration)
-            end
+            local alpha = (remaining < fadeDuration)
+                and math.max(0.0, remaining / fadeDuration)
+                or 1.0
             entry.row:SetAlpha(alpha)
 
+            -- Smooth linear travel: interpolate from baseOffset to baseOffset+travelDistance.
+            -- baseOffset is set by UpdateLayout() and does not change here.
             if not staticMode then
                 local progress = math.min(1.0, age / totalDuration)
-                local travelDelta = progress * entry.travelDistance * dirMultiplier
-                local point, rel, relPoint, x, baseOffset = entry.row:GetPoint()
-                if point then
-                    entry.row:SetPoint(point, rel, relPoint, x, baseOffset + (travelDelta * 0.05))
-                end
+                local animY = entry.baseOffset + progress * entry.travelDistance
+                entry.row:ClearAllPoints()
+                entry.row:SetPoint("CENTER", anchorFrame, "CENTER", 0, animY)
             end
 
             i = i + 1
         end
+    end
+
+    -- Rebuild layout once after removing expired rows, not inside the loop.
+    if needsLayoutUpdate then
+        NotificationManager.UpdateLayout()
     end
 end
 

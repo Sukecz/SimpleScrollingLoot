@@ -62,7 +62,13 @@ function Database.Get(key)
     if not _G.SimpleScrollingLootDB then
         return ns.Defaults[key]
     end
-    return _G.SimpleScrollingLootDB[key]
+    local val = _G.SimpleScrollingLootDB[key]
+    -- Fall back to default for keys not yet present in the saved table
+    -- (e.g. after adding a new setting in a future version).
+    if val == nil then
+        return ns.Defaults[key]
+    end
+    return val
 end
 
 function Database.Set(key, value)

@@ -9,7 +9,14 @@ function CompatibilityProbe.RunReport()
     local reportLines = {}
 
     table.insert(reportLines, "=== Simple Scrolling Loot API Compatibility Report ===")
-    table.insert(reportLines, string.format("Addon Version: %s", "0.1.0"))
+    -- Read version from TOC metadata at runtime so the probe is always accurate.
+    local addonVersion = "Unknown"
+    if type(C_AddOns) == "table" and type(C_AddOns.GetAddOnMetadata) == "function" then
+        addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Unknown"
+    elseif type(GetAddOnMetadata) == "function" then
+        addonVersion = GetAddOnMetadata(addonName, "Version") or "Unknown"
+    end
+    table.insert(reportLines, string.format("Addon Version: %s", addonVersion))
     table.insert(reportLines, string.format("Client Version: %s (Build: %s, Date: %s)", env.version, env.build, env.date))
     table.insert(reportLines, string.format("TOC Interface: %s", tostring(env.interface)))
     table.insert(reportLines, string.format("WOW_PROJECT_ID: %s", tostring(env.projectID)))

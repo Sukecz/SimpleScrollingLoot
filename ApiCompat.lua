@@ -4,6 +4,13 @@ ns.ApiCompat = {}
 
 local ApiCompat = ns.ApiCompat
 
+-- Cache capability checks once at load time to avoid repeated evaluation per call.
+local hasModernItemAPI      = C_Item and type(C_Item.GetItemInfo) == "function"
+local hasLegacyItemAPI      = type(GetItemInfo) == "function"
+local hasModernQualityAPI   = C_Item and type(C_Item.GetItemQualityColor) == "function"
+local hasLegacyQualityAPI   = type(GetItemQualityColor) == "function"
+local hasModernItemLoadAPI  = C_Item and type(C_Item.RequestLoadItemDataByID) == "function"
+
 -- Capture environment information
 function ApiCompat.GetEnvironmentInfo()
     local version, build, date, interface = GetBuildInfo()
@@ -23,7 +30,7 @@ end
 function ApiCompat.GetItemInfo(itemIdentifier)
     if not itemIdentifier then return nil end
 
-    if C_Item and type(C_Item.GetItemInfo) == "function" then
+    if hasModernItemAPI then
         local itemName, itemLink, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType,
               itemStackCount, itemEquipLoc, itemTexture, sellPrice, classID, subclassID,
               bindType, expacID, setID, isCraftingReagent = C_Item.GetItemInfo(itemIdentifier)
@@ -33,7 +40,7 @@ function ApiCompat.GetItemInfo(itemIdentifier)
         end
     end
 
-    if type(GetItemInfo) == "function" then
+    if hasLegacyItemAPI then
         return GetItemInfo(itemIdentifier)
     end
 
@@ -42,7 +49,7 @@ end
 
 -- Item Info Request Load wrapper (for uncached item data)
 function ApiCompat.RequestItemData(itemIdentifier)
-    if C_Item and type(C_Item.RequestLoadItemDataByID) == "function" then
+    if hasModernItemLoadAPI then
         local itemID = tonumber(itemIdentifier) or tonumber(string.match(tostring(itemIdentifier), "item:(%d+)"))
         if itemID then
             C_Item.RequestLoadItemDataByID(itemID)
@@ -55,14 +62,14 @@ end
 -- Item Quality Colors wrapper
 function ApiCompat.GetItemQualityColor(quality)
     quality = tonumber(quality) or 1
-    if C_Item and type(C_Item.GetItemQualityColor) == "function" then
+    if hasModernQualityAPI then
         local r, g, b, hex = C_Item.GetItemQualityColor(quality)
         if r and g and b then
             return r, g, b, hex
         end
     end
 
-    if type(GetItemQualityColor) == "function" then
+    if hasLegacyQualityAPI then
         local r, g, b, hex = GetItemQualityColor(quality)
         if r and g and b then
             return r, g, b, hex
@@ -87,20 +94,17 @@ function ApiCompat.FormatMoney(copper)
     copper = tonumber(copper) or 0
     if copper <= 0 then return "0c" end
 
-    local gold = math.floor(copper / 10000)
+    local gold   = math.floor(copper / 10000)
     local silver = math.floor((copper % 10000) / 100)
-    local cop = copper % 100
+    local cop    = copper % 100
 
-    local result = ""
-    if gold > 0 then
-        result = result .. gold .. "|cffffd700g|r "
-    end
-    if silver > 0 or gold > 0 then
-        result = result .. silver .. "|cffc7c7c1s|r "
-    end
-    result = result .. cop .. "|cffb87333c|r"
+    -- Only include denominations that are non-zero for compact output.
+    local parts = {}
+    if gold   > 0 then table.insert(parts, gold   .. "|cffffd700g|r") end
+    if silver > 0 then table.insert(parts, silver .. "|cffc7c7c1s|r") end
+    if cop    > 0 or #parts == 0 then table.insert(parts, cop .. "|cffb87333c|r") end
 
-    return result
+    return table.concat(parts, " ")
 end
 
 -- Formats coin icons for money notification header
@@ -133,4 +137,41 @@ function ApiCompat.IsBypassModifierPressed(modifierName)
     else
         return IsShiftKeyDown()
     end
+end
+
+-- ---------------------------------------------------------------------------
+-- Loot API wrappers — centralise access so LootFrameController stays clean.
+-- ---------------------------------------------------------------------------
+
+-- Returns texture, item, quantity, currency, quality, locked, isQuest, questID, isActive
+-- for the given loot slot, or all nils if the API is unavailable.
+function ApiCompat.GetLootSlotInfo(slot)
+    if type(GetLootSlotInfo) == "function" then
+        return GetLootSlotInfo(slot)
+    end
+    return nil
+end
+
+-- Returns the item link for the given loot slot, or nil.
+function ApiCompat.GetLootSlotLink(slot)
+    if type(GetLootSlotLink) == "function" then
+        return GetLootSlotLink(slot)
+    end
+    return nil
+end
+
+-- Returns the current loot method string (e.g. "freeforall", "group"), or nil.
+function ApiCompat.GetLootMethod()
+    if type(GetLootMethod) == "function" then
+        return GetLootMethod()
+    end
+    return nil
+end
+
+-- Returns the number of items available in the current loot window, or 0.
+function ApiCompat.GetNumLootItems()
+    if type(GetNumLootItems) == "function" then
+        return GetNumLootItems()
+    end
+    return 0
 end
