@@ -17,6 +17,7 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
   descriptions.
 - Replace ineffective background colour and style controls with a working
   Rounded Corners option and immediate preview updates.
+- Update default notification settings to the tested configuration.
 
 ## [0.1.0-alpha.2] - 2026-07-25
 

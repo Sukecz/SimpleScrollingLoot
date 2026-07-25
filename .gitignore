@@ -13,6 +13,7 @@ Thumbs.db
 # Local build artifacts
 *.zip
 .release/
+tmp/
 
 # Local instructions and credentials must never be published.
 AGENTS.md
