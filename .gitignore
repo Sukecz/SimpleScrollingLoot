@@ -1,0 +1,15 @@
+# SLoTe reference folder (local inspiration, not part of addon source)
+SLoTe-inspirace/
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+*.tmp
+.vscode/
+.idea/
+
+# Local build artifacts
+*.zip
+.release/

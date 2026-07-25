@@ -1,0 +1,10 @@
+package-as: SimpleScrollingLoot
+
+ignore:
+  - .git
+  - .github
+  - .release
+  - .env
+  - AGENTS.md
+  - SLoTe-inspirace
+  - "*.code-workspace"
