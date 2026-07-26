@@ -5,16 +5,17 @@ metadata.
 
 | Client family | TOC | Interface | Offline checks | Live verification |
 | --- | --- | ---: | --- | --- |
-| WoW Classic Era | `SimpleScrollingLoot.toc` | 11509 | Passed | Required before release |
-| WoW Classic Hardcore | `SimpleScrollingLoot.toc` | 11509 | Passed; shares the Era client | Required before release |
-| Burning Crusade Classic Anniversary | `SimpleScrollingLoot_TBC.toc` | 20506 | Passed | Required before release |
+| WoW Classic Era | `SimpleScrollingLoot.toc` | 11509 | Passed | Pending |
+| WoW Classic Hardcore | `SimpleScrollingLoot.toc` | 11509 | Passed; shares the Era client | Pending |
+| Burning Crusade Classic Anniversary | `SimpleScrollingLoot_TBC.toc` | 20506 | Passed | Pending |
 
 The interface values were refreshed on 2026-07-26 against current maintained
 Vanilla and TBC addon metadata. They are packaging inputs, not proof of runtime
 compatibility.
 
-Before publishing 0.2, record the exact output of `/ssloot debug api` and test
-at least:
+Version 0.2.0 was packaged after offline validation but without access to a
+live WoW client. Before claiming live compatibility, record the exact output of
+`/ssloot debug api` and test at least:
 
 - addon startup and settings on each client family;
 - single and stacked item loot;

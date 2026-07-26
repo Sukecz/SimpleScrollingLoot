@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-26
+
 ### Fixed
 - Recover safely from corrupt SavedVariables and validate nested, enum, and
   cross-field settings.
