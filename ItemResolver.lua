@@ -4,69 +4,92 @@ ns.ItemResolver = {}
 
 local ItemResolver = ns.ItemResolver
 local pendingQueue = {}
+local requestedItems = {}
 local TIMEOUT_SECONDS = 5.0
+
+local function GetRequestKey(itemRecord)
+    return itemRecord.itemID or itemRecord.itemLink
+end
+
+local function HasPendingRequest(requestKey)
+    for _, record in ipairs(pendingQueue) do
+        if GetRequestKey(record) == requestKey then
+            return true
+        end
+    end
+    return false
+end
+
+local function FinishRecord(record, callback)
+    record.callback = nil
+    if callback then
+        callback(record)
+    end
+end
+
+local function PopulateRecord(record)
+    local name, link, quality, _, _, _, _, _, _, texture, sellPrice =
+        ns.ApiCompat.GetItemInfo(record.itemLink)
+    if not name then
+        return false
+    end
+
+    record.name = name
+    record.itemLink = link or record.itemLink
+    record.quality = quality or 1
+    record.texture = texture or "Interface\\Icons\\INV_Misc_QuestionMark"
+    record.sellPrice = (sellPrice or 0) * (record.quantity or 1)
+    record.resolved = true
+    return true
+end
+
+local function EnsureTimeoutCheck()
+    if C_Timer and type(C_Timer.After) == "function" then
+        C_Timer.After(TIMEOUT_SECONDS, function()
+            ItemResolver.ProcessPending()
+        end)
+    end
+end
 
 function ItemResolver.Resolve(itemRecord, callback)
     if not itemRecord or not itemRecord.itemLink then return end
 
-    local name, link, quality, iLevel, minLevel, itemType, itemSubType, stackCount, equipLoc, texture, sellPrice = ns.ApiCompat.GetItemInfo(itemRecord.itemLink)
-
-    if name then
-        itemRecord.name = name
-        itemRecord.quality = quality or 1
-        itemRecord.texture = texture or "Interface\\Icons\\INV_Misc_QuestionMark"
-        itemRecord.sellPrice = (sellPrice or 0) * (itemRecord.quantity or 1)
-        itemRecord.resolved = true
-
-        if callback then
-            callback(itemRecord)
-        end
+    if PopulateRecord(itemRecord) then
+        FinishRecord(itemRecord, callback)
         return itemRecord
     end
 
-    -- Item is not cached yet! Queue item record.
     itemRecord.requestedTime = GetTime()
     itemRecord.callback = callback
     table.insert(pendingQueue, itemRecord)
 
-    -- Request item load from WoW server API
-    ns.ApiCompat.RequestItemData(itemRecord.itemLink)
-    ns.Debug.Log("Item %s not cached yet, requested server load.", tostring(itemRecord.itemLink))
+    local requestKey = GetRequestKey(itemRecord)
+    if not requestedItems[requestKey] then
+        requestedItems[requestKey] = true
+        ns.ApiCompat.RequestItemData(itemRecord.itemLink)
+        ns.Debug.Log("Item %s not cached yet, requested server load.", tostring(itemRecord.itemLink))
+    end
+    EnsureTimeoutCheck()
 
     return nil
 end
 
-function ItemResolver.OnItemInfoReceived(itemID)
+function ItemResolver.ProcessPending(now)
     if #pendingQueue == 0 then return end
 
-    local now = GetTime()
+    now = now or GetTime()
     local i = 1
     while i <= #pendingQueue do
         local rec = pendingQueue[i]
-        local isMatch = false
-
-        if rec.itemID and rec.itemID == itemID then
-            isMatch = true
-        else
-            -- Check if item is now cached
-            local name = ns.ApiCompat.GetItemInfo(rec.itemLink)
-            if name then isMatch = true end
-        end
-
-        if isMatch then
+        local requestKey = GetRequestKey(rec)
+        if PopulateRecord(rec) then
             table.remove(pendingQueue, i)
-            local name, link, quality, _, _, _, _, _, _, texture, sellPrice = ns.ApiCompat.GetItemInfo(rec.itemLink)
-            rec.name = name or rec.itemLink
-            rec.quality = quality or 1
-            rec.texture = texture or "Interface\\Icons\\INV_Misc_QuestionMark"
-            rec.sellPrice = (sellPrice or 0) * (rec.quantity or 1)
-            rec.resolved = true
-
-            if rec.callback then
-                rec.callback(rec)
+            local callback = rec.callback
+            if not HasPendingRequest(requestKey) then
+                requestedItems[requestKey] = nil
             end
-        elseif (now - rec.requestedTime) > TIMEOUT_SECONDS then
-            -- Timed out: produce fallback notification
+            FinishRecord(rec, callback)
+        elseif (now - rec.requestedTime) >= TIMEOUT_SECONDS then
             table.remove(pendingQueue, i)
             rec.name = rec.itemLink
             rec.quality = 1
@@ -74,11 +97,24 @@ function ItemResolver.OnItemInfoReceived(itemID)
             rec.sellPrice = 0
             rec.resolved = false
 
-            if rec.callback then
-                rec.callback(rec)
+            local callback = rec.callback
+            if not HasPendingRequest(requestKey) then
+                requestedItems[requestKey] = nil
             end
+            FinishRecord(rec, callback)
         else
             i = i + 1
         end
     end
+end
+
+function ItemResolver.OnItemInfoReceived(itemID, success)
+    if success == false then
+        ns.Debug.Log("Item data request failed for item ID %s; waiting for timeout.", tostring(itemID))
+    end
+    ItemResolver.ProcessPending()
+end
+
+function ItemResolver.GetPendingCount()
+    return #pendingQueue
 end

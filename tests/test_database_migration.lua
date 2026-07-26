@@ -31,3 +31,23 @@ assert(SimpleScrollingLootDB.lootFrameMode == nil, "loot frame mode must be remo
 assert(SimpleScrollingLootDB.lootFrameBypassModifier == nil, "loot frame bypass must be removed")
 
 print("Database migration tests passed")
+
+SimpleScrollingLootDB = "corrupt"
+ns.Database.Initialize()
+assert(type(SimpleScrollingLootDB) == "table", "corrupt root must be replaced")
+assert(SimpleScrollingLootDB.anchor.point == "CENTER", "replacement must include a valid anchor")
+
+SimpleScrollingLootDB = {
+    version = 3,
+    direction = "SIDEWAYS",
+    duration = "bad",
+    fadeDuration = 99,
+    anchor = "bad",
+}
+ns.Database.Initialize()
+assert(SimpleScrollingLootDB.direction == "UP", "invalid enum must use its default")
+assert(SimpleScrollingLootDB.duration == ns.Defaults.duration, "invalid numeric type must use its default")
+assert(SimpleScrollingLootDB.fadeDuration <= SimpleScrollingLootDB.duration, "fade must not exceed duration")
+assert(type(SimpleScrollingLootDB.anchor) == "table", "invalid nested table must be replaced")
+
+print("Database corruption tests passed")

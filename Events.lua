@@ -42,17 +42,15 @@ function Events.OnEvent(event, ...)
             end)
         end
     elseif event == "CHAT_MSG_MONEY" then
-        if not ns.Database.Get("enabled") then return end
         local text = ...
         ns.MoneyTracker.OnChatMessageMoney(text, function(record)
-            if record then
+            if record and ns.Database.Get("enabled") then
                 ns.NotificationManager.AddNotification(record)
             end
         end)
     elseif event == "PLAYER_MONEY" then
-        if not ns.Database.Get("enabled") then return end
         ns.MoneyTracker.OnPlayerMoney(function(record)
-            if record then
+            if record and ns.Database.Get("enabled") then
                 ns.NotificationManager.AddNotification(record)
             end
         end)
@@ -66,6 +64,6 @@ function Events.OnEvent(event, ...)
         end
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID, success = ...
-        ns.ItemResolver.OnItemInfoReceived(itemID)
+        ns.ItemResolver.OnItemInfoReceived(itemID, success)
     end
 end

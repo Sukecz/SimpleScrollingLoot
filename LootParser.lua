@@ -6,14 +6,68 @@ local LootParser = ns.LootParser
 
 local compiledPatterns = nil
 
--- Helper to convert WoW format strings (like "You receive loot: %s x%d.") to Lua regex patterns
-local function FormatStringToRegex(fmt)
+local luaPatternMagic = {
+    ["("] = true,
+    [")"] = true,
+    ["."] = true,
+    ["%"] = true,
+    ["+"] = true,
+    ["-"] = true,
+    ["*"] = true,
+    ["?"] = true,
+    ["["] = true,
+    ["]"] = true,
+    ["^"] = true,
+    ["$"] = true,
+}
+
+-- Convert Blizzard format strings to Lua patterns while preserving positional
+-- parameters. Some locales reorder arguments with forms such as %2$d and %1$s.
+local function FormatStringToPattern(fmt)
     if not fmt or type(fmt) ~= "string" then return nil end
-    -- Escape special regex chars except %s and %d
-    local pattern = fmt:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1")
-    -- Replace %s and %d pattern placeholders
-    pattern = pattern:gsub("%%%%s", "(.-)"):gsub("%%%%d", "(%%d+)")
-    return "^" .. pattern .. "$"
+
+    local patternParts = {}
+    local captures = {}
+    local nextArgument = 1
+    local index = 1
+
+    while index <= #fmt do
+        local char = string.sub(fmt, index, index)
+        if char == "%" then
+            local positionalIndex, positionalType, positionalEnd =
+                string.match(fmt, "^%%(%d+)%$([sd])()", index)
+            if positionalIndex then
+                table.insert(patternParts, positionalType == "d" and "(%d+)" or "(.-)")
+                table.insert(captures, {
+                    argument = tonumber(positionalIndex),
+                    valueType = positionalType,
+                })
+                index = positionalEnd
+            else
+                local valueType = string.match(fmt, "^%%([sd])", index)
+                if valueType then
+                    table.insert(patternParts, valueType == "d" and "(%d+)" or "(.-)")
+                    table.insert(captures, {
+                        argument = nextArgument,
+                        valueType = valueType,
+                    })
+                    nextArgument = nextArgument + 1
+                    index = index + 2
+                elseif string.sub(fmt, index + 1, index + 1) == "%" then
+                    table.insert(patternParts, "%%")
+                    index = index + 2
+                else
+                    table.insert(patternParts, "%%")
+                    index = index + 1
+                end
+            end
+        else
+            table.insert(patternParts, luaPatternMagic[char] and ("%" .. char) or char)
+            index = index + 1
+        end
+    end
+
+    return "^" .. table.concat(patternParts) .. "$", captures
 end
 
 -- Initialize dynamic parser patterns from active client global strings
@@ -35,10 +89,11 @@ local function GetLootPatterns()
     for _, entry in ipairs(formatGlobals) do
         local fmt = _G[entry.key]
         if fmt then
-            local regex = FormatStringToRegex(fmt)
-            if regex then
+            local pattern, captures = FormatStringToPattern(fmt)
+            if pattern then
                 table.insert(compiledPatterns, {
-                    regex = regex,
+                    pattern = pattern,
+                    captures = captures,
                     hasQuantity = entry.hasQuantity,
                     key = entry.key,
                 })
@@ -64,23 +119,17 @@ function LootParser.ParseLootMessage(msg, event)
 
     -- First try matching compiled Blizzard format string patterns
     for _, p in ipairs(patterns) do
-        local match1, match2 = string.match(msg, p.regex)
-        if match1 then
-            local itemLink, quantity
-            if p.hasQuantity then
-                if string.find(match1, "|Hitem:") or string.find(match1, "|c") then
-                    itemLink = match1
-                    quantity = tonumber(match2) or 1
-                else
-                    itemLink = match2
-                    quantity = tonumber(match1) or 1
-                end
-            else
-                itemLink = match1
-                quantity = 1
+        local matchedValues = { string.match(msg, p.pattern) }
+        if #matchedValues > 0 then
+            local arguments = {}
+            for captureIndex, capture in ipairs(p.captures) do
+                arguments[capture.argument] = matchedValues[captureIndex]
             end
 
-            if itemLink and (string.find(itemLink, "|Hitem:") or string.find(itemLink, "|c")) then
+            local itemLink = arguments[1]
+            local quantity = p.hasQuantity and (tonumber(arguments[2]) or 1) or 1
+
+            if itemLink and string.find(itemLink, "|Hitem:", 1, true) then
                 local itemID = LootParser.ExtractItemID(itemLink)
                 return {
                     kind = "item",

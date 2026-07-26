@@ -4,6 +4,10 @@ ns.Database = {}
 
 local Database = ns.Database
 local callbacks = {}
+local validDirections = {
+    UP = true,
+    DOWN = true,
+}
 
 local function CopyTable(src)
     if type(src) ~= "table" then return src end
@@ -32,15 +36,67 @@ local function MergeDefaults(target, defaults)
     end
 end
 
-local function ValidateSettings(db)
-    if not ns.ValidationRanges then return end
-    for key, range in pairs(ns.ValidationRanges) do
-        local val = db[key]
-        if type(val) == "number" then
-            if val < range.min then db[key] = range.min end
-            if val > range.max then db[key] = range.max end
+local function NotifyCallbacks(key, value)
+    if callbacks[key] then
+        for _, cb in ipairs(callbacks[key]) do
+            cb(value)
         end
     end
+    if callbacks["*"] then
+        for _, cb in ipairs(callbacks["*"]) do
+            cb(key, value)
+        end
+    end
+end
+
+local function SanitizeTypes(target, defaults)
+    for key, defaultValue in pairs(defaults) do
+        local value = target[key]
+        if type(value) ~= type(defaultValue) then
+            target[key] = CopyTable(defaultValue)
+        elseif type(defaultValue) == "table" then
+            SanitizeTypes(value, defaultValue)
+        end
+    end
+end
+
+local function ValidateSettings(db)
+    SanitizeTypes(db, ns.Defaults)
+
+    for key, range in pairs(ns.ValidationRanges) do
+        local val = db[key]
+        if val < range.min then db[key] = range.min end
+        if val > range.max then db[key] = range.max end
+    end
+
+    if not validDirections[db.direction] then
+        db.direction = ns.Defaults.direction
+    end
+
+    if db.fadeDuration > db.duration then
+        db.fadeDuration = db.duration
+    end
+
+    local anchor = db.anchor
+    local validPoints = {
+        TOPLEFT = true,
+        TOP = true,
+        TOPRIGHT = true,
+        LEFT = true,
+        CENTER = true,
+        RIGHT = true,
+        BOTTOMLEFT = true,
+        BOTTOM = true,
+        BOTTOMRIGHT = true,
+    }
+    if not validPoints[anchor.point] then
+        anchor.point = ns.Defaults.anchor.point
+    end
+    if not validPoints[anchor.relativePoint] then
+        anchor.relativePoint = ns.Defaults.anchor.relativePoint
+    end
+    anchor.x = math.max(-10000, math.min(10000, anchor.x))
+    anchor.y = math.max(-10000, math.min(10000, anchor.y))
 end
 
 local function RunMigrations(db)
@@ -71,7 +127,7 @@ local function RunMigrations(db)
 end
 
 function Database.Initialize()
-    if not _G.SimpleScrollingLootDB then
+    if type(_G.SimpleScrollingLootDB) ~= "table" then
         _G.SimpleScrollingLootDB = CopyTable(ns.Defaults)
     else
         MergeDefaults(_G.SimpleScrollingLootDB, ns.Defaults)
@@ -103,25 +159,35 @@ function Database.Set(key, value)
         Database.Initialize()
     end
 
-    -- Validate range if numeric
-    if ns.ValidationRanges and ns.ValidationRanges[key] and type(value) == "number" then
+    local defaultValue = ns.Defaults[key]
+    if defaultValue ~= nil and type(value) ~= type(defaultValue) then
+        value = CopyTable(defaultValue)
+    end
+
+    if ns.ValidationRanges and ns.ValidationRanges[key] then
         local range = ns.ValidationRanges[key]
         value = math.max(range.min, math.min(range.max, value))
     end
 
-    _G.SimpleScrollingLootDB[key] = value
+    if key == "direction" and not validDirections[value] then
+        value = ns.Defaults.direction
+    elseif key == "anchor" then
+        local wrapper = CopyTable(_G.SimpleScrollingLootDB)
+        wrapper.anchor = CopyTable(value)
+        ValidateSettings(wrapper)
+        value = wrapper.anchor
+    elseif key == "duration" then
+        local fadeDuration = _G.SimpleScrollingLootDB.fadeDuration
+        if fadeDuration > value then
+            _G.SimpleScrollingLootDB.fadeDuration = value
+            NotifyCallbacks("fadeDuration", value)
+        end
+    elseif key == "fadeDuration" then
+        value = math.min(value, _G.SimpleScrollingLootDB.duration)
+    end
 
-    -- Notify callbacks
-    if callbacks[key] then
-        for _, cb in ipairs(callbacks[key]) do
-            cb(value)
-        end
-    end
-    if callbacks["*"] then
-        for _, cb in ipairs(callbacks["*"]) do
-            cb(key, value)
-        end
-    end
+    _G.SimpleScrollingLootDB[key] = value
+    NotifyCallbacks(key, value)
 end
 
 function Database.RegisterCallback(key, fn)
@@ -132,9 +198,12 @@ end
 
 function Database.Reset()
     _G.SimpleScrollingLootDB = CopyTable(ns.Defaults)
-    if callbacks["*"] then
-        for _, cb in ipairs(callbacks["*"]) do
-            cb("__reset__", nil)
+    for key, value in pairs(_G.SimpleScrollingLootDB) do
+        if callbacks[key] then
+            for _, cb in ipairs(callbacks[key]) do
+                cb(value)
+            end
         end
     end
+    NotifyCallbacks("__reset__", nil)
 end

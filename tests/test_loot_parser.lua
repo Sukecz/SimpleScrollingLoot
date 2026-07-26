@@ -31,3 +31,19 @@ local party = ns.LootParser.ParseLootMessage("PartyMember receives loot: " .. it
 assert(party == nil, "party member loot must never be displayed")
 
 print("LootParser tests passed")
+
+LOOT_ITEM_SELF = nil
+LOOT_ITEM_SELF_MULTIPLE = "You receive loot: %1$s x%2$d."
+LOOT_ITEM_PUSHED_SELF = nil
+LOOT_ITEM_PUSHED_SELF_MULTIPLE = nil
+
+local positionalNs = {
+    Debug = {
+        LogUnrecognizedLoot = function() end,
+    },
+}
+loadParser("SimpleScrollingLoot", positionalNs)
+local positional = positionalNs.LootParser.ParseLootMessage("You receive loot: " .. itemLink .. " x7.", "CHAT_MSG_LOOT")
+assert(positional and positional.itemID == 12345 and positional.quantity == 7, "positional format arguments must parse")
+
+print("LootParser positional-format tests passed")
