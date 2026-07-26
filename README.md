@@ -9,7 +9,7 @@ zero-dependency loot notification addon for World of Warcraft. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
 Text.
 
-> Current release: 0.3.0.
+> Current release: 0.3.1.
 
 ## Client coverage
 
@@ -23,7 +23,7 @@ Lua implementation. Runtime checks use both the loaded TOC flavor and Blizzard
 project constants, then verify every critical API before registering loot
 events. Retail, Mists of Pandaria Classic, and other clients remain disabled.
 
-Offline Lua and metadata tests cover both target families. Version 0.3.0 has
+Offline Lua and metadata tests cover both target families. Version 0.3.1 has
 not yet been verified in a live WoW client; see
 [`COMPATIBILITY.md`](COMPATIBILITY.md) for the outstanding test matrix.
 
@@ -34,8 +34,8 @@ not yet been verified in a live WoW client; see
 - **Item Loot Notifications**: Displays item icon, rarity-colored name, and stack quantity.
 - **Money Notifications**: Formatted gold, silver, and copper gains with coin icons.
 - **Optional Vendor Value**: Shows total vendor sell price for looted items.
-- **Optional Owned Count**: Shows how many copies of the looted item are held
-  across bags and bank.
+- **Optional Bag & Bank Counts**: Shows separate non-zero quantities of the
+  looted item held in bags and bank.
 - **Standalone Rendering**: Completely independent frame rendering (does NOT rely on Blizzard Scrolling Combat Text or `CombatText_AddMessage`).
 - **Movable & Configurable Anchor**: Unlock, position, and reset your loot notifications anywhere on screen.
 - **Customizable Appearance & Animation**: Adjust font size, icon size, maximum width, scroll direction (UP/DOWN), duration, travel distance, opacity, max visible rows, and optional static mode.
@@ -74,7 +74,7 @@ Restart WoW or reload UI with `/reload`.
 ## Configuration
 
 Open settings with `/ssloot`. The panel includes controls for item-quality
-filtering, icons, vendor value, total owned count, background, row opacity,
+filtering, icons, vendor value, bag and bank counts, background, row opacity,
 maximum width, scale, font/icon sizes, duration, fade, travel distance,
 spacing, scrolling direction, static mode, mouse interaction, and visible-row
 limit. Enable **Rounded

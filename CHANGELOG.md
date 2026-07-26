@@ -4,6 +4,14 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-07-26
+
+### Changed
+- Replace the combined owned-item total with separate non-zero `Bags` and
+  `Bank` counts.
+- Refresh active item counts after the client's delayed bag update so the
+  looted quantity is included.
+
 ## [0.3.0] - 2026-07-26
 
 ### Added

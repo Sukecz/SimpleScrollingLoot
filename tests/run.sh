@@ -47,11 +47,11 @@ while IFS= read -r toc_file; do
 done <<< "$vanilla_files"
 
 grep -qx '## Interface: 11509' SimpleScrollingLoot.toc
-grep -qx '## Version: 0.3.0' SimpleScrollingLoot.toc
+grep -qx '## Version: 0.3.1' SimpleScrollingLoot.toc
 grep -qx '## X-Flavor: Vanilla' SimpleScrollingLoot.toc
 grep -qx '## AllowLoadGameType: vanilla' SimpleScrollingLoot.toc
 grep -qx '## Interface: 20506' SimpleScrollingLoot_TBC.toc
-grep -qx '## Version: 0.3.0' SimpleScrollingLoot_TBC.toc
+grep -qx '## Version: 0.3.1' SimpleScrollingLoot_TBC.toc
 grep -qx '## X-Flavor: TBC' SimpleScrollingLoot_TBC.toc
 grep -qx '## AllowLoadGameType: tbc' SimpleScrollingLoot_TBC.toc
 
