@@ -12,6 +12,7 @@ local hasLegacyQualityAPI   = type(GetItemQualityColor) == "function"
 local hasModernItemLoadAPI  = C_Item and type(C_Item.RequestLoadItemDataByID) == "function"
 local hasModernItemIconAPI  = C_Item and type(C_Item.GetItemIconByID) == "function"
 local hasLegacyItemIconAPI  = type(GetItemIcon) == "function"
+local hasModernItemCountAPI = C_Item and type(C_Item.GetItemCount) == "function"
 
 function ApiCompat.GetAddonMetadata(field)
     if type(C_AddOns) == "table" and type(C_AddOns.GetAddOnMetadata) == "function" then
@@ -54,6 +55,7 @@ function ApiCompat.GetCapabilities()
         itemLoadRequest = hasModernItemLoadAPI,
         itemInfoEvent = true,
         itemIcon = hasModernItemIconAPI or hasLegacyItemIconAPI,
+        itemCount = hasModernItemCountAPI,
         itemQualityColor = hasModernQualityAPI or hasLegacyQualityAPI,
         money = type(GetMoney) == "function",
         frame = type(CreateFrame) == "function",
@@ -147,6 +149,21 @@ function ApiCompat.GetItemIcon(itemIdentifier)
 
     if hasLegacyItemIconAPI then
         return GetItemIcon(itemIdentifier)
+    end
+
+    return nil
+end
+
+-- Returns the total quantity currently owned in carried bags and the bank.
+-- Current Era and Anniversary metadata define includeBank as argument two.
+function ApiCompat.GetOwnedItemCount(itemIdentifier)
+    if not itemIdentifier then return nil end
+
+    if hasModernItemCountAPI then
+        local count = C_Item.GetItemCount(itemIdentifier, true)
+        if type(count) == "number" then
+            return count
+        end
     end
 
     return nil

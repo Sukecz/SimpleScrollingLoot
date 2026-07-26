@@ -136,6 +136,12 @@ local function RunMigrations(db)
         version = 5
     end
 
+    if version < 6 then
+        -- Version 6 adds an opt-in bags-and-bank item total. MergeDefaults has
+        -- already supplied the disabled-by-default setting.
+        version = 6
+    end
+
     db.version = version
 end
 

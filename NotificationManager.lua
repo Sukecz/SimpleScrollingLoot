@@ -17,6 +17,7 @@ local function GetRowConfig()
     return {
         showIcons = ns.Database.Get("showIcons"),
         showQuantity = ns.Database.Get("showQuantity"),
+        showOwnedCount = ns.Database.Get("showOwnedCount"),
         showVendorValue = ns.Database.Get("showVendorValue"),
         showBackground = ns.Database.Get("showBackground"),
         backgroundOpacity = ns.Database.Get("backgroundOpacity"),
@@ -28,6 +29,23 @@ local function GetRowConfig()
         maxWidth = ns.Database.Get("maxWidth") or 480,
         scale = ns.Database.Get("scale") or 1.0,
     }
+end
+
+local function UpdateOwnedCount(record, config)
+    if not record or record.kind ~= "item" then return end
+    if record.isPreview then return end
+    if not config.showOwnedCount then
+        record.ownedCount = nil
+        return
+    end
+
+    local itemIdentifier = record.itemLink or record.itemID
+    local ownedCount = ns.ApiCompat.GetOwnedItemCount(itemIdentifier)
+    if type(ownedCount) == "number" then
+        record.ownedCount = math.max(ownedCount, record.quantity or 1)
+    else
+        record.ownedCount = nil
+    end
 end
 
 local function CreateAnchor()
@@ -120,6 +138,7 @@ function NotificationManager.Initialize()
     local appearanceSettings = {
         "showIcons",
         "showQuantity",
+        "showOwnedCount",
         "showVendorValue",
         "showBackground",
         "backgroundOpacity",
@@ -182,6 +201,7 @@ function NotificationManager.AddNotification(record)
 
     CreateAnchor()
     local config = GetRowConfig()
+    UpdateOwnedCount(record, config)
 
     local row = GetRowFromPool()
     row:SetScale(config.scale)
@@ -210,6 +230,7 @@ end
 function NotificationManager.RefreshActiveRows()
     local config = GetRowConfig()
     for _, entry in ipairs(activeRows) do
+        UpdateOwnedCount(entry.row.record, config)
         entry.row:SetScale(config.scale)
         entry.row:SetRecord(entry.row.record, config)
         entry.opacity = config.rowOpacity or 1.0
@@ -338,9 +359,9 @@ end
 
 function NotificationManager.ShowTestNotifications()
     local testItems = {
-        { kind = "item", itemID = 14047, name = ns.L.TEST_ITEM_1 or "Runecloth", itemLink = "|cffffffff|Hitem:14047:0:0:0:0:0:0:0|h[Runecloth]|h|r", quality = 1, quantity = 5, sellPrice = 250 },
-        { kind = "item", itemID = 4234, name = ns.L.TEST_ITEM_2 or "Heavy Leather", itemLink = "|cffffffff|Hitem:4234:0:0:0:0:0:0:0|h[Heavy Leather]|h|r", quality = 1, quantity = 2, sellPrice = 150 },
-        { kind = "item", itemID = 12360, name = ns.L.TEST_ITEM_3 or "Arcanite Bar", itemLink = "|cffa335ee|Hitem:12360:0:0:0:0:0:0:0|h[Arcanite Bar]|h|r", quality = 4, quantity = 1, sellPrice = 50000 },
+        { kind = "item", itemID = 14047, name = ns.L.TEST_ITEM_1 or "Runecloth", itemLink = "|cffffffff|Hitem:14047:0:0:0:0:0:0:0|h[Runecloth]|h|r", quality = 1, quantity = 5, ownedCount = 48, isPreview = true, sellPrice = 250 },
+        { kind = "item", itemID = 4234, name = ns.L.TEST_ITEM_2 or "Heavy Leather", itemLink = "|cffffffff|Hitem:4234:0:0:0:0:0:0:0|h[Heavy Leather]|h|r", quality = 1, quantity = 2, ownedCount = 17, isPreview = true, sellPrice = 150 },
+        { kind = "item", itemID = 12360, name = ns.L.TEST_ITEM_3 or "Arcanite Bar", itemLink = "|cffa335ee|Hitem:12360:0:0:0:0:0:0:0|h[Arcanite Bar]|h|r", quality = 4, quantity = 1, ownedCount = 3, isPreview = true, sellPrice = 50000 },
         { kind = "money", copper = 12580, formattedText = ns.ApiCompat.FormatMoney(12580), coinIconsText = ns.ApiCompat.GetCoinIconsText(12580), texture = "Interface\\Icons\\INV_Misc_Coin_01" },
     }
 

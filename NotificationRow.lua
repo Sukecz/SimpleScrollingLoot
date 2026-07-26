@@ -78,9 +78,15 @@ function NotificationRow.Create(parent)
     quantityText:SetTextColor(0.8, 0.8, 0.8, 1.0)
     frame.quantityText = quantityText
 
+    -- Total owned in carried bags and bank
+    local ownedText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    ownedText:SetPoint("LEFT", quantityText, "RIGHT", 10, 0)
+    ownedText:SetTextColor(0.7, 0.7, 0.7, 1.0)
+    frame.ownedText = ownedText
+
     -- Vendor value text
     local vendorText = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    vendorText:SetPoint("LEFT", quantityText, "RIGHT", 10, 0)
+    vendorText:SetPoint("LEFT", ownedText, "RIGHT", 10, 0)
     vendorText:SetTextColor(0.7, 0.7, 0.7, 1.0)
     frame.vendorText = vendorText
 
@@ -134,7 +140,8 @@ function NotificationRow.Create(parent)
         local fontPath, _, fontFlags = GameFontHighlight:GetFont()
         self.mainText:SetFont(fontPath, fontSize, fontFlags)
         self.quantityText:SetFont(fontPath, fontSize, fontFlags)
-        -- Scale vendor text proportionally; no arbitrary fixed floor.
+        -- Scale secondary text proportionally; no arbitrary fixed floor.
+        self.ownedText:SetFont(fontPath, math.max(6, fontSize - 2), fontFlags)
         self.vendorText:SetFont(fontPath, math.max(6, fontSize - 2), fontFlags)
 
         self:ApplyBackground(config)
@@ -152,6 +159,15 @@ function NotificationRow.Create(parent)
                 self.quantityText:SetText("")
             end
 
+            if config.showOwnedCount and type(record.ownedCount) == "number" then
+                local formatText = ns.L.OWNED_COUNT_FORMAT or "Owned: %d"
+                self.ownedText:SetText(string.format(formatText, record.ownedCount))
+                self.ownedText:Show()
+            else
+                self.ownedText:Hide()
+                self.ownedText:SetText("")
+            end
+
             if config.showVendorValue and record.sellPrice and record.sellPrice > 0 then
                 self.vendorText:SetText(ns.ApiCompat.FormatMoney(record.sellPrice))
                 self.vendorText:Show()
@@ -164,6 +180,7 @@ function NotificationRow.Create(parent)
             self.mainText:SetText(record.coinIconsText or record.formattedText or "Money")
             self.mainText:SetTextColor(1.0, 1.0, 1.0, 1.0)
             self.quantityText:Hide()
+            self.ownedText:Hide()
             self.vendorText:Hide()
 
         end
@@ -173,12 +190,14 @@ function NotificationRow.Create(parent)
         self.mainText:SetWidth(maxWidth)
         local mainWidth = self.mainText:GetStringWidth() or 0
         local quantWidth = self.quantityText:IsShown() and (self.quantityText:GetStringWidth() or 0) or 0
+        local ownedWidth = self.ownedText:IsShown() and (self.ownedText:GetStringWidth() or 0) or 0
         local vendorWidth = self.vendorText:IsShown() and (self.vendorText:GetStringWidth() or 0) or 0
         local iconWidth = self.icon:IsShown() and iconSize or 0
 
         local fixedWidth = iconWidth
         if iconWidth > 0 then fixedWidth = fixedWidth + 6 end
         if quantWidth > 0 then fixedWidth = fixedWidth + 6 + quantWidth end
+        if ownedWidth > 0 then fixedWidth = fixedWidth + 10 + ownedWidth end
         if vendorWidth > 0 then fixedWidth = fixedWidth + 10 + vendorWidth end
 
         local availableMainWidth = math.max(40, maxWidth - fixedWidth - 12)

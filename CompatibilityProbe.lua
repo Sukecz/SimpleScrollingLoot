@@ -47,6 +47,7 @@ function CompatibilityProbe.RunReport()
         { name = "Item load request", available = capabilities.itemLoadRequest, optional = true },
         { name = "GET_ITEM_INFO_RECEIVED", available = capabilities.itemInfoEvent },
         { name = "Item icon", available = capabilities.itemIcon },
+        { name = "Item count (bags and bank)", available = capabilities.itemCount, optional = true },
         { name = "Item quality color", available = capabilities.itemQualityColor },
         { name = "GetMoney", available = capabilities.money },
         { name = "CreateFrame", available = capabilities.frame },
