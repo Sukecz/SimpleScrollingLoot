@@ -4,6 +4,12 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-07-26
+
+### Fixed
+- Match the money-notification row icon to the highest denomination received
+  instead of always showing gold coins.
+
 ## [0.3.1] - 2026-07-26
 
 ### Changed

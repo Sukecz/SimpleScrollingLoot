@@ -9,7 +9,7 @@ zero-dependency loot notification addon for World of Warcraft. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
 Text.
 
-> Current release: 0.3.1.
+> Current release: 0.3.2.
 
 ## Client coverage
 
@@ -23,7 +23,7 @@ Lua implementation. Runtime checks use both the loaded TOC flavor and Blizzard
 project constants, then verify every critical API before registering loot
 events. Retail, Mists of Pandaria Classic, and other clients remain disabled.
 
-Offline Lua and metadata tests cover both target families. Version 0.3.1 has
+Offline Lua and metadata tests cover both target families. Version 0.3.2 has
 not yet been verified in a live WoW client; see
 [`COMPATIBILITY.md`](COMPATIBILITY.md) for the outstanding test matrix.
 
@@ -33,6 +33,8 @@ not yet been verified in a live WoW client; see
   and raid member loot is always ignored.
 - **Item Loot Notifications**: Displays item icon, rarity-colored name, and stack quantity.
 - **Money Notifications**: Formatted gold, silver, and copper gains with coin icons.
+- **Matching Money Icon**: Uses a copper, silver, or gold row icon based on the
+  highest denomination received.
 - **Optional Vendor Value**: Shows total vendor sell price for looted items.
 - **Optional Bag & Bank Counts**: Shows separate non-zero quantities of the
   looted item held in bags and bank.
