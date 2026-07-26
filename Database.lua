@@ -129,6 +129,13 @@ local function RunMigrations(db)
         version = 4
     end
 
+    if version < 5 then
+        -- Honor notifications were an unverified post-MVP experiment. Remove
+        -- the saved toggle until a localized, live-tested module is added.
+        db.showHonor = nil
+        version = 5
+    end
+
     db.version = version
 end
 

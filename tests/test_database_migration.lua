@@ -19,7 +19,7 @@ SimpleScrollingLootDB = {
 
 ns.Database.Initialize()
 
-assert(SimpleScrollingLootDB.version == 4, "database must migrate to version 4")
+assert(SimpleScrollingLootDB.version == 5, "database must migrate to version 5")
 assert(SimpleScrollingLootDB.backgroundRounded == false, "rounded corners must default safely")
 assert(SimpleScrollingLootDB.backgroundStyle == nil, "obsolete style must be removed")
 assert(SimpleScrollingLootDB.backgroundRed == nil, "obsolete red must be removed")
@@ -29,6 +29,7 @@ assert(SimpleScrollingLootDB.backgroundPadding == nil, "obsolete padding must be
 assert(SimpleScrollingLootDB.backgroundBorderOpacity == nil, "obsolete border opacity must be removed")
 assert(SimpleScrollingLootDB.lootFrameMode == nil, "loot frame mode must be removed")
 assert(SimpleScrollingLootDB.lootFrameBypassModifier == nil, "loot frame bypass must be removed")
+assert(SimpleScrollingLootDB.showHonor == nil, "unverified honor setting must be removed")
 
 print("Database migration tests passed")
 

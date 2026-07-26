@@ -1,12 +1,11 @@
 local addonName, ns = ...
 
 ns.Defaults = {
-    version = 4,
+    version = 5,
     enabled = true,
     minQuality = 1,
     showItems = true,
     showMoney = false,
-    showHonor = false,
     showVendorValue = false,
     showQuantity = true,
     showIcons = true,

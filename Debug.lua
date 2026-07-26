@@ -39,3 +39,15 @@ function Debug.LogUnrecognizedLoot(event, rawMessage)
         Debug.Log("Unrecognized loot format in %s: '%s'", tostring(event), tostring(rawMessage))
     end
 end
+
+function Debug.LogEvent(event, ...)
+    if not ns.Database or not ns.Database.Get or not ns.Database.Get("debug") then
+        return
+    end
+
+    local values = {}
+    for index = 1, select("#", ...) do
+        values[index] = string.format("%d=%s", index, tostring(select(index, ...)))
+    end
+    Debug.Log("Event %s args: %s", tostring(event), table.concat(values, ", "))
+end

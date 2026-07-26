@@ -151,26 +151,3 @@ function LootParser.ParseLootMessage(msg, event)
     ns.Debug.LogUnrecognizedLoot(event, msg)
     return nil
 end
-
--- Parse raw chat message from CHAT_MSG_COMBAT_HONOR_GAIN
-function LootParser.ParseHonorMessage(msg, event)
-    if not msg or type(msg) ~= "string" then return nil end
-
-    local amount = string.match(msg, "(%d+)%s+[Hh]onor") or string.match(msg, "[Hh]onor.-(%d+)") or string.match(msg, "(%d+)")
-    amount = tonumber(amount)
-    if amount and amount > 0 then
-        local faction = UnitFactionGroup and UnitFactionGroup("player") or "Horde"
-        local honorIcon = (faction == "Alliance") and "Interface\\Icons\\PVPCurrency_Honor_Alliance" or "Interface\\Icons\\PVPCurrency_Honor_Horde"
-        return {
-            kind = "honor",
-            amount = amount,
-            formattedText = string.format("+%d Honor", amount),
-            texture = honorIcon,
-            sourceEvent = event or "CHAT_MSG_COMBAT_HONOR_GAIN",
-            timestamp = GetTime(),
-        }
-    end
-
-    ns.Debug.LogUnrecognizedLoot(event, msg)
-    return nil
-end

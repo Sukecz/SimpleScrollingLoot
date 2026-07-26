@@ -166,11 +166,6 @@ function NotificationRow.Create(parent)
             self.quantityText:Hide()
             self.vendorText:Hide()
 
-        elseif record.kind == "honor" then
-            self.mainText:SetText(record.formattedText or "+ Honor")
-            self.mainText:SetTextColor(1.0, 0.82, 0.0, 1.0) -- Gold/yellow honor color
-            self.quantityText:Hide()
-            self.vendorText:Hide()
         end
 
         -- Bound long localized names without changing the stored item link used

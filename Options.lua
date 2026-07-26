@@ -178,8 +178,6 @@ local function CreateOptionsWindow()
     yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_MONEY, "showMoney", xLeft, yLeft, ns.L.OPT_SHOW_MONEY_DESC)
     yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_HONOR, "showHonor", xLeft, yLeft, ns.L.OPT_SHOW_HONOR_DESC)
-    yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_VENDOR, "showVendorValue", xLeft, yLeft, ns.L.OPT_SHOW_VENDOR_DESC)
     yLeft = yLeft - 25
     widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_QUANTITY, "showQuantity", xLeft, yLeft, ns.L.OPT_SHOW_QUANTITY_DESC)

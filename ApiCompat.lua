@@ -13,10 +13,81 @@ local hasModernItemLoadAPI  = C_Item and type(C_Item.RequestLoadItemDataByID) ==
 local hasModernItemIconAPI  = C_Item and type(C_Item.GetItemIconByID) == "function"
 local hasLegacyItemIconAPI  = type(GetItemIcon) == "function"
 
+function ApiCompat.GetAddonMetadata(field)
+    if type(C_AddOns) == "table" and type(C_AddOns.GetAddOnMetadata) == "function" then
+        return C_AddOns.GetAddOnMetadata(addonName, field)
+    end
+    if type(GetAddOnMetadata) == "function" then
+        return GetAddOnMetadata(addonName, field)
+    end
+    return nil
+end
+
+function ApiCompat.GetClientFamily()
+    local declaredFlavor = ApiCompat.GetAddonMetadata("X-Flavor")
+    if declaredFlavor == "Vanilla" then
+        return "CLASSIC_ERA"
+    end
+    if declaredFlavor == "TBC" then
+        return "TBC_CLASSIC"
+    end
+
+    if WOW_PROJECT_CLASSIC and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+        return "CLASSIC_ERA"
+    end
+    if WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+        and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
+        return "TBC_CLASSIC"
+    end
+    return "UNSUPPORTED"
+end
+
+function ApiCompat.IsSupportedClient()
+    return ApiCompat.GetClientFamily() ~= "UNSUPPORTED"
+end
+
+function ApiCompat.GetCapabilities()
+    return {
+        addonMetadata = (type(C_AddOns) == "table" and type(C_AddOns.GetAddOnMetadata) == "function")
+            or type(GetAddOnMetadata) == "function",
+        itemInfo = hasModernItemAPI or hasLegacyItemAPI,
+        itemLoadRequest = hasModernItemLoadAPI,
+        itemInfoEvent = true,
+        itemIcon = hasModernItemIconAPI or hasLegacyItemIconAPI,
+        itemQualityColor = hasModernQualityAPI or hasLegacyQualityAPI,
+        money = type(GetMoney) == "function",
+        frame = type(CreateFrame) == "function",
+        timer = type(C_Timer) == "table" and type(C_Timer.After) == "function",
+        time = type(GetTime) == "function",
+        settings = (type(Settings) == "table"
+            and type(Settings.RegisterCanvasLayoutCategory) == "function"
+            and type(Settings.RegisterAddOnCategory) == "function")
+            or type(InterfaceOptions_AddCategory) == "function",
+        tooltip = type(GameTooltip) == "table",
+        modifiedItemClick = type(HandleModifiedItemClick) == "function",
+        lootSelfSingle = type(_G.LOOT_ITEM_SELF) == "string",
+        lootSelfMultiple = type(_G.LOOT_ITEM_SELF_MULTIPLE) == "string",
+    }
+end
+
+function ApiCompat.HasCriticalCapabilities()
+    local capabilities = ApiCompat.GetCapabilities()
+    return capabilities.itemInfo
+        and capabilities.itemIcon
+        and capabilities.itemQualityColor
+        and capabilities.money
+        and capabilities.frame
+        and capabilities.timer
+        and capabilities.time
+        and capabilities.settings
+        and capabilities.lootSelfSingle
+        and capabilities.lootSelfMultiple
+end
+
 -- Capture environment information
 function ApiCompat.GetEnvironmentInfo()
     local version, build, date, interface = GetBuildInfo()
-    local projectID = WOW_PROJECT_ID or (LE_EXPANSION_LEVEL_CURRENT or 0)
+    local projectID = WOW_PROJECT_ID or 0
     local locale = GetLocale()
     return {
         version = version or "Unknown",
@@ -24,6 +95,8 @@ function ApiCompat.GetEnvironmentInfo()
         date = date or "Unknown",
         interface = interface or 0,
         projectID = projectID,
+        clientFamily = ApiCompat.GetClientFamily(),
+        supportedClient = ApiCompat.IsSupportedClient(),
         locale = locale or "enUS",
     }
 end

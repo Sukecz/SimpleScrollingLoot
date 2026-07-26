@@ -7,41 +7,67 @@ local CompatibilityProbe = ns.CompatibilityProbe
 function CompatibilityProbe.RunReport()
     local env = ns.ApiCompat.GetEnvironmentInfo()
     local reportLines = {}
+    local capabilities = ns.ApiCompat.GetCapabilities()
 
     table.insert(reportLines, "=== Simple Scrolling Loot API Compatibility Report ===")
     -- Read version from TOC metadata at runtime so the probe is always accurate.
-    local addonVersion = "Unknown"
-    if type(C_AddOns) == "table" and type(C_AddOns.GetAddOnMetadata) == "function" then
-        addonVersion = C_AddOns.GetAddOnMetadata(addonName, "Version") or "Unknown"
-    elseif type(GetAddOnMetadata) == "function" then
-        addonVersion = GetAddOnMetadata(addonName, "Version") or "Unknown"
-    end
+    local addonVersion = ns.ApiCompat.GetAddonMetadata("Version") or "Unknown"
     table.insert(reportLines, string.format("Addon Version: %s", addonVersion))
     table.insert(reportLines, string.format("Client Version: %s (Build: %s, Date: %s)", env.version, env.build, env.date))
     table.insert(reportLines, string.format("TOC Interface: %s", tostring(env.interface)))
     table.insert(reportLines, string.format("WOW_PROJECT_ID: %s", tostring(env.projectID)))
+    table.insert(reportLines, string.format("Client Family: %s", env.clientFamily))
+    table.insert(reportLines, string.format("Supported Client: %s", tostring(env.supportedClient)))
     table.insert(reportLines, string.format("Client Locale: %s", env.locale))
+    local enabledModules = {}
+    local moduleNames = {
+        "ApiCompat",
+        "LootParser",
+        "ItemResolver",
+        "MoneyTracker",
+        "NotificationManager",
+        "Options",
+        "SlashCommands",
+        "Events",
+    }
+    for _, moduleName in ipairs(moduleNames) do
+        if type(ns[moduleName]) == "table" then
+            table.insert(enabledModules, moduleName)
+        end
+    end
+    table.insert(reportLines, "Loaded Modules: " .. table.concat(enabledModules, ","))
+    if ns.Events and ns.Events.GetRegisteredEvents then
+        table.insert(reportLines, "Registered Events: " .. table.concat(ns.Events.GetRegisteredEvents(), ","))
+    end
     table.insert(reportLines, "---------------------------------------------------")
 
-    -- Check APIs
     local apis = {
-        { name = "GetItemInfo (Legacy)", available = type(GetItemInfo) == "function" },
-        { name = "C_Item.GetItemInfo (Modern)", available = C_Item and type(C_Item.GetItemInfo) == "function" },
-        { name = "Item icon API", available = (C_Item and type(C_Item.GetItemIconByID) == "function") or type(GetItemIcon) == "function" },
-        { name = "C_Item.RequestLoadItemDataByID", available = C_Item and type(C_Item.RequestLoadItemDataByID) == "function" },
-        { name = "GetItemQualityColor", available = type(GetItemQualityColor) == "function" or (C_Item and type(C_Item.GetItemQualityColor) == "function") },
-        { name = "GetMoney", available = type(GetMoney) == "function" },
-        { name = "CreateFrame", available = type(CreateFrame) == "function" },
-        { name = "Settings API (Modern)", available = Settings and type(Settings.RegisterAddOnCategory) == "function" },
-        { name = "InterfaceOptions_AddCategory (Legacy)", available = type(InterfaceOptions_AddCategory) == "function" },
-        { name = "LOOT_ITEM_SELF string", available = _G.LOOT_ITEM_SELF ~= nil },
-        { name = "LOOT_ITEM_SELF_MULTIPLE string", available = _G.LOOT_ITEM_SELF_MULTIPLE ~= nil },
+        { name = "Addon metadata", available = capabilities.addonMetadata },
+        { name = "Item info", available = capabilities.itemInfo },
+        { name = "Item load request", available = capabilities.itemLoadRequest, optional = true },
+        { name = "GET_ITEM_INFO_RECEIVED", available = capabilities.itemInfoEvent },
+        { name = "Item icon", available = capabilities.itemIcon },
+        { name = "Item quality color", available = capabilities.itemQualityColor },
+        { name = "GetMoney", available = capabilities.money },
+        { name = "CreateFrame", available = capabilities.frame },
+        { name = "C_Timer.After", available = capabilities.timer },
+        { name = "GetTime", available = capabilities.time },
+        { name = "Settings panel API", available = capabilities.settings },
+        { name = "GameTooltip", available = capabilities.tooltip, optional = true },
+        { name = "HandleModifiedItemClick", available = capabilities.modifiedItemClick, optional = true },
+        { name = "LOOT_ITEM_SELF", available = capabilities.lootSelfSingle },
+        { name = "LOOT_ITEM_SELF_MULTIPLE", available = capabilities.lootSelfMultiple },
     }
 
     for _, check in ipairs(apis) do
-        table.insert(reportLines, string.format("  [%s] %s", check.available and "OK" or "MISSING", check.name))
+        local status = check.available and "OK" or (check.optional and "OPTIONAL-MISSING" or "MISSING")
+        table.insert(reportLines, string.format("  [%s] %s", status, check.name))
     end
 
+    table.insert(reportLines, string.format(
+        "Critical API Set: %s",
+        ns.ApiCompat.HasCriticalCapabilities() and "OK" or "MISSING"
+    ))
     table.insert(reportLines, "===================================================")
 
     local fullReport = table.concat(reportLines, "\n")
