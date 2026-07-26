@@ -10,7 +10,8 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
   never displayed.
 - Displays item icon, rarity-coloured item name, stack quantity, and optional
   total vendor value.
-- Optionally shows the total quantity of the same item in bags and bank.
+- Optionally shows separate non-zero quantities of the same item in bags and
+  bank.
 - Shows positive money gains with gold, silver, and copper formatting.
 - Supports configurable minimum item quality, icon size, font size, opacity,
   spacing, duration, travel distance, scale, and maximum visible rows.

@@ -154,13 +154,13 @@ function ApiCompat.GetItemIcon(itemIdentifier)
     return nil
 end
 
--- Returns the total quantity currently owned in carried bags and the bank.
--- Current Era and Anniversary metadata define includeBank as argument two.
-function ApiCompat.GetOwnedItemCount(itemIdentifier)
+-- Returns the item quantity with optional personal-bank inclusion. Current
+-- Era and Anniversary metadata define includeBank as argument two.
+function ApiCompat.GetItemCount(itemIdentifier, includeBank)
     if not itemIdentifier then return nil end
 
     if hasModernItemCountAPI then
-        local count = C_Item.GetItemCount(itemIdentifier, true)
+        local count = C_Item.GetItemCount(itemIdentifier, includeBank == true)
         if type(count) == "number" then
             return count
         end

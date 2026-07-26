@@ -10,6 +10,7 @@ local notificationEvents = {
     "CHAT_MSG_MONEY",
     "PLAYER_MONEY",
     "GET_ITEM_INFO_RECEIVED",
+    "BAG_UPDATE_DELAYED",
 }
 
 local function RegisterEvent(event)
@@ -75,6 +76,8 @@ function Events.OnEvent(event, ...)
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID, success = ...
         ns.ItemResolver.OnItemInfoReceived(itemID, success)
+    elseif event == "BAG_UPDATE_DELAYED" then
+        ns.NotificationManager.RefreshOwnedCounts()
     end
 end
 

@@ -13,6 +13,13 @@ function NotificationManager.CalculateTravelY(baseOffset, progress, travelDistan
     return baseOffset + progress * travelDistance * directionMultiplier
 end
 
+function NotificationManager.CalculateLocationCounts(bagCount, totalCount, quantity)
+    local lootedQuantity = math.max(1, tonumber(quantity) or 1)
+    local bags = math.max(tonumber(bagCount) or 0, lootedQuantity)
+    local total = math.max(tonumber(totalCount) or 0, bags)
+    return bags, math.max(0, total - bags)
+end
+
 local function GetRowConfig()
     return {
         showIcons = ns.Database.Get("showIcons"),
@@ -35,16 +42,23 @@ local function UpdateOwnedCount(record, config)
     if not record or record.kind ~= "item" then return end
     if record.isPreview then return end
     if not config.showOwnedCount then
-        record.ownedCount = nil
+        record.bagCount = nil
+        record.bankCount = nil
         return
     end
 
     local itemIdentifier = record.itemLink or record.itemID
-    local ownedCount = ns.ApiCompat.GetOwnedItemCount(itemIdentifier)
-    if type(ownedCount) == "number" then
-        record.ownedCount = math.max(ownedCount, record.quantity or 1)
+    local bagCount = ns.ApiCompat.GetItemCount(itemIdentifier, false)
+    local totalCount = ns.ApiCompat.GetItemCount(itemIdentifier, true)
+    if type(bagCount) == "number" and type(totalCount) == "number" then
+        record.bagCount, record.bankCount = NotificationManager.CalculateLocationCounts(
+            bagCount,
+            totalCount,
+            record.quantity
+        )
     else
-        record.ownedCount = nil
+        record.bagCount = nil
+        record.bankCount = nil
     end
 end
 
@@ -238,6 +252,11 @@ function NotificationManager.RefreshActiveRows()
     NotificationManager.UpdateLayout()
 end
 
+function NotificationManager.RefreshOwnedCounts()
+    if not ns.Database.Get("showOwnedCount") or #activeRows == 0 then return end
+    NotificationManager.RefreshActiveRows()
+end
+
 function NotificationManager.UpdateLayout()
     local direction = ns.Database.Get("direction") or "UP"
     local rowSpacing = ns.Database.Get("rowSpacing") or 4
@@ -359,9 +378,9 @@ end
 
 function NotificationManager.ShowTestNotifications()
     local testItems = {
-        { kind = "item", itemID = 14047, name = ns.L.TEST_ITEM_1 or "Runecloth", itemLink = "|cffffffff|Hitem:14047:0:0:0:0:0:0:0|h[Runecloth]|h|r", quality = 1, quantity = 5, ownedCount = 48, isPreview = true, sellPrice = 250 },
-        { kind = "item", itemID = 4234, name = ns.L.TEST_ITEM_2 or "Heavy Leather", itemLink = "|cffffffff|Hitem:4234:0:0:0:0:0:0:0|h[Heavy Leather]|h|r", quality = 1, quantity = 2, ownedCount = 17, isPreview = true, sellPrice = 150 },
-        { kind = "item", itemID = 12360, name = ns.L.TEST_ITEM_3 or "Arcanite Bar", itemLink = "|cffa335ee|Hitem:12360:0:0:0:0:0:0:0|h[Arcanite Bar]|h|r", quality = 4, quantity = 1, ownedCount = 3, isPreview = true, sellPrice = 50000 },
+        { kind = "item", itemID = 14047, name = ns.L.TEST_ITEM_1 or "Runecloth", itemLink = "|cffffffff|Hitem:14047:0:0:0:0:0:0:0|h[Runecloth]|h|r", quality = 1, quantity = 5, bagCount = 28, bankCount = 20, isPreview = true, sellPrice = 250 },
+        { kind = "item", itemID = 4234, name = ns.L.TEST_ITEM_2 or "Heavy Leather", itemLink = "|cffffffff|Hitem:4234:0:0:0:0:0:0:0|h[Heavy Leather]|h|r", quality = 1, quantity = 2, bagCount = 17, bankCount = 0, isPreview = true, sellPrice = 150 },
+        { kind = "item", itemID = 12360, name = ns.L.TEST_ITEM_3 or "Arcanite Bar", itemLink = "|cffa335ee|Hitem:12360:0:0:0:0:0:0:0|h[Arcanite Bar]|h|r", quality = 4, quantity = 1, bagCount = 1, bankCount = 3, isPreview = true, sellPrice = 50000 },
         { kind = "money", copper = 12580, formattedText = ns.ApiCompat.FormatMoney(12580), coinIconsText = ns.ApiCompat.GetCoinIconsText(12580), texture = "Interface\\Icons\\INV_Misc_Coin_01" },
     }
 

@@ -159,9 +159,18 @@ function NotificationRow.Create(parent)
                 self.quantityText:SetText("")
             end
 
-            if config.showOwnedCount and type(record.ownedCount) == "number" then
-                local formatText = ns.L.OWNED_COUNT_FORMAT or "Owned: %d"
-                self.ownedText:SetText(string.format(formatText, record.ownedCount))
+            local countParts = {}
+            if config.showOwnedCount and type(record.bagCount) == "number" and record.bagCount > 0 then
+                local bagsFormat = ns.L.BAGS_COUNT_FORMAT or "Bags: %d"
+                table.insert(countParts, string.format(bagsFormat, record.bagCount))
+            end
+            if config.showOwnedCount and type(record.bankCount) == "number" and record.bankCount > 0 then
+                local bankFormat = ns.L.BANK_COUNT_FORMAT or "Bank: %d"
+                table.insert(countParts, string.format(bankFormat, record.bankCount))
+            end
+
+            if #countParts > 0 then
+                self.ownedText:SetText(table.concat(countParts, " / "))
                 self.ownedText:Show()
             else
                 self.ownedText:Hide()
