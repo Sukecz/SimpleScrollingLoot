@@ -4,6 +4,12 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-07-26
+
+### Changed
+- Remove the redundant large money-row icon; denomination icons remain beside
+  each gold, silver, and copper value.
+
 ## [0.3.2] - 2026-07-26
 
 ### Fixed
