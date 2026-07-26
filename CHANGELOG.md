@@ -4,6 +4,34 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Recover safely from corrupt SavedVariables and validate nested, enum, and
+  cross-field settings.
+- Parse Blizzard loot formats with positional arguments used by reordered
+  localizations.
+- De-duplicate uncached item requests and reliably expire unresolved records.
+- Correlate wallet deltas with money-loot messages without dropping separate
+  rapid gains.
+- Apply downward travel to animation, make item interaction reachable, bound
+  long rows, and prevent stale frame anchors.
+- Stop the animation driver while idle and unregister notification events while
+  the addon is disabled.
+
+### Added
+- Explicit WoW Classic Era, Hardcore, and Burning Crusade Classic client-family
+  detection.
+- Separate Vanilla (`11509`) and TBC (`20506`) TOC metadata.
+- Expanded API report with client family, loaded modules, registered events,
+  critical capabilities, and debug event arguments.
+- Configurable row opacity, maximum width, mouse interaction, and position
+  reset.
+- Lua 5.1 regression tests and mandatory CI validation before packaging.
+
+### Changed
+- Remove the unverified, English-only honor notification experiment from the
+  current release scope.
+- Publish packages only from version tags.
+
 ## [0.1.0] - 2026-07-25
 
 ### Fixed

@@ -1,4 +1,5 @@
 package-as: SimpleScrollingLoot
+manual-changelog: CHANGELOG.md
 
 ignore:
   - .git

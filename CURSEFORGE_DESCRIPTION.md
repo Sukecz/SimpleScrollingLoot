@@ -23,9 +23,11 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
 
 ## Client coverage
 
-Simple Scrolling Loot uses capability checks instead of a runtime client-version
-gate. Run `/ssloot debug api` on each target client before relying on a build;
-compatibility is only claimed after that client has been tested.
+Simple Scrolling Loot targets WoW Classic Era (including Hardcore realms) and
+Burning Crusade Classic Anniversary Edition. The package contains client-
+specific TOC metadata and verifies the loaded client family and critical APIs
+before enabling notifications. Run `/ssloot debug api` when reporting a
+compatibility problem.
 
 ## Commands
 

@@ -1,12 +1,12 @@
-## Interface: 11509
+## Interface: 20506
 ## Title: Simple Scrolling Loot
 ## Notes: Compact scrolling notifications for looted items and money in World of Warcraft.
 ## Author: Simple Scrolling Loot Authors
 ## Version: 0.2.0
 ## SavedVariables: SimpleScrollingLootDB
 ## X-Curse-Project-ID: 1624616
-## X-Flavor: Vanilla
-## AllowLoadGameType: vanilla
+## X-Flavor: TBC
+## AllowLoadGameType: tbc
 ## IconTexture: Interface\AddOns\SimpleScrollingLoot\assets\ssl
 
 Locales\enUS.lua

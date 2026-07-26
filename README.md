@@ -9,14 +9,23 @@ zero-dependency loot notification addon for World of Warcraft. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
 Text.
 
-> Current release: 0.1.0. Please report reproducible issues through GitHub.
+> Latest published release: 0.1.0. Current development version: 0.2.0.
 
 ## Client coverage
 
-The addon is designed to work across WoW client variants through capability
-detection rather than a runtime version gate. Run `/ssloot debug api` on every
-target client before relying on a build there; compatibility is only claimed
-after that client has been tested.
+The 0.2 development line targets the complete current Classic family:
+
+- WoW Classic Era, including Hardcore realms (`Interface 11509`);
+- Burning Crusade Classic Anniversary Edition (`Interface 20506`).
+
+The package contains separate Vanilla and TBC TOC metadata while sharing one
+Lua implementation. Runtime checks use both the loaded TOC flavor and Blizzard
+project constants, then verify every critical API before registering loot
+events. Retail, Mists of Pandaria Classic, and other clients remain disabled.
+
+Offline Lua and metadata tests cover both target families. Live in-game
+verification is still required for every interface/build before release; see
+[`COMPATIBILITY.md`](COMPATIBILITY.md).
 
 ## Features
 
@@ -24,11 +33,11 @@ after that client has been tested.
   and raid member loot is always ignored.
 - **Item Loot Notifications**: Displays item icon, rarity-colored name, and stack quantity.
 - **Money Notifications**: Formatted gold, silver, and copper gains with coin icons.
-- **Honor Gain Notifications**: Formatted honor gain notifications.
 - **Optional Vendor Value**: Shows total vendor sell price for looted items.
 - **Standalone Rendering**: Completely independent frame rendering (does NOT rely on Blizzard Scrolling Combat Text or `CombatText_AddMessage`).
-- **Movable & Configurable Anchor**: Unlock and position your loot notifications anywhere on screen.
-- **Customizable Appearance & Animation**: Adjust font size, icon size, scroll direction (UP/DOWN), duration, travel distance, opacity, max visible rows, and optional static mode.
+- **Movable & Configurable Anchor**: Unlock, position, and reset your loot notifications anywhere on screen.
+- **Customizable Appearance & Animation**: Adjust font size, icon size, maximum width, scroll direction (UP/DOWN), duration, travel distance, opacity, max visible rows, and optional static mode.
+- **Optional Item Interaction**: Enable normal item tooltips and standard modified item-link clicks without intercepting the mouse by default.
 - **Background Styling**: Enable a Blizzard-styled rounded-corner frame and
   adjust its opacity.
 - **Untouched Loot Window**: Never hooks, hides, or otherwise changes the Blizzard loot window.
@@ -63,10 +72,11 @@ Restart WoW or reload UI with `/reload`.
 ## Configuration
 
 Open settings with `/ssloot`. The panel includes controls for item-quality
-filtering, icons, vendor value, background, scale, font/icon sizes, duration,
-fade, travel distance, spacing, scrolling direction, static mode, and visible-row
-limit. Enable **Rounded Corners** for a Blizzard-styled rounded frame, then
-adjust its opacity.
+filtering, icons, vendor value, background, row opacity, maximum width, scale,
+font/icon sizes, duration, fade, travel distance, spacing, scrolling direction,
+static mode, mouse interaction, and visible-row limit. Enable **Rounded
+Corners** for a Blizzard-styled rounded frame, then adjust its background
+opacity separately.
 
 Use `/ssloot unlock` to place the anchor, `/ssloot test` to preview the result,
 and `/ssloot lock` when finished.
@@ -80,12 +90,13 @@ account, API, or authentication secrets in a report.
 
 ## Releases
 
-Every push to `main` creates an Alpha development build and uploads it to
-CurseForge project `1624616`. Version tags in the form `v*` additionally create
-a matching GitHub release. Tags containing `alpha` or `beta` publish that
-release type; other version tags, including `v0.1.0`, publish a Release.
+Every push and pull request runs Lua 5.1 syntax, regression, and TOC consistency
+checks. Only version tags in the form `v*` package and upload a build to
+CurseForge project `1624616` and create a matching GitHub release. Tags
+containing `alpha` or `beta` publish that release type; other version tags
+publish a Release.
 
-Before creating the first release tag, add a repository Actions secret named
+Before creating a release tag, add a repository Actions secret named
 `CF_API_TOKEN` with a CurseForge author upload token. The token is never stored
 in this repository. Only publish a Release after testing it in the intended WoW
 client.
