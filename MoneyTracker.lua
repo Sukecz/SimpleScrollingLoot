@@ -36,7 +36,6 @@ local function EmitPending(callback, sourceEvent)
         copper = amount,
         formattedText = ns.ApiCompat.FormatMoney(amount),
         coinIconsText = ns.ApiCompat.GetCoinIconsText(amount),
-        texture = ns.ApiCompat.GetMoneyIconTexture(amount),
         sourceEvent = sourceEvent,
         timestamp = GetTime(),
     }

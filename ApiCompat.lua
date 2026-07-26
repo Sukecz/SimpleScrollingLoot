@@ -237,15 +237,3 @@ function ApiCompat.GetCoinIconsText(copper)
 
     return table.concat(parts, " ")
 end
-
--- Selects the row icon by the highest denomination present in the gain.
-function ApiCompat.GetMoneyIconTexture(copper)
-    copper = math.max(0, tonumber(copper) or 0)
-    if copper >= 10000 then
-        return "Interface\\MoneyFrame\\UI-GoldIcon"
-    end
-    if copper >= 100 then
-        return "Interface\\MoneyFrame\\UI-SilverIcon"
-    end
-    return "Interface\\MoneyFrame\\UI-CopperIcon"
-end
