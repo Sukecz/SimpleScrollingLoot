@@ -12,7 +12,8 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
   total vendor value.
 - Optionally shows separate non-zero quantities of the same item in bags and
   bank.
-- Shows positive money gains with gold, silver, and copper formatting.
+- Shows positive money gains with gold, silver, and copper formatting and a row
+  icon matching the highest denomination received.
 - Supports configurable minimum item quality, icon size, font size, opacity,
   spacing, duration, travel distance, scale, and maximum visible rows.
 - Includes an optional Blizzard-styled rounded-corner frame with configurable

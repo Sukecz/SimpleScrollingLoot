@@ -17,6 +17,7 @@ local ns = {
     ApiCompat = {
         FormatMoney = function(value) return tostring(value) end,
         GetCoinIconsText = function(value) return tostring(value) end,
+        GetMoneyIconTexture = function(value) return "money:" .. tostring(value) end,
     },
     Debug = {
         Log = function() end,
@@ -36,6 +37,7 @@ ns.MoneyTracker.OnPlayerMoney(Capture)
 assert(#emitted == 0, "uncorrelated gain must wait for a loot signal")
 ns.MoneyTracker.OnChatMessageMoney("loot", Capture)
 assert(#emitted == 1 and emitted[1].copper == 100, "loot signal must release the pending gain")
+assert(emitted[1].texture == "money:100", "money records must use the denomination-aware icon")
 
 -- CHAT_MSG_MONEY first, then PLAYER_MONEY.
 now = 11

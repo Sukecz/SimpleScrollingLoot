@@ -381,7 +381,7 @@ function NotificationManager.ShowTestNotifications()
         { kind = "item", itemID = 14047, name = ns.L.TEST_ITEM_1 or "Runecloth", itemLink = "|cffffffff|Hitem:14047:0:0:0:0:0:0:0|h[Runecloth]|h|r", quality = 1, quantity = 5, bagCount = 28, bankCount = 20, isPreview = true, sellPrice = 250 },
         { kind = "item", itemID = 4234, name = ns.L.TEST_ITEM_2 or "Heavy Leather", itemLink = "|cffffffff|Hitem:4234:0:0:0:0:0:0:0|h[Heavy Leather]|h|r", quality = 1, quantity = 2, bagCount = 17, bankCount = 0, isPreview = true, sellPrice = 150 },
         { kind = "item", itemID = 12360, name = ns.L.TEST_ITEM_3 or "Arcanite Bar", itemLink = "|cffa335ee|Hitem:12360:0:0:0:0:0:0:0|h[Arcanite Bar]|h|r", quality = 4, quantity = 1, bagCount = 1, bankCount = 3, isPreview = true, sellPrice = 50000 },
-        { kind = "money", copper = 12580, formattedText = ns.ApiCompat.FormatMoney(12580), coinIconsText = ns.ApiCompat.GetCoinIconsText(12580), texture = "Interface\\Icons\\INV_Misc_Coin_01" },
+        { kind = "money", copper = 2580, formattedText = ns.ApiCompat.FormatMoney(2580), coinIconsText = ns.ApiCompat.GetCoinIconsText(2580), texture = ns.ApiCompat.GetMoneyIconTexture(2580) },
     }
 
     for _, rec in ipairs(testItems) do
