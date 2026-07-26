@@ -137,6 +137,21 @@ function NotificationManager.Initialize()
     ns.Database.RegisterCallback("direction", NotificationManager.UpdateLayout)
     ns.Database.RegisterCallback("staticMode", NotificationManager.UpdateLayout)
     ns.Database.RegisterCallback("rowSpacing", NotificationManager.UpdateLayout)
+    ns.Database.RegisterCallback("duration", function(value)
+        for _, entry in ipairs(activeRows) do
+            entry.duration = value
+        end
+    end)
+    ns.Database.RegisterCallback("fadeDuration", function(value)
+        for _, entry in ipairs(activeRows) do
+            entry.fadeDuration = math.min(value, entry.duration)
+        end
+    end)
+    ns.Database.RegisterCallback("travelDistance", function(value)
+        for _, entry in ipairs(activeRows) do
+            entry.travelDistance = value
+        end
+    end)
     ns.Database.RegisterCallback("maxVisible", function()
         TrimVisibleRows()
         NotificationManager.UpdateLayout()
