@@ -19,9 +19,8 @@ function NotificationRow.Create(parent)
     local frame = CreateFrame("Button", "SimpleScrollingLootRow" .. rowIdCounter, parent, "BackdropTemplate")
     frame:SetSize(200, 28)
     frame:SetFrameStrata("HIGH")
-    -- Mouse interaction is disabled by default so notifications do not block
-    -- camera rotation or character clicks.  OnEnter re-enables it temporarily
-    -- to allow tooltip and shift-click behaviour.
+    -- Mouse interaction is opt-in so notifications do not block camera or
+    -- character clicks during normal play.
     frame:EnableMouse(false)
     frame:RegisterForClicks("AnyUp")
 
@@ -67,6 +66,10 @@ function NotificationRow.Create(parent)
     local mainText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     mainText:SetPoint("LEFT", icon, "RIGHT", 6, 0)
     mainText:SetJustifyH("LEFT")
+    mainText:SetWordWrap(false)
+    if type(mainText.SetMaxLines) == "function" then
+        mainText:SetMaxLines(1)
+    end
     frame.mainText = mainText
 
     -- Quantity text
@@ -83,9 +86,6 @@ function NotificationRow.Create(parent)
 
     -- Tooltip events
     frame:SetScript("OnEnter", function(self)
-        -- Enable mouse on hover so the tooltip and click handler work,
-        -- without blocking the camera when the cursor is not over the row.
-        self:EnableMouse(true)
         if self.itemLink and GameTooltip then
             GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
             GameTooltip:SetHyperlink(self.itemLink)
@@ -94,7 +94,6 @@ function NotificationRow.Create(parent)
     end)
 
     frame:SetScript("OnLeave", function(self)
-        self:EnableMouse(false)
         if GameTooltip then
             GameTooltip:Hide()
         end
@@ -113,17 +112,21 @@ function NotificationRow.Create(parent)
 
         local iconSize = config.iconSize or 24
         local fontSize = config.fontSize or 14
+        local maxWidth = config.maxWidth or 480
 
         self:SetHeight(iconSize + 4)
+        self:EnableMouse(config.mouseInteraction and record.kind == "item")
 
         -- Icon
         if config.showIcons and record.texture then
             self.icon:SetTexture(record.texture)
             self.icon:SetSize(iconSize, iconSize)
             self.icon:Show()
+            self.mainText:ClearAllPoints()
             self.mainText:SetPoint("LEFT", self.icon, "RIGHT", 6, 0)
         else
             self.icon:Hide()
+            self.mainText:ClearAllPoints()
             self.mainText:SetPoint("LEFT", self, "LEFT", 6, 0)
         end
 
@@ -170,21 +173,25 @@ function NotificationRow.Create(parent)
             self.vendorText:Hide()
         end
 
-        -- Calculate content width dynamically to center row perfectly on anchor
+        -- Bound long localized names without changing the stored item link used
+        -- by tooltips and modified clicks.
+        self.mainText:SetWidth(maxWidth)
         local mainWidth = self.mainText:GetStringWidth() or 0
         local quantWidth = self.quantityText:IsShown() and (self.quantityText:GetStringWidth() or 0) or 0
         local vendorWidth = self.vendorText:IsShown() and (self.vendorText:GetStringWidth() or 0) or 0
         local iconWidth = self.icon:IsShown() and iconSize or 0
 
-        local contentWidth = iconWidth
-        if iconWidth > 0 then contentWidth = contentWidth + 6 end
-        contentWidth = contentWidth + mainWidth
-        if quantWidth > 0 then contentWidth = contentWidth + 6 + quantWidth end
-        if vendorWidth > 0 then contentWidth = contentWidth + 10 + vendorWidth end
+        local fixedWidth = iconWidth
+        if iconWidth > 0 then fixedWidth = fixedWidth + 6 end
+        if quantWidth > 0 then fixedWidth = fixedWidth + 6 + quantWidth end
+        if vendorWidth > 0 then fixedWidth = fixedWidth + 10 + vendorWidth end
 
-        self:SetWidth(math.max(80, contentWidth + 12))
+        local availableMainWidth = math.max(40, maxWidth - fixedWidth - 12)
+        mainWidth = math.min(mainWidth, availableMainWidth)
+        self.mainText:SetWidth(mainWidth)
+        self:SetWidth(math.max(80, fixedWidth + mainWidth + 12))
 
-        self:SetAlpha(1.0)
+        self:SetAlpha(config.rowOpacity or 1.0)
         self:Show()
     end
 
@@ -192,6 +199,7 @@ function NotificationRow.Create(parent)
         self.record = nil
         self.itemLink = nil
         self:Hide()
+        self:EnableMouse(false)
         self:ClearAllPoints()
         self:SetAlpha(1.0)
     end

@@ -65,9 +65,9 @@ function SlashCommands.Initialize()
     -- Register the confirmation popup once.
     -- This must be set up before any slash command is processed.
     StaticPopupDialogs["SSL_CONFIRM_RESET"] = {
-        text = "Reset all Simple Scrolling Loot settings to defaults?\nThis cannot be undone.",
-        button1 = "Reset",
-        button2 = "Cancel",
+        text = ns.L.RESET_PROMPT,
+        button1 = ns.L.RESET_BUTTON,
+        button2 = ns.L.CANCEL_BUTTON,
         OnAccept = function()
             ns.Database.Reset()
             ns.Debug.Warn(ns.L.RESET_CONFIRM or "Settings reset to defaults.")

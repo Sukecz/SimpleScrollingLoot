@@ -1,7 +1,7 @@
 local addonName, ns = ...
 
 ns.Defaults = {
-    version = 3,
+    version = 4,
     enabled = true,
     minQuality = 1,
     showItems = true,
@@ -13,6 +13,8 @@ ns.Defaults = {
     showBackground = true,
     backgroundOpacity = 0.2,
     backgroundRounded = false,
+    rowOpacity = 1.0,
+    mouseInteraction = false,
     direction = "UP",
     staticMode = false,
     duration = 3.5,
@@ -21,6 +23,7 @@ ns.Defaults = {
     maxVisible = 5,
     iconSize = 30,
     fontSize = 18,
+    maxWidth = 480,
     rowSpacing = 1,
     scale = 1.0,
     anchor = {
@@ -43,4 +46,6 @@ ns.ValidationRanges = {
     rowSpacing = { min = 0, max = 50 },
     scale = { min = 0.5, max = 3.0 },
     backgroundOpacity = { min = 0.0, max = 1.0 },
+    rowOpacity = { min = 0.1, max = 1.0 },
+    maxWidth = { min = 160, max = 800 },
 }

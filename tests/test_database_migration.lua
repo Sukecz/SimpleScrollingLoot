@@ -19,7 +19,7 @@ SimpleScrollingLootDB = {
 
 ns.Database.Initialize()
 
-assert(SimpleScrollingLootDB.version == 3, "database must migrate to version 3")
+assert(SimpleScrollingLootDB.version == 4, "database must migrate to version 4")
 assert(SimpleScrollingLootDB.backgroundRounded == false, "rounded corners must default safely")
 assert(SimpleScrollingLootDB.backgroundStyle == nil, "obsolete style must be removed")
 assert(SimpleScrollingLootDB.backgroundRed == nil, "obsolete red must be removed")

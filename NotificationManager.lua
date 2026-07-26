@@ -8,6 +8,11 @@ local activeRows = {}
 local rowPool = {}
 local animDriverFrame = nil
 
+function NotificationManager.CalculateTravelY(baseOffset, progress, travelDistance, direction)
+    local directionMultiplier = direction == "DOWN" and -1 or 1
+    return baseOffset + progress * travelDistance * directionMultiplier
+end
+
 local function GetRowConfig()
     return {
         showIcons = ns.Database.Get("showIcons"),
@@ -16,8 +21,11 @@ local function GetRowConfig()
         showBackground = ns.Database.Get("showBackground"),
         backgroundOpacity = ns.Database.Get("backgroundOpacity"),
         backgroundRounded = ns.Database.Get("backgroundRounded"),
+        rowOpacity = ns.Database.Get("rowOpacity"),
+        mouseInteraction = ns.Database.Get("mouseInteraction"),
         iconSize = ns.Database.Get("iconSize") or 24,
         fontSize = ns.Database.Get("fontSize") or 14,
+        maxWidth = ns.Database.Get("maxWidth") or 480,
         scale = ns.Database.Get("scale") or 1.0,
     }
 end
@@ -78,6 +86,27 @@ local function RecycleRow(row)
     table.insert(rowPool, row)
 end
 
+local function ApplySavedAnchor()
+    if not anchorFrame then return end
+    local savedAnchor = ns.Database.Get("anchor")
+    anchorFrame:ClearAllPoints()
+    anchorFrame:SetPoint(
+        savedAnchor.point,
+        UIParent,
+        savedAnchor.relativePoint,
+        savedAnchor.x,
+        savedAnchor.y
+    )
+end
+
+local function TrimVisibleRows()
+    local maxVisible = ns.Database.Get("maxVisible") or 6
+    while #activeRows > maxVisible do
+        local oldest = table.remove(activeRows)
+        RecycleRow(oldest.row)
+    end
+end
+
 function NotificationManager.Initialize()
     CreateAnchor()
 
@@ -86,15 +115,38 @@ function NotificationManager.Initialize()
     animDriverFrame:SetScript("OnUpdate", function(self, elapsed)
         NotificationManager.OnUpdate(elapsed)
     end)
+    animDriverFrame:Hide()
 
     local appearanceSettings = {
+        "showIcons",
+        "showQuantity",
+        "showVendorValue",
         "showBackground",
         "backgroundOpacity",
         "backgroundRounded",
+        "rowOpacity",
+        "mouseInteraction",
+        "iconSize",
+        "fontSize",
+        "maxWidth",
+        "scale",
     }
     for _, key in ipairs(appearanceSettings) do
         ns.Database.RegisterCallback(key, NotificationManager.RefreshActiveRows)
     end
+    ns.Database.RegisterCallback("direction", NotificationManager.UpdateLayout)
+    ns.Database.RegisterCallback("staticMode", NotificationManager.UpdateLayout)
+    ns.Database.RegisterCallback("rowSpacing", NotificationManager.UpdateLayout)
+    ns.Database.RegisterCallback("maxVisible", function()
+        TrimVisibleRows()
+        NotificationManager.UpdateLayout()
+    end)
+    ns.Database.RegisterCallback("anchor", ApplySavedAnchor)
+    ns.Database.RegisterCallback("enabled", function(enabled)
+        if not enabled then
+            NotificationManager.Clear()
+        end
+    end)
 end
 
 function NotificationManager.AddNotification(record)
@@ -128,6 +180,7 @@ function NotificationManager.AddNotification(record)
         duration = ns.Database.Get("duration") or 4.0,
         fadeDuration = ns.Database.Get("fadeDuration") or 0.8,
         travelDistance = ns.Database.Get("travelDistance") or 90,
+        opacity = config.rowOpacity or 1.0,
         -- baseOffset is assigned by UpdateLayout() after insert.
         baseOffset = 0,
     }
@@ -135,13 +188,10 @@ function NotificationManager.AddNotification(record)
     table.insert(activeRows, 1, entry)
 
     -- Limit visible rows
-    local maxVisible = ns.Database.Get("maxVisible") or 6
-    while #activeRows > maxVisible do
-        local oldest = table.remove(activeRows)
-        RecycleRow(oldest.row)
-    end
+    TrimVisibleRows()
 
     NotificationManager.UpdateLayout()
+    animDriverFrame:Show()
 end
 
 function NotificationManager.RefreshActiveRows()
@@ -149,6 +199,7 @@ function NotificationManager.RefreshActiveRows()
     for _, entry in ipairs(activeRows) do
         entry.row:SetScale(config.scale)
         entry.row:SetRecord(entry.row.record, config)
+        entry.opacity = config.rowOpacity or 1.0
     end
     NotificationManager.UpdateLayout()
 end
@@ -162,7 +213,7 @@ function NotificationManager.UpdateLayout()
     local currentOffset = 0
     for i, entry in ipairs(activeRows) do
         local row = entry.row
-        local rowHeight = row:GetHeight()
+        local rowHeight = row:GetHeight() * row:GetScale()
 
         row:ClearAllPoints()
 
@@ -181,7 +232,10 @@ function NotificationManager.UpdateLayout()
 end
 
 function NotificationManager.OnUpdate(elapsed)
-    if #activeRows == 0 then return end
+    if #activeRows == 0 then
+        if animDriverFrame then animDriverFrame:Hide() end
+        return
+    end
 
     local now = GetTime()
     local staticMode = ns.Database.Get("staticMode") or false
@@ -205,13 +259,19 @@ function NotificationManager.OnUpdate(elapsed)
             local alpha = (remaining < fadeDuration)
                 and math.max(0.0, remaining / fadeDuration)
                 or 1.0
-            entry.row:SetAlpha(alpha)
+            entry.row:SetAlpha(alpha * entry.opacity)
 
             -- Smooth linear travel: interpolate from baseOffset to baseOffset+travelDistance.
             -- baseOffset is set by UpdateLayout() and does not change here.
             if not staticMode then
                 local progress = math.min(1.0, age / totalDuration)
-                local animY = entry.baseOffset + progress * entry.travelDistance
+                local direction = ns.Database.Get("direction") or "UP"
+                local animY = NotificationManager.CalculateTravelY(
+                    entry.baseOffset,
+                    progress,
+                    entry.travelDistance,
+                    direction
+                )
                 entry.row:ClearAllPoints()
                 entry.row:SetPoint("CENTER", anchorFrame, "CENTER", 0, animY)
             end
@@ -224,6 +284,28 @@ function NotificationManager.OnUpdate(elapsed)
     if needsLayoutUpdate then
         NotificationManager.UpdateLayout()
     end
+    if #activeRows == 0 and animDriverFrame then
+        animDriverFrame:Hide()
+    end
+end
+
+function NotificationManager.Clear()
+    for _, entry in ipairs(activeRows) do
+        RecycleRow(entry.row)
+    end
+    activeRows = {}
+    if animDriverFrame then
+        animDriverFrame:Hide()
+    end
+end
+
+function NotificationManager.ResetAnchor()
+    ns.Database.Set("anchor", {
+        point = ns.Defaults.anchor.point,
+        relativePoint = ns.Defaults.anchor.relativePoint,
+        x = ns.Defaults.anchor.x,
+        y = ns.Defaults.anchor.y,
+    })
 end
 
 function NotificationManager.UnlockAnchor()

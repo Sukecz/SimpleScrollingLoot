@@ -123,6 +123,12 @@ local function RunMigrations(db)
         version = 3
     end
 
+    if version < 4 then
+        -- Version 4 adds bounded rows, overall opacity, and opt-in mouse
+        -- interaction. MergeDefaults has already supplied safe defaults.
+        version = 4
+    end
+
     db.version = version
 end
 
