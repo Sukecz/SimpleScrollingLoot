@@ -4,6 +4,12 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-26
+
+### Added
+- Add an opt-in notification total for copies of the looted item held in bags
+  and bank.
+
 ## [0.2.0] - 2026-07-26
 
 ### Fixed
