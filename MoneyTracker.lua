@@ -8,7 +8,10 @@ local pendingGain = 0
 local pendingGainTime = 0
 local pendingCallback = nil
 local lootSignalUntil = 0
+local lootOpen = false
+local lootContextUntil = 0
 local CORRELATION_WINDOW = 1.0
+local LOOT_CLOSE_GRACE = 1.0
 
 local function CaptureDelta()
     local currentMoney = GetMoney()
@@ -74,10 +77,21 @@ function MoneyTracker.Initialize()
     lastMoney = GetMoney()
 end
 
+function MoneyTracker.OnLootOpened()
+    lootOpen = true
+    lootContextUntil = 0
+end
+
+function MoneyTracker.OnLootClosed()
+    lootOpen = false
+    lootContextUntil = GetTime() + LOOT_CLOSE_GRACE
+end
+
 function MoneyTracker.OnPlayerMoney(callback)
     local now = GetTime()
     QueueDelta(CaptureDelta(), callback)
-    if pendingGain > 0 and now <= lootSignalUntil then
+    local hasLootContext = lootOpen or now <= lootContextUntil or now <= lootSignalUntil
+    if pendingGain > 0 and hasLootContext then
         return EmitPending(callback, "PLAYER_MONEY")
     end
     return nil
@@ -111,4 +125,6 @@ function MoneyTracker.Synchronize()
     pendingGainTime = 0
     pendingCallback = nil
     lootSignalUntil = 0
+    lootOpen = false
+    lootContextUntil = 0
 end

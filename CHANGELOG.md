@@ -4,6 +4,13 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Display `PLAYER_MONEY` gains immediately while the player is actively
+  looting, including a short grace period for auto-loot event ordering, instead
+  of waiting for a later `CHAT_MSG_MONEY` event.
+- Preserve chat correlation outside loot so unrelated gains such as selling,
+  mail, or trades are not mislabeled as looted money.
+
 ## [0.3.5] - 2026-07-27
 
 ### Fixed

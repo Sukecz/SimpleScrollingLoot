@@ -9,6 +9,8 @@ local notificationEvents = {
     "CHAT_MSG_LOOT",
     "CHAT_MSG_MONEY",
     "PLAYER_MONEY",
+    "LOOT_OPENED",
+    "LOOT_CLOSED",
     "GET_ITEM_INFO_RECEIVED",
     "BAG_UPDATE_DELAYED",
 }
@@ -73,6 +75,10 @@ function Events.OnEvent(event, ...)
                 ns.NotificationManager.AddNotification(record)
             end
         end)
+    elseif event == "LOOT_OPENED" then
+        ns.MoneyTracker.OnLootOpened()
+    elseif event == "LOOT_CLOSED" then
+        ns.MoneyTracker.OnLootClosed()
     elseif event == "GET_ITEM_INFO_RECEIVED" then
         local itemID, success = ...
         ns.ItemResolver.OnItemInfoReceived(itemID, success)

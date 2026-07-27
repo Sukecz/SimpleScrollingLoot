@@ -56,10 +56,29 @@ ns.MoneyTracker.OnPlayerMoney(Capture)
 ns.MoneyTracker.OnChatMessageMoney("loot", Capture)
 assert(#emitted == 4, "quick independent loot gains must not be suppressed")
 
+-- PLAYER_MONEY during an open loot window must display immediately instead of
+-- waiting for CHAT_MSG_MONEY.
+now = 13
+ns.MoneyTracker.OnLootOpened()
+money = 1230
+ns.MoneyTracker.OnPlayerMoney(Capture)
+assert(#emitted == 5 and emitted[5].copper == 30, "open loot must release the wallet delta immediately")
+ns.MoneyTracker.OnLootClosed()
+
+-- Auto-loot can close the loot window before PLAYER_MONEY arrives. A short
+-- close grace must still allow immediate display.
+now = 14
+ns.MoneyTracker.OnLootOpened()
+ns.MoneyTracker.OnLootClosed()
+now = 14.2
+money = 1250
+ns.MoneyTracker.OnPlayerMoney(Capture)
+assert(#emitted == 6 and emitted[6].copper == 20, "recently closed auto-loot must display immediately")
+
 -- A non-loot positive change is never emitted.
 now = 20
-money = 2200
+money = 2250
 ns.MoneyTracker.OnPlayerMoney(Capture)
-assert(#emitted == 4, "uncorrelated positive money must not display as loot")
+assert(#emitted == 6, "uncorrelated positive money must not display as loot")
 
 print("MoneyTracker tests passed")
