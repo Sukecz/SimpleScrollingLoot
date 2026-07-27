@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.6] - 2026-07-27
+
 ### Fixed
 - Display `PLAYER_MONEY` gains immediately while the player is actively
   looting, including a short grace period for auto-loot event ordering, instead

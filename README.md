@@ -9,7 +9,7 @@ zero-dependency loot notification addon for World of Warcraft. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
 Text.
 
-> Current release: 0.3.5.
+> Current release: 0.3.6.
 
 ## Client coverage
 
@@ -23,7 +23,7 @@ Lua implementation. Runtime checks use both the loaded TOC flavor and Blizzard
 project constants, then verify every critical API before registering loot
 events. Retail, Mists of Pandaria Classic, and other clients remain disabled.
 
-Offline Lua and metadata tests cover both target families. Version 0.3.5 has
+Offline Lua and metadata tests cover both target families. Version 0.3.6 has
 not yet been verified in a live WoW client; see
 [`COMPATIBILITY.md`](COMPATIBILITY.md) for the outstanding test matrix.
 

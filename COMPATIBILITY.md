@@ -13,7 +13,7 @@ The interface values were refreshed on 2026-07-26 against current maintained
 Vanilla and TBC addon metadata. They are packaging inputs, not proof of runtime
 compatibility.
 
-Version 0.3.5 was packaged after offline validation but without access to a
+Version 0.3.6 was packaged after offline validation but without access to a
 live WoW client. Before claiming live compatibility, record the exact output of
 `/ssloot debug api` and test at least:
 
