@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-07-27
+
 ### Fixed
 - Keep the newest notification above older rows while they move away from the
   anchor, preventing smooth reflow from looking like delayed loot display.
