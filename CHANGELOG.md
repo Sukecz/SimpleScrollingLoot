@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-07-27
+
 ### Fixed
 - Smooth row reflow during rapid item and money loot bursts instead of jumping
   active notifications by a full row at a time.
