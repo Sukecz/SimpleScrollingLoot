@@ -9,6 +9,12 @@ assert(TravelY(0, 0.5, 100, "UP") == 50, "UP must move toward positive Y")
 assert(TravelY(0, 0.5, 100, "DOWN") == -50, "DOWN must move toward negative Y")
 assert(TravelY(-30, 1, 100, "DOWN") == -130, "DOWN must continue away from its negative base slot")
 
+local LayoutOffset = ns.NotificationManager.CalculateLayoutOffset
+assert(LayoutOffset(10, 50, 0) == 10, "layout transition must start at the current position")
+assert(LayoutOffset(10, 50, 0.5) == 30, "layout transition must move smoothly between slots")
+assert(LayoutOffset(10, 50, 1) == 50, "layout transition must finish at its target")
+assert(LayoutOffset(10, 50, 2) == 50, "layout transition progress must be clamped")
+
 local BagsAndBank = ns.NotificationManager.CalculateLocationCounts
 local bags, bank = BagsAndBank(22, 42, 5)
 assert(bags == 22 and bank == 20, "bank count must be total minus bags")

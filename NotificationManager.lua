@@ -7,10 +7,17 @@ local anchorFrame = nil
 local activeRows = {}
 local rowPool = {}
 local animDriverFrame = nil
+local LAYOUT_TRANSITION_DURATION = 0.18
 
 function NotificationManager.CalculateTravelY(baseOffset, progress, travelDistance, direction)
     local directionMultiplier = direction == "DOWN" and -1 or 1
     return baseOffset + progress * travelDistance * directionMultiplier
+end
+
+function NotificationManager.CalculateLayoutOffset(startOffset, targetOffset, progress)
+    local clampedProgress = math.max(0, math.min(1, tonumber(progress) or 0))
+    local easedProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress)
+    return startOffset + (targetOffset - startOffset) * easedProgress
 end
 
 function NotificationManager.CalculateLocationCounts(bagCount, totalCount, quantity)
@@ -221,15 +228,18 @@ function NotificationManager.AddNotification(record)
     row:SetScale(config.scale)
     row:SetRecord(record, config)
 
+    local spawnTime = GetTime()
     local entry = {
         row = row,
-        spawnTime = GetTime(),
+        spawnTime = spawnTime,
         duration = ns.Database.Get("duration") or 4.0,
         fadeDuration = ns.Database.Get("fadeDuration") or 0.8,
         travelDistance = ns.Database.Get("travelDistance") or 90,
         opacity = config.rowOpacity or 1.0,
-        -- baseOffset is assigned by UpdateLayout() after insert.
-        baseOffset = 0,
+        layoutOffset = 0,
+        layoutStartOffset = 0,
+        layoutTargetOffset = 0,
+        layoutStartTime = spawnTime,
     }
 
     table.insert(activeRows, 1, entry)
@@ -238,6 +248,10 @@ function NotificationManager.AddNotification(record)
     TrimVisibleRows()
 
     NotificationManager.UpdateLayout()
+    row:ClearAllPoints()
+    row:SetPoint("CENTER", anchorFrame, "CENTER", 0, 0)
+    row:SetAlpha(entry.opacity)
+    row:Show()
     animDriverFrame:Show()
 end
 
@@ -260,27 +274,25 @@ end
 function NotificationManager.UpdateLayout()
     local direction = ns.Database.Get("direction") or "UP"
     local rowSpacing = ns.Database.Get("rowSpacing") or 4
-    local staticMode = ns.Database.Get("staticMode") or false
     local dirMultiplier = (direction == "UP") and 1 or -1
+    local now = GetTime()
 
     local currentOffset = 0
-    for i, entry in ipairs(activeRows) do
+    for _, entry in ipairs(activeRows) do
         local row = entry.row
         local rowHeight = row:GetHeight() * row:GetScale()
+        local transitionProgress = (now - (entry.layoutStartTime or now)) / LAYOUT_TRANSITION_DURATION
+        local visualOffset = NotificationManager.CalculateLayoutOffset(
+            entry.layoutStartOffset or entry.layoutOffset or 0,
+            entry.layoutTargetOffset or entry.layoutOffset or 0,
+            transitionProgress
+        )
 
-        row:ClearAllPoints()
-
-        if staticMode then
-            -- In static mode rows are stacked from the anchor; no animation offset.
-            local yPos = (i - 1) * (rowHeight + rowSpacing) * dirMultiplier
-            entry.baseOffset = yPos
-            row:SetPoint("CENTER", anchorFrame, "CENTER", 0, yPos)
-        else
-            -- Record the base slot position; OnUpdate will add the travel offset on top.
-            entry.baseOffset = currentOffset * dirMultiplier
-            currentOffset = currentOffset + rowHeight + rowSpacing
-            -- Position will be applied by the next OnUpdate tick.
-        end
+        entry.layoutOffset = visualOffset
+        entry.layoutStartOffset = visualOffset
+        entry.layoutTargetOffset = currentOffset * dirMultiplier
+        entry.layoutStartTime = now
+        currentOffset = currentOffset + rowHeight + rowSpacing
     end
 end
 
@@ -307,6 +319,13 @@ function NotificationManager.OnUpdate(elapsed)
             needsLayoutUpdate = true
             -- Do not increment i; the next entry slides into index i.
         else
+            local layoutProgress = (now - entry.layoutStartTime) / LAYOUT_TRANSITION_DURATION
+            entry.layoutOffset = NotificationManager.CalculateLayoutOffset(
+                entry.layoutStartOffset,
+                entry.layoutTargetOffset,
+                layoutProgress
+            )
+
             -- Fade: full opacity for most of the lifetime, fade at the end.
             local remaining = totalDuration - age
             local alpha = (remaining < fadeDuration)
@@ -320,13 +339,16 @@ function NotificationManager.OnUpdate(elapsed)
                 local progress = math.min(1.0, age / totalDuration)
                 local direction = ns.Database.Get("direction") or "UP"
                 local animY = NotificationManager.CalculateTravelY(
-                    entry.baseOffset,
+                    entry.layoutOffset,
                     progress,
                     entry.travelDistance,
                     direction
                 )
                 entry.row:ClearAllPoints()
                 entry.row:SetPoint("CENTER", anchorFrame, "CENTER", 0, animY)
+            else
+                entry.row:ClearAllPoints()
+                entry.row:SetPoint("CENTER", anchorFrame, "CENTER", 0, entry.layoutOffset)
             end
 
             i = i + 1

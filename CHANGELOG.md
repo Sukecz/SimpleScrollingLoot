@@ -4,6 +4,12 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Smooth row reflow during rapid item and money loot bursts instead of jumping
+  active notifications by a full row at a time.
+- Prevent content refreshes and pooled-row setup from briefly flashing
+  notifications at full opacity or before their first position is assigned.
+
 ## [0.3.3] - 2026-07-26
 
 ### Changed

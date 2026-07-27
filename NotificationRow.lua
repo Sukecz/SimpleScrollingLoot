@@ -214,8 +214,9 @@ function NotificationRow.Create(parent)
         self.mainText:SetWidth(mainWidth)
         self:SetWidth(math.max(80, fixedWidth + mainWidth + 12))
 
-        self:SetAlpha(config.rowOpacity or 1.0)
-        self:Show()
+        -- Visibility, alpha, and position are animation state owned by
+        -- NotificationManager. Content refreshes must not flash a fading row
+        -- back to full opacity or expose a pooled row before it is positioned.
     end
 
     function frame:Reset()
