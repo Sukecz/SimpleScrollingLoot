@@ -4,6 +4,11 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Keep the newest notification above older rows while they move away from the
+  anchor, preventing smooth reflow from looking like delayed loot display.
+- Shorten row reflow to 120 ms so rapid bursts remain smooth and responsive.
+
 ## [0.3.4] - 2026-07-27
 
 ### Fixed

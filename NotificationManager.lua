@@ -7,7 +7,7 @@ local anchorFrame = nil
 local activeRows = {}
 local rowPool = {}
 local animDriverFrame = nil
-local LAYOUT_TRANSITION_DURATION = 0.18
+local LAYOUT_TRANSITION_DURATION = 0.12
 
 function NotificationManager.CalculateTravelY(baseOffset, progress, travelDistance, direction)
     local directionMultiplier = direction == "DOWN" and -1 or 1
@@ -18,6 +18,13 @@ function NotificationManager.CalculateLayoutOffset(startOffset, targetOffset, pr
     local clampedProgress = math.max(0, math.min(1, tonumber(progress) or 0))
     local easedProgress = clampedProgress * clampedProgress * (3 - 2 * clampedProgress)
     return startOffset + (targetOffset - startOffset) * easedProgress
+end
+
+function NotificationManager.CalculateRowFrameLevel(baseFrameLevel, activeCount, rowIndex)
+    local baseLevel = tonumber(baseFrameLevel) or 0
+    local count = math.max(1, tonumber(activeCount) or 1)
+    local index = math.max(1, tonumber(rowIndex) or 1)
+    return baseLevel + math.max(1, count - index + 1)
 end
 
 function NotificationManager.CalculateLocationCounts(bagCount, totalCount, quantity)
@@ -276,9 +283,10 @@ function NotificationManager.UpdateLayout()
     local rowSpacing = ns.Database.Get("rowSpacing") or 4
     local dirMultiplier = (direction == "UP") and 1 or -1
     local now = GetTime()
+    local baseFrameLevel = anchorFrame:GetFrameLevel()
 
     local currentOffset = 0
-    for _, entry in ipairs(activeRows) do
+    for index, entry in ipairs(activeRows) do
         local row = entry.row
         local rowHeight = row:GetHeight() * row:GetScale()
         local transitionProgress = (now - (entry.layoutStartTime or now)) / LAYOUT_TRANSITION_DURATION
@@ -292,6 +300,11 @@ function NotificationManager.UpdateLayout()
         entry.layoutStartOffset = visualOffset
         entry.layoutTargetOffset = currentOffset * dirMultiplier
         entry.layoutStartTime = now
+        row:SetFrameLevel(NotificationManager.CalculateRowFrameLevel(
+            baseFrameLevel,
+            #activeRows,
+            index
+        ))
         currentOffset = currentOffset + rowHeight + rowSpacing
     end
 end

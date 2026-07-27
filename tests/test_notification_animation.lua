@@ -15,6 +15,11 @@ assert(LayoutOffset(10, 50, 0.5) == 30, "layout transition must move smoothly be
 assert(LayoutOffset(10, 50, 1) == 50, "layout transition must finish at its target")
 assert(LayoutOffset(10, 50, 2) == 50, "layout transition progress must be clamped")
 
+local RowFrameLevel = ns.NotificationManager.CalculateRowFrameLevel
+assert(RowFrameLevel(10, 4, 1) == 14, "newest row must render above all older rows")
+assert(RowFrameLevel(10, 4, 2) == 13, "row frame levels must follow notification age")
+assert(RowFrameLevel(10, 4, 4) == 11, "oldest row must remain above the anchor")
+
 local BagsAndBank = ns.NotificationManager.CalculateLocationCounts
 local bags, bank = BagsAndBank(22, 42, 5)
 assert(bags == 22 and bank == 20, "bank count must be total minus bags")
