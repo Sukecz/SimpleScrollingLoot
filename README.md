@@ -9,6 +9,8 @@ zero-dependency loot notification addon for World of Warcraft. It
 renders its own notification rows and never uses Blizzard Scrolling Combat
 Text.
 
+![Simple Scrolling Loot item notifications in game](assets/screenshot.png)
+
 > Current release: 0.5.0.
 
 ## Client coverage
