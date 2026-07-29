@@ -16,6 +16,15 @@ function Debug.Log(fmt, ...)
     end
 end
 
+function Debug.Info(fmt, ...)
+    local msg = select("#", ...) > 0 and string.format(fmt, ...) or tostring(fmt)
+    if DEFAULT_CHAT_FRAME then
+        DEFAULT_CHAT_FRAME:AddMessage(PREFIX .. msg)
+    else
+        print(PREFIX .. msg)
+    end
+end
+
 function Debug.Warn(fmt, ...)
     local msg = select("#", ...) > 0 and string.format(fmt, ...) or tostring(fmt)
     if DEFAULT_CHAT_FRAME then

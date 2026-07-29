@@ -12,6 +12,16 @@ function Core.IsOperational()
         and ns.Database.Get("enabled")
 end
 
+function Core.ShowWelcomeIfNeeded(isSupported)
+    if not isSupported or ns.Database.Get("welcomeShown") then
+        return false
+    end
+
+    ns.Debug.Info(ns.L.WELCOME_MESSAGE)
+    ns.Database.Set("welcomeShown", true)
+    return true
+end
+
 function Core.OnAddonLoaded()
     if isInitialized then return end
     isInitialized = true
@@ -45,6 +55,7 @@ function Core.OnAddonLoaded()
 end
 
 function Core.OnPlayerLogin()
+    Core.ShowWelcomeIfNeeded(clientSupported)
     ns.Debug.Log(
         "Player logged in. Notification processing is %s.",
         Core.IsOperational() and "active" or "inactive"
