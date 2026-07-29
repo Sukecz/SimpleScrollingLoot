@@ -9,8 +9,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
   client.
 
 ### Changed
-- Hide the settings window while preview notifications are visible and provide
-  a standalone **Back to Settings** action.
+- Place **Preview Notifications** on a separate footer row above the
+  bottom-right close action so the controls cannot overlap in narrower panels.
 - Close the settings window while moving notification position, show a
   standalone **Save** button, and reopen settings after saving.
 - Redesign the options window into focused General, Appearance, Movement &

@@ -12,7 +12,6 @@ local selectedPage = nil
 local moveButton = nil
 local moveHelpText = nil
 local moveSaveButton = nil
-local previewReturnButton = nil
 
 local PAGE_ORDER = {
     "general",
@@ -227,7 +226,7 @@ end
 local function CreatePage(parent)
     local page = CreateFrame("Frame", nil, parent)
     page:SetPoint("TOPLEFT", parent, "TOPLEFT", 20, -96)
-    page:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -20, 92)
+    page:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -20, 126)
 
     local background = page:CreateTexture(nil, "BACKGROUND")
     background:SetAllPoints(page)
@@ -486,38 +485,6 @@ local function CreateMoveSaveButton()
     return moveSaveButton
 end
 
-local function ReturnFromNotificationPreview()
-    if previewReturnButton then
-        previewReturnButton:Hide()
-    end
-    ns.NotificationManager.ClearPreviewNotifications()
-    if optionsWindowFrame then
-        optionsWindowFrame:Show()
-    end
-end
-
-local function CreatePreviewReturnButton()
-    if previewReturnButton then return previewReturnButton end
-
-    local button = CreateFrame("Button", "SimpleScrollingLootPreviewReturnButton", UIParent, "UIPanelButtonTemplate")
-    button:SetSize(180, 32)
-    button:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 80)
-    button:SetFrameStrata("TOOLTIP")
-    button:SetText(ns.L.OPT_RETURN_TO_SETTINGS or "Back to Settings")
-    AddTooltip(button, ns.L.OPT_RETURN_TO_SETTINGS or "Back to Settings", ns.L.OPT_RETURN_TO_SETTINGS_DESC)
-    button:SetScript("OnClick", ReturnFromNotificationPreview)
-    button:Hide()
-
-    previewReturnButton = button
-    return previewReturnButton
-end
-
-local function ShowNotificationPreview(frame)
-    frame:Hide()
-    ns.NotificationManager.ShowTestNotifications()
-    CreatePreviewReturnButton():Show()
-end
-
 function Options.RefreshPositionControl()
     if not moveButton or not moveHelpText then return end
 
@@ -538,7 +505,7 @@ end
 
 local function CreateFooter(frame)
     moveHelpText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    moveHelpText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 58)
+    moveHelpText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 98)
     moveHelpText:SetWidth(690)
     moveHelpText:SetJustifyH("LEFT")
 
@@ -557,11 +524,11 @@ local function CreateFooter(frame)
 
     local previewButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     previewButton:SetSize(165, 26)
-    previewButton:SetPoint("LEFT", moveButton, "RIGHT", 10, 0)
+    previewButton:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -28, 60)
     previewButton:SetText(ns.L.OPT_TEST_NOTIF or "Preview Notifications")
     AddTooltip(previewButton, ns.L.OPT_TEST_NOTIF, ns.L.OPT_TEST_NOTIF_DESC)
     previewButton:SetScript("OnClick", function()
-        ShowNotificationPreview(frame)
+        ns.NotificationManager.ShowTestNotifications()
     end)
 
     local closeButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
@@ -619,10 +586,6 @@ local function CreateOptionsWindow()
     SelectPage("general")
 
     frame:SetScript("OnShow", function()
-        if previewReturnButton and previewReturnButton:IsShown() then
-            previewReturnButton:Hide()
-            ns.NotificationManager.ClearPreviewNotifications()
-        end
         RefreshAllWidgets()
         SelectPage(selectedPage or "general")
     end)
