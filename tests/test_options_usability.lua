@@ -24,6 +24,14 @@ assert(locale:find('OPT_SAVE_POSITION = "Save"', 1, true),
     "the standalone moving mode must have a concise save action")
 assert(options:find("SimpleScrollingLootSavePositionButton", 1, true),
     "moving mode must provide a standalone save button")
+assert(locale:find('OPT_TEST_WHILE_MOVING = "Test Notifications"', 1, true),
+    "moving mode must offer an explicit test notification action")
+assert(options:find("SimpleScrollingLootMovePreviewButton", 1, true),
+    "moving mode must provide a standalone test notification button")
+assert(options:find("CreateMovePreviewButton%(%s*%):Show%(%s*%)"),
+    "the test notification button must appear while moving")
+assert(options:find("movePreviewButton:Hide%(%s*%)"),
+    "the test notification button must hide after saving")
 assert(options:find("frame:Hide%(%s*%)%s+ns%.NotificationManager%.UnlockAnchor%(%s*%)"),
     "settings must close before the notification anchor is unlocked")
 assert(options:find("ns%.NotificationManager%.LockAnchor%(%s*%)%s+if optionsWindowFrame then%s+optionsWindowFrame:Show%(%s*%)"),

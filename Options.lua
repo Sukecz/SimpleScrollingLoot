@@ -12,6 +12,7 @@ local selectedPage = nil
 local moveButton = nil
 local moveHelpText = nil
 local moveSaveButton = nil
+local movePreviewButton = nil
 
 local PAGE_ORDER = {
     "general",
@@ -474,7 +475,7 @@ local function CreateMoveSaveButton()
 
     local button = CreateFrame("Button", "SimpleScrollingLootSavePositionButton", UIParent, "UIPanelButtonTemplate")
     button:SetSize(150, 32)
-    button:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 80)
+    button:SetPoint("BOTTOM", UIParent, "BOTTOM", 95, 80)
     button:SetFrameStrata("TOOLTIP")
     button:SetText(ns.L.OPT_SAVE_POSITION or "Save")
     AddTooltip(button, ns.L.OPT_SAVE_POSITION or "Save", ns.L.OPT_LOCK_ANCHOR_DESC)
@@ -485,6 +486,28 @@ local function CreateMoveSaveButton()
     return moveSaveButton
 end
 
+local function CreateMovePreviewButton()
+    if movePreviewButton then return movePreviewButton end
+
+    local button = CreateFrame("Button", "SimpleScrollingLootMovePreviewButton", UIParent, "UIPanelButtonTemplate")
+    button:SetSize(180, 32)
+    button:SetPoint("RIGHT", CreateMoveSaveButton(), "LEFT", -10, 0)
+    button:SetFrameStrata("TOOLTIP")
+    button:SetText(ns.L.OPT_TEST_WHILE_MOVING or "Test Notifications")
+    AddTooltip(
+        button,
+        ns.L.OPT_TEST_WHILE_MOVING or "Test Notifications",
+        ns.L.OPT_TEST_WHILE_MOVING_DESC or ns.L.OPT_TEST_NOTIF_DESC
+    )
+    button:SetScript("OnClick", function()
+        ns.NotificationManager.ShowTestNotifications()
+    end)
+    button:Hide()
+
+    movePreviewButton = button
+    return movePreviewButton
+end
+
 function Options.RefreshPositionControl()
     if not moveButton or not moveHelpText then return end
 
@@ -493,12 +516,16 @@ function Options.RefreshPositionControl()
         moveHelpText:SetText(ns.L.MOVE_HELP_ACTIVE or "Drag the blue box to the desired position, then click Finish Moving.")
         moveHelpText:SetTextColor(1.0, 0.82, 0.0)
         CreateMoveSaveButton():Show()
+        CreateMovePreviewButton():Show()
     else
         moveButton:SetText(ns.L.OPT_MOVE_NOTIFICATIONS or "Move Notifications")
         moveHelpText:SetText(ns.L.MOVE_HELP_IDLE or "Not sure how it will look? Preview your current settings at any time.")
         moveHelpText:SetTextColor(0.72, 0.72, 0.72)
         if moveSaveButton then
             moveSaveButton:Hide()
+        end
+        if movePreviewButton then
+            movePreviewButton:Hide()
         end
     end
 end
