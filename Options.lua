@@ -12,6 +12,7 @@ local selectedPage = nil
 local moveButton = nil
 local moveHelpText = nil
 local moveSaveButton = nil
+local previewReturnButton = nil
 
 local PAGE_ORDER = {
     "general",
@@ -485,6 +486,38 @@ local function CreateMoveSaveButton()
     return moveSaveButton
 end
 
+local function ReturnFromNotificationPreview()
+    if previewReturnButton then
+        previewReturnButton:Hide()
+    end
+    ns.NotificationManager.ClearPreviewNotifications()
+    if optionsWindowFrame then
+        optionsWindowFrame:Show()
+    end
+end
+
+local function CreatePreviewReturnButton()
+    if previewReturnButton then return previewReturnButton end
+
+    local button = CreateFrame("Button", "SimpleScrollingLootPreviewReturnButton", UIParent, "UIPanelButtonTemplate")
+    button:SetSize(180, 32)
+    button:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 80)
+    button:SetFrameStrata("TOOLTIP")
+    button:SetText(ns.L.OPT_RETURN_TO_SETTINGS or "Back to Settings")
+    AddTooltip(button, ns.L.OPT_RETURN_TO_SETTINGS or "Back to Settings", ns.L.OPT_RETURN_TO_SETTINGS_DESC)
+    button:SetScript("OnClick", ReturnFromNotificationPreview)
+    button:Hide()
+
+    previewReturnButton = button
+    return previewReturnButton
+end
+
+local function ShowNotificationPreview(frame)
+    frame:Hide()
+    ns.NotificationManager.ShowTestNotifications()
+    CreatePreviewReturnButton():Show()
+end
+
 function Options.RefreshPositionControl()
     if not moveButton or not moveHelpText then return end
 
@@ -528,7 +561,7 @@ local function CreateFooter(frame)
     previewButton:SetText(ns.L.OPT_TEST_NOTIF or "Preview Notifications")
     AddTooltip(previewButton, ns.L.OPT_TEST_NOTIF, ns.L.OPT_TEST_NOTIF_DESC)
     previewButton:SetScript("OnClick", function()
-        ns.NotificationManager.ShowTestNotifications()
+        ShowNotificationPreview(frame)
     end)
 
     local closeButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
@@ -586,6 +619,10 @@ local function CreateOptionsWindow()
     SelectPage("general")
 
     frame:SetScript("OnShow", function()
+        if previewReturnButton and previewReturnButton:IsShown() then
+            previewReturnButton:Hide()
+            ns.NotificationManager.ClearPreviewNotifications()
+        end
         RefreshAllWidgets()
         SelectPage(selectedPage or "general")
     end)
