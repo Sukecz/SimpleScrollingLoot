@@ -1,11 +1,11 @@
 # Compatibility
 
-Simple Scrolling Loot 0.2 uses one Lua implementation with client-specific TOC
+Simple Scrolling Loot 0.4.0 uses one Lua implementation with client-specific TOC
 metadata.
 
 | Client family | TOC | Interface | Offline checks | Live verification |
 | --- | --- | ---: | --- | --- |
-| WoW Classic Era | `SimpleScrollingLoot.toc` | 11509 | Passed | Pending |
+| WoW Classic Era | `SimpleScrollingLoot.toc` | 11509 | Passed | Settings and positioning confirmed; full loot matrix pending |
 | WoW Classic Hardcore | `SimpleScrollingLoot.toc` | 11509 | Passed; shares the Era client | Pending |
 | Burning Crusade Classic Anniversary | `SimpleScrollingLoot_TBC.toc` | 20506 | Passed | Pending |
 
@@ -13,9 +13,11 @@ The interface values were refreshed on 2026-07-26 against current maintained
 Vanilla and TBC addon metadata. They are packaging inputs, not proof of runtime
 compatibility.
 
-Version 0.3.6 was packaged after offline validation but without access to a
-live WoW client. Before claiming live compatibility, record the exact output of
-`/ssloot debug api` and test at least:
+Version 0.4.0 received user confirmation for its redesigned settings,
+notification preview controls, and positioning workflow in the current Classic
+Era client. The exact `/ssloot debug api` output was not captured, and the
+complete compatibility matrix below was not rerun. Before claiming full live
+compatibility, record the exact report and test at least:
 
 - addon startup and settings on each client family;
 - single and stacked item loot;

@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-29
+
 ### Added
 - Show a short settings and preview hint after every login on a supported
   client.
