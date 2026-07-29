@@ -1,6 +1,6 @@
 # Compatibility
 
-Simple Scrolling Loot 0.4.0 uses one Lua implementation with client-specific TOC
+Simple Scrolling Loot 0.5.0 uses one Lua implementation with client-specific TOC
 metadata.
 
 | Client family | TOC | Interface | Offline checks | Live verification |
@@ -15,9 +15,11 @@ compatibility.
 
 Version 0.4.0 received user confirmation for its redesigned settings,
 notification preview controls, and positioning workflow in the current Classic
-Era client. The exact `/ssloot debug api` output was not captured, and the
-complete compatibility matrix below was not rerun. Before claiming full live
-compatibility, record the exact report and test at least:
+Era client. Version 0.5.0 adds a repeatable test-notification action to that
+positioning mode and passed offline validation. The exact `/ssloot debug api`
+output was not captured, and the complete compatibility matrix below was not
+rerun. Before claiming full live compatibility, record the exact report and
+test at least:
 
 - addon startup and settings on each client family;
 - single and stacked item loot;

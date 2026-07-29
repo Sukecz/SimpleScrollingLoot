@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-29
+
 ### Added
 - Add a standalone **Test Notifications** button beside **Save** while choosing
   the notification position without the settings window.
