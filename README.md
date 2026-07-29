@@ -37,7 +37,8 @@ not yet been verified in a live WoW client; see
 - **Optional Bag & Bank Counts**: Shows separate non-zero quantities of the
   looted item held in bags and bank.
 - **Standalone Rendering**: Completely independent frame rendering (does NOT rely on Blizzard Scrolling Combat Text or `CombatText_AddMessage`).
-- **Movable & Configurable Anchor**: Unlock, position, and reset your loot notifications anywhere on screen.
+- **Simple Positioning**: Click **Move Notifications**, drag the visible box,
+  and click **Finish Moving**.
 - **Customizable Appearance & Animation**: Adjust font size, icon size, maximum width, scroll direction (UP/DOWN), duration, travel distance, opacity, max visible rows, and optional static mode.
 - **Optional Item Interaction**: Enable normal item tooltips and standard modified item-link clicks without intercepting the mouse by default.
 - **Background Styling**: Enable a Blizzard-styled rounded-corner frame and
@@ -53,8 +54,8 @@ You can use `/ssl`, `/ssloot`, or `/simplescrollingloot`:
 - `/ssl on` - Enable addon
 - `/ssl off` - Disable addon
 - `/ssl test` - Display test/preview notifications
-- `/ssl unlock` - Unlock and display notification anchor for dragging
-- `/ssl lock` - Lock notification anchor
+- `/ssl unlock` - Show and move the notification position
+- `/ssl lock` - Finish moving notifications
 - `/ssl reset` - Reset configuration to default settings
 - `/ssl debug` - Toggle debug logging
 - `/ssl debug api` - Print client API compatibility report
@@ -73,16 +74,19 @@ Restart WoW or reload UI with `/reload`.
 
 ## Configuration
 
-Open settings with `/ssloot`. The panel includes controls for item-quality
-filtering, icons, vendor value, bag and bank counts, background, row opacity,
-maximum width, scale, font/icon sizes, duration, fade, travel distance,
-spacing, scrolling direction, static mode, mouse interaction, and visible-row
-limit. Enable **Rounded
-Corners** for a Blizzard-styled rounded frame, then adjust its background
-opacity separately.
+Open settings with `/ssloot`. The panel separates everyday choices from
+advanced controls:
 
-Use `/ssloot unlock` to place the anchor, `/ssloot test` to preview the result,
-and `/ssloot lock` when finished.
+- **General** chooses what appears and which item qualities are shown.
+- **Appearance** controls icons, text size, overall size, and background.
+- **Movement & Position** controls placement, direction, timing, and spacing.
+- **Advanced** contains optional mouse interaction, transparency, diagnostics,
+  and reset.
+
+Every control includes a visible explanation and takes effect immediately.
+Use **Preview Notifications** at any time. To change the starting position,
+click **Move Notifications**, drag the blue box, then click
+**Finish Moving**.
 
 ## Support
 

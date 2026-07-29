@@ -4,6 +4,15 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Redesign the options window into focused General, Appearance, Movement &
+  Position, and Advanced pages.
+- Replace technical labels such as `Anchor`, numeric item-quality values, and
+  row opacity with plain-language controls, visible explanations, named rarity
+  choices, and a guided Move Notifications workflow.
+- Keep preview and position controls available from every options page, and
+  disable settings that have no effect in the current configuration.
+
 ## [0.3.6] - 2026-07-27
 
 ### Fixed

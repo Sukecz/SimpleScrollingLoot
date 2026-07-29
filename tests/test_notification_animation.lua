@@ -5,6 +5,8 @@ local ns = {}
 assert(loadfile("NotificationManager.lua"))("SimpleScrollingLoot", ns)
 local TravelY = ns.NotificationManager.CalculateTravelY
 
+assert(not ns.NotificationManager.IsAnchorUnlocked(), "notification position must start locked")
+
 assert(TravelY(0, 0.5, 100, "UP") == 50, "UP must move toward positive Y")
 assert(TravelY(0, 0.5, 100, "DOWN") == -50, "DOWN must move toward negative Y")
 assert(TravelY(-30, 1, 100, "DOWN") == -130, "DOWN must continue away from its negative base slot")

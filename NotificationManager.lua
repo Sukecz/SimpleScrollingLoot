@@ -4,6 +4,7 @@ ns.NotificationManager = {}
 
 local NotificationManager = ns.NotificationManager
 local anchorFrame = nil
+local anchorUnlocked = false
 local activeRows = {}
 local rowPool = {}
 local animDriverFrame = nil
@@ -398,17 +399,29 @@ end
 
 function NotificationManager.UnlockAnchor()
     local anchor = CreateAnchor()
+    anchorUnlocked = true
     anchor:EnableMouse(true)
     anchor.bg:Show()
     anchor.title:Show()
     ns.NotificationManager.ShowTestNotifications()
+    if ns.Options and type(ns.Options.RefreshPositionControl) == "function" then
+        ns.Options.RefreshPositionControl()
+    end
 end
 
 function NotificationManager.LockAnchor()
     local anchor = CreateAnchor()
+    anchorUnlocked = false
     anchor:EnableMouse(false)
     anchor.bg:Hide()
     anchor.title:Hide()
+    if ns.Options and type(ns.Options.RefreshPositionControl) == "function" then
+        ns.Options.RefreshPositionControl()
+    end
+end
+
+function NotificationManager.IsAnchorUnlocked()
+    return anchorUnlocked
 end
 
 function NotificationManager.ShowTestNotifications()

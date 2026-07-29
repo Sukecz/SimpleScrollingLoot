@@ -5,6 +5,19 @@ ns.Options = {}
 local Options = ns.Options
 local optionsWindowFrame = nil
 local blizzardOptionsCategory = nil
+local allWidgets = {}
+local pages = {}
+local tabButtons = {}
+local selectedPage = nil
+local moveButton = nil
+local moveHelpText = nil
+
+local PAGE_ORDER = {
+    "general",
+    "appearance",
+    "movement",
+    "advanced",
+}
 
 local function AddTooltip(frame, title, description)
     frame:HookScript("OnEnter", function(self)
@@ -19,136 +32,503 @@ local function AddTooltip(frame, title, description)
     end)
 end
 
--- ---------------------------------------------------------------------------
--- Widget helpers
--- ---------------------------------------------------------------------------
-
-local function CreateSlider(parent, name, labelText, minVal, maxVal, step, dbKey, x, y, description)
-    local slider = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
-    slider:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
-    slider:SetMinMaxValues(minVal, maxVal)
-    slider:SetValueStep(step)
-    slider:SetObeyStepOnDrag(true)
-    slider.dbKey = dbKey
-    slider.labelText = labelText
-    slider.step = step
-    AddTooltip(slider, labelText, description)
-
-    local currentVal = ns.Database.Get(dbKey) or minVal
-    slider:SetValue(currentVal)
-
-    _G[name .. "Low"]:SetText(tostring(minVal))
-    _G[name .. "High"]:SetText(tostring(maxVal))
-    _G[name .. "Text"]:SetText(string.format("%s: %s", labelText, tostring(currentVal)))
-
-    slider:SetScript("OnValueChanged", function(self, value)
-        if step >= 1 then
-            value = math.floor(value + 0.5)
-        else
-            value = math.floor(value * 10 + 0.5) / 10
-        end
-        _G[name .. "Text"]:SetText(string.format("%s: %s", labelText, tostring(value)))
-        ns.Database.Set(dbKey, value)
-    end)
-
-    -- Expose a refresh helper so we can update the widget after a settings reset.
-    slider.Refresh = function(self)
-        local val = ns.Database.Get(self.dbKey) or minVal
-        self:SetValue(val)
-        _G[name .. "Text"]:SetText(string.format("%s: %s", self.labelText, tostring(val)))
+local function SetEnabledText(text, enabled, normalColor)
+    if not text then return end
+    if enabled then
+        text:SetTextColor(normalColor[1], normalColor[2], normalColor[3])
+    else
+        text:SetTextColor(0.45, 0.45, 0.45)
     end
-
-    return slider
 end
 
-local function CreateCheckButton(parent, labelText, dbKey, x, y, description)
-    local btn = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
-    btn:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
-    btn.Text:SetText(labelText)
-    btn.dbKey = dbKey
-    AddTooltip(btn, labelText, description)
-    btn:SetChecked(ns.Database.Get(dbKey) and true or false)
+local function CreateDescription(parent, anchor, description)
+    local text = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    text:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -2)
+    text:SetWidth(640)
+    text:SetJustifyH("LEFT")
+    text:SetText(description or "")
+    text:SetTextColor(0.72, 0.72, 0.72)
+    return text
+end
 
-    btn:SetScript("OnClick", function(self)
-        ns.Database.Set(dbKey, self:GetChecked())
+local function CreateSection(parent, titleText, y)
+    local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOPLEFT", parent, "TOPLEFT", 18, y)
+    title:SetText(titleText)
+
+    local line = parent:CreateTexture(nil, "ARTWORK")
+    line:SetColorTexture(0.45, 0.35, 0.16, 0.8)
+    line:SetPoint("LEFT", title, "RIGHT", 10, 0)
+    line:SetPoint("RIGHT", parent, "RIGHT", -18, 0)
+    line:SetHeight(1)
+end
+
+local function CreateCheckButton(parent, labelText, dbKey, y, description)
+    local button = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
+    button:SetPoint("TOPLEFT", parent, "TOPLEFT", 18, y)
+    button.Text:SetText(labelText)
+    button.Text:SetWidth(620)
+    button.Text:SetJustifyH("LEFT")
+    button.dbKey = dbKey
+    button.description = CreateDescription(parent, button.Text, description)
+    AddTooltip(button, labelText, description)
+
+    button:SetScript("OnClick", function(self)
+        ns.Database.Set(self.dbKey, self:GetChecked() and true or false)
     end)
 
-    btn.Refresh = function(self)
+    button.Refresh = function(self)
         self:SetChecked(ns.Database.Get(self.dbKey) and true or false)
     end
 
-    return btn
+    button.SetSettingEnabled = function(self, enabled)
+        if enabled then
+            self:Enable()
+        else
+            self:Disable()
+        end
+        SetEnabledText(self.Text, enabled, { 1.0, 0.82, 0.0 })
+        SetEnabledText(self.description, enabled, { 0.72, 0.72, 0.72 })
+    end
+
+    button:Refresh()
+    allWidgets[#allWidgets + 1] = button
+    return button
 end
 
--- Creates a simple dropdown for a fixed list of {value, label} pairs.
--- Returns the frame; frame.Refresh() re-reads the DB key.
-local function CreateDropdown(parent, labelText, dbKey, items, x, y, description)
-    local dropdown = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
-    dropdown:SetPoint("TOPLEFT", parent, "TOPLEFT", x - 16, y)
-    dropdown.dbKey = dbKey
-    AddTooltip(dropdown, labelText, description)
-
+local function CreateSlider(parent, name, labelText, dbKey, y, minValue, maxValue, step, description, formatValue)
     local label = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    label:SetPoint("BOTTOMLEFT", dropdown, "TOPLEFT", 16, 2)
+    label:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, y)
+    label:SetWidth(330)
+    label:SetJustifyH("LEFT")
+
+    local descriptionText = CreateDescription(parent, label, description)
+    descriptionText:SetWidth(350)
+
+    local slider = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
+    slider:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -28, y - 5)
+    slider:SetWidth(285)
+    slider:SetMinMaxValues(minValue, maxValue)
+    slider:SetValueStep(step)
+    slider:SetObeyStepOnDrag(true)
+    slider.dbKey = dbKey
+    slider.label = label
+    slider.description = descriptionText
+    slider.formatValue = formatValue or tostring
+    AddTooltip(slider, labelText, description)
+
+    _G[name .. "Low"]:SetText(tostring(minValue))
+    _G[name .. "High"]:SetText(tostring(maxValue))
+    _G[name .. "Text"]:SetText("")
+
+    local function UpdateLabel(value)
+        label:SetText(string.format("%s: |cffffffff%s|r", labelText, slider.formatValue(value)))
+    end
+
+    slider:SetScript("OnValueChanged", function(self, value)
+        value = math.floor((value / step) + 0.5) * step
+        UpdateLabel(value)
+        if not self.refreshing then
+            ns.Database.Set(self.dbKey, value)
+        end
+    end)
+
+    slider.Refresh = function(self)
+        self.refreshing = true
+        local value = ns.Database.Get(self.dbKey) or minValue
+        self:SetValue(value)
+        UpdateLabel(value)
+        self.refreshing = false
+    end
+
+    slider.SetSettingEnabled = function(self, enabled)
+        if enabled then
+            self:Enable()
+            self:SetAlpha(1)
+        else
+            self:Disable()
+            self:SetAlpha(0.45)
+        end
+        SetEnabledText(self.label, enabled, { 1.0, 0.82, 0.0 })
+        SetEnabledText(self.description, enabled, { 0.72, 0.72, 0.72 })
+    end
+
+    slider:Refresh()
+    allWidgets[#allWidgets + 1] = slider
+    return slider
+end
+
+local function CreateDropdown(parent, labelText, dbKey, items, y, description)
+    local label = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    label:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, y)
+    label:SetWidth(330)
+    label:SetJustifyH("LEFT")
     label:SetText(labelText)
 
-    local function BuildMenu()
-        local currentVal = ns.Database.Get(dbKey)
+    local descriptionText = CreateDescription(parent, label, description)
+    descriptionText:SetWidth(350)
+
+    local dropdown = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
+    dropdown:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -12, y + 8)
+    dropdown.dbKey = dbKey
+    dropdown.label = label
+    dropdown.description = descriptionText
+    dropdown.items = items
+    UIDropDownMenu_SetWidth(dropdown, 245)
+    AddTooltip(dropdown, labelText, description)
+
+    local function Refresh()
+        local currentValue = ns.Database.Get(dbKey)
         for _, item in ipairs(items) do
-            local info = UIDropDownMenu_CreateInfo()
-            info.text = item.label
-            info.value = item.value
-            info.func = function(self)
-                UIDropDownMenu_SetSelectedValue(dropdown, self.value)
-                UIDropDownMenu_SetText(dropdown, self:GetText())
-                ns.Database.Set(dbKey, self.value)
+            if item.value == currentValue then
+                UIDropDownMenu_SetSelectedValue(dropdown, item.value)
+                UIDropDownMenu_SetText(dropdown, item.label)
+                return
             end
-            info.checked = (currentVal == item.value)
+        end
+    end
+
+    UIDropDownMenu_Initialize(dropdown, function()
+        local currentValue = ns.Database.Get(dbKey)
+        for _, item in ipairs(items) do
+            local selectedItem = item
+            local info = UIDropDownMenu_CreateInfo()
+            info.text = selectedItem.label
+            info.value = selectedItem.value
+            info.checked = currentValue == selectedItem.value
+            info.func = function()
+                ns.Database.Set(dbKey, selectedItem.value)
+                Refresh()
+            end
             UIDropDownMenu_AddButton(info)
         end
-    end
+    end)
 
-    UIDropDownMenu_Initialize(dropdown, BuildMenu)
-
-    -- Set initial display text
-    local currentVal = ns.Database.Get(dbKey)
-    for _, item in ipairs(items) do
-        if item.value == currentVal then
-            UIDropDownMenu_SetText(dropdown, item.label)
-            UIDropDownMenu_SetSelectedValue(dropdown, item.value)
-            break
+    dropdown.Refresh = Refresh
+    dropdown.SetSettingEnabled = function(self, enabled)
+        if enabled then
+            UIDropDownMenu_EnableDropDown(self)
+            self:SetAlpha(1)
+        else
+            UIDropDownMenu_DisableDropDown(self)
+            self:SetAlpha(0.45)
         end
-    end
-    UIDropDownMenu_SetWidth(dropdown, 160)
-
-    dropdown.Refresh = function(self)
-        local val = ns.Database.Get(self.dbKey)
-        for _, item in ipairs(items) do
-            if item.value == val then
-                UIDropDownMenu_SetText(self, item.label)
-                UIDropDownMenu_SetSelectedValue(self, val)
-                break
-            end
-        end
+        SetEnabledText(self.label, enabled, { 1.0, 0.82, 0.0 })
+        SetEnabledText(self.description, enabled, { 0.72, 0.72, 0.72 })
     end
 
+    dropdown:Refresh()
+    allWidgets[#allWidgets + 1] = dropdown
     return dropdown
 end
 
--- ---------------------------------------------------------------------------
--- Tracked widgets list for refresh-on-reset
--- ---------------------------------------------------------------------------
-local allWidgets = {}
+local function CreatePage(parent)
+    local page = CreateFrame("Frame", nil, parent)
+    page:SetPoint("TOPLEFT", parent, "TOPLEFT", 20, -96)
+    page:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -20, 92)
 
--- ---------------------------------------------------------------------------
--- Options window construction
--- ---------------------------------------------------------------------------
+    local background = page:CreateTexture(nil, "BACKGROUND")
+    background:SetAllPoints(page)
+    background:SetColorTexture(0.02, 0.02, 0.02, 0.25)
+
+    page:Hide()
+    return page
+end
+
+local function QualityItems()
+    return {
+        { value = 0, label = ns.L.QUALITY_ALL or "|cff9d9d9dAll qualities|r" },
+        { value = 1, label = ns.L.QUALITY_COMMON or "|cffffffffCommon or better|r" },
+        { value = 2, label = ns.L.QUALITY_UNCOMMON or "|cff1eff00Uncommon or better|r" },
+        { value = 3, label = ns.L.QUALITY_RARE or "|cff0070ddRare or better|r" },
+        { value = 4, label = ns.L.QUALITY_EPIC or "|cffa335eeEpic or better|r" },
+        { value = 5, label = ns.L.QUALITY_LEGENDARY or "|cffff8000Legendary only|r" },
+    }
+end
+
+local function BuildGeneralPage(frame)
+    local page = CreatePage(frame)
+    pages.general = page
+
+    CreateSection(page, ns.L.SECTION_NOTIFICATIONS or "What should appear?", -16)
+    CreateCheckButton(page, ns.L.OPT_ENABLE, "enabled", -42, ns.L.OPT_ENABLE_DESC)
+    CreateCheckButton(page, ns.L.OPT_SHOW_ITEMS, "showItems", -92, ns.L.OPT_SHOW_ITEMS_DESC)
+    CreateCheckButton(page, ns.L.OPT_SHOW_MONEY, "showMoney", -142, ns.L.OPT_SHOW_MONEY_DESC)
+    local minimumQuality = CreateDropdown(
+        page,
+        ns.L.OPT_MIN_QUALITY,
+        "minQuality",
+        QualityItems(),
+        -196,
+        ns.L.OPT_MIN_QUALITY_DESC
+    )
+
+    CreateSection(page, ns.L.SECTION_ITEM_DETAILS or "Information shown with items", -258)
+    local quantity = CreateCheckButton(page, ns.L.OPT_SHOW_QUANTITY, "showQuantity", -284, ns.L.OPT_SHOW_QUANTITY_DESC)
+    local vendor = CreateCheckButton(page, ns.L.OPT_SHOW_VENDOR, "showVendorValue", -334, ns.L.OPT_SHOW_VENDOR_DESC)
+    local owned = CreateCheckButton(page, ns.L.OPT_SHOW_OWNED_COUNT, "showOwnedCount", -384, ns.L.OPT_SHOW_OWNED_COUNT_DESC)
+
+    page.itemWidgets = { minimumQuality, quantity, vendor, owned }
+end
+
+local function FormatPercent(value)
+    return string.format("%d%%", math.floor((value * 100) + 0.5))
+end
+
+local function FormatScale(value)
+    return string.format("%.1fx", value)
+end
+
+local function BuildAppearancePage(frame)
+    local page = CreatePage(frame)
+    pages.appearance = page
+
+    CreateSection(page, ns.L.SECTION_SIZE or "Text and icon size", -16)
+    CreateCheckButton(page, ns.L.OPT_SHOW_ICONS, "showIcons", -42, ns.L.OPT_SHOW_ICONS_DESC)
+    CreateSlider(page, "SSLSliderFontSize", ns.L.OPT_FONT_SIZE, "fontSize", -96, 8, 32, 1, ns.L.OPT_FONT_SIZE_DESC)
+    local iconSize = CreateSlider(
+        page,
+        "SSLSliderIconSize",
+        ns.L.OPT_ICON_SIZE,
+        "iconSize",
+        -146,
+        12,
+        64,
+        2,
+        ns.L.OPT_ICON_SIZE_DESC
+    )
+    CreateSlider(page, "SSLSliderScale", ns.L.OPT_SCALE, "scale", -196, 0.5, 3.0, 0.1, ns.L.OPT_SCALE_DESC, FormatScale)
+    CreateSlider(page, "SSLSliderMaxWidth", ns.L.OPT_MAX_WIDTH, "maxWidth", -246, 160, 800, 20, ns.L.OPT_MAX_WIDTH_DESC)
+
+    CreateSection(page, ns.L.SECTION_BACKGROUND or "Background and transparency", -306)
+    local showBackground = CreateCheckButton(page, ns.L.OPT_SHOW_BG, "showBackground", -332, ns.L.OPT_SHOW_BG_DESC)
+    local rounded = CreateCheckButton(page, ns.L.OPT_BG_ROUNDED, "backgroundRounded", -382, ns.L.OPT_BG_ROUNDED_DESC)
+    local backgroundOpacity = CreateSlider(page, "SSLSliderBgOpacity", ns.L.OPT_BG_OPACITY, "backgroundOpacity", -432, 0, 1, 0.1, ns.L.OPT_BG_OPACITY_DESC, FormatPercent)
+
+    page.showBackgroundWidget = showBackground
+    page.iconWidgets = { iconSize }
+    page.backgroundWidgets = { rounded, backgroundOpacity }
+end
+
+local function BuildMovementPage(frame)
+    local page = CreatePage(frame)
+    pages.movement = page
+
+    CreateSection(page, ns.L.SECTION_POSITION or "Position on your screen", -16)
+    local help = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    help:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -43)
+    help:SetWidth(650)
+    help:SetJustifyH("LEFT")
+    help:SetText(ns.L.POSITION_EXPLANATION or "Use Move Notifications below, drag the blue box, then click Finish Moving.")
+    help:SetTextColor(0.9, 0.9, 0.9)
+
+    local resetPosition = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
+    resetPosition:SetSize(150, 24)
+    resetPosition:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -78)
+    resetPosition:SetText(ns.L.OPT_RESET_POSITION)
+    AddTooltip(resetPosition, ns.L.OPT_RESET_POSITION, ns.L.OPT_RESET_POSITION_DESC)
+    resetPosition:SetScript("OnClick", function()
+        ns.NotificationManager.ResetAnchor()
+        ns.NotificationManager.ShowTestNotifications()
+    end)
+
+    CreateSection(page, ns.L.SECTION_MOVEMENT or "Movement and timing", -124)
+    local direction = CreateDropdown(page,
+        ns.L.OPT_DIRECTION,
+        "direction",
+        {
+            { value = "UP", label = ns.L.OPT_DIRECTION_UP },
+            { value = "DOWN", label = ns.L.OPT_DIRECTION_DOWN },
+        },
+        -150,
+        ns.L.OPT_DIRECTION_DESC
+    )
+    CreateCheckButton(page, ns.L.OPT_STATIC_MODE, "staticMode", -204, ns.L.OPT_STATIC_MODE_DESC)
+    CreateSlider(page, "SSLSliderDuration", ns.L.OPT_DURATION, "duration", -258, 0.5, 15, 0.5, ns.L.OPT_DURATION_DESC)
+    CreateSlider(page, "SSLSliderFadeDuration", ns.L.OPT_FADE_DURATION, "fadeDuration", -308, 0.1, 5, 0.1, ns.L.OPT_FADE_DURATION_DESC)
+    local travel = CreateSlider(
+        page,
+        "SSLSliderTravel",
+        ns.L.OPT_TRAVEL_DIST,
+        "travelDistance",
+        -358,
+        10,
+        300,
+        10,
+        ns.L.OPT_TRAVEL_DIST_DESC
+    )
+    CreateSlider(page, "SSLSliderMaxVisible", ns.L.OPT_MAX_VISIBLE, "maxVisible", -408, 1, 15, 1, ns.L.OPT_MAX_VISIBLE_DESC)
+    CreateSlider(page, "SSLSliderRowSpacing", ns.L.OPT_ROW_SPACING, "rowSpacing", -458, 0, 30, 1, ns.L.OPT_ROW_SPACING_DESC)
+
+    page.scrollingWidgets = { direction, travel }
+end
+
+local function BuildAdvancedPage(frame)
+    local page = CreatePage(frame)
+    pages.advanced = page
+
+    CreateSection(page, ns.L.SECTION_ADVANCED or "Optional controls", -16)
+    CreateCheckButton(page, ns.L.OPT_MOUSE_INTERACTION, "mouseInteraction", -42, ns.L.OPT_MOUSE_INTERACTION_DESC)
+    CreateSlider(page, "SSLSliderRowOpacity", ns.L.OPT_ROW_OPACITY, "rowOpacity", -96, 0.1, 1, 0.1, ns.L.OPT_ROW_OPACITY_DESC, FormatPercent)
+    CreateCheckButton(page, ns.L.OPT_DEBUG, "debug", -150, ns.L.OPT_DEBUG_DESC)
+
+    CreateSection(page, ns.L.SECTION_RESET or "Start over", -218)
+    local resetDescription = page:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    resetDescription:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -246)
+    resetDescription:SetWidth(640)
+    resetDescription:SetJustifyH("LEFT")
+    resetDescription:SetText(ns.L.OPT_RESET_DEFAULTS_DESC)
+    resetDescription:SetTextColor(0.72, 0.72, 0.72)
+
+    local resetButton = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
+    resetButton:SetSize(170, 24)
+    resetButton:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -280)
+    resetButton:SetText(ns.L.OPT_RESET_DEFAULTS)
+    AddTooltip(resetButton, ns.L.OPT_RESET_DEFAULTS, ns.L.OPT_RESET_DEFAULTS_DESC)
+    resetButton:SetScript("OnClick", function()
+        StaticPopup_Show("SSL_CONFIRM_RESET")
+    end)
+end
+
+local function RefreshDependencies()
+    local generalPage = pages.general
+    local appearancePage = pages.appearance
+    local movementPage = pages.movement
+    if not generalPage or not appearancePage or not movementPage then return end
+
+    local itemsEnabled = ns.Database.Get("showItems") and true or false
+    for _, widget in ipairs(generalPage.itemWidgets or {}) do
+        widget:SetSettingEnabled(itemsEnabled)
+    end
+
+    local backgroundEnabled = ns.Database.Get("showBackground") and true or false
+    for _, widget in ipairs(appearancePage.backgroundWidgets or {}) do
+        widget:SetSettingEnabled(backgroundEnabled)
+    end
+
+    local iconsEnabled = ns.Database.Get("showIcons") and true or false
+    for _, widget in ipairs(appearancePage.iconWidgets or {}) do
+        widget:SetSettingEnabled(iconsEnabled)
+    end
+
+    local scrollingEnabled = not ns.Database.Get("staticMode")
+    for _, widget in ipairs(movementPage.scrollingWidgets or {}) do
+        widget:SetSettingEnabled(scrollingEnabled)
+    end
+end
+
+local function SelectPage(pageKey)
+    if not pages[pageKey] then return end
+
+    selectedPage = pageKey
+    for _, key in ipairs(PAGE_ORDER) do
+        if key == pageKey then
+            pages[key]:Show()
+            tabButtons[key]:Disable()
+            tabButtons[key]:LockHighlight()
+        else
+            pages[key]:Hide()
+            tabButtons[key]:Enable()
+            tabButtons[key]:UnlockHighlight()
+        end
+    end
+end
+
+local function CreateTabs(frame)
+    local tabLabels = {
+        general = ns.L.TAB_GENERAL or "General",
+        appearance = ns.L.TAB_APPEARANCE or "Appearance",
+        movement = ns.L.TAB_MOVEMENT or "Movement & Position",
+        advanced = ns.L.TAB_ADVANCED or "Advanced",
+    }
+
+    local previous = nil
+    for _, key in ipairs(PAGE_ORDER) do
+        local tabKey = key
+        local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+        button:SetSize(tabKey == "movement" and 178 or 156, 26)
+        if previous then
+            button:SetPoint("LEFT", previous, "RIGHT", 8, 0)
+        else
+            button:SetPoint("TOPLEFT", frame, "TOPLEFT", 28, -58)
+        end
+        button:SetText(tabLabels[tabKey])
+        button:SetScript("OnClick", function()
+            SelectPage(tabKey)
+        end)
+        tabButtons[tabKey] = button
+        previous = button
+    end
+end
+
+function Options.RefreshPositionControl()
+    if not moveButton or not moveHelpText then return end
+
+    if ns.NotificationManager.IsAnchorUnlocked() then
+        moveButton:SetText(ns.L.OPT_FINISH_MOVING or "Finish Moving")
+        moveHelpText:SetText(ns.L.MOVE_HELP_ACTIVE or "Drag the blue box to the desired position, then click Finish Moving.")
+        moveHelpText:SetTextColor(1.0, 0.82, 0.0)
+    else
+        moveButton:SetText(ns.L.OPT_MOVE_NOTIFICATIONS or "Move Notifications")
+        moveHelpText:SetText(ns.L.MOVE_HELP_IDLE or "Not sure how it will look? Preview your current settings at any time.")
+        moveHelpText:SetTextColor(0.72, 0.72, 0.72)
+    end
+end
+
+local function CreateFooter(frame)
+    moveHelpText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    moveHelpText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 58)
+    moveHelpText:SetWidth(690)
+    moveHelpText:SetJustifyH("LEFT")
+
+    moveButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    moveButton:SetSize(165, 26)
+    moveButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 24)
+    AddTooltip(moveButton, ns.L.OPT_MOVE_NOTIFICATIONS, ns.L.OPT_MOVE_NOTIFICATIONS_DESC)
+    moveButton:SetScript("OnClick", function()
+        if ns.NotificationManager.IsAnchorUnlocked() then
+            ns.NotificationManager.LockAnchor()
+        else
+            ns.NotificationManager.UnlockAnchor()
+        end
+    end)
+
+    local previewButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    previewButton:SetSize(165, 26)
+    previewButton:SetPoint("LEFT", moveButton, "RIGHT", 10, 0)
+    previewButton:SetText(ns.L.OPT_TEST_NOTIF or "Preview Notifications")
+    AddTooltip(previewButton, ns.L.OPT_TEST_NOTIF, ns.L.OPT_TEST_NOTIF_DESC)
+    previewButton:SetScript("OnClick", function()
+        ns.NotificationManager.ShowTestNotifications()
+    end)
+
+    local closeButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    closeButton:SetSize(110, 26)
+    closeButton:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -28, 24)
+    closeButton:SetText(ns.L.OPT_CLOSE or "Close")
+    closeButton:SetScript("OnClick", function()
+        frame:Hide()
+    end)
+
+    Options.RefreshPositionControl()
+end
+
+local function RefreshAllWidgets()
+    for _, widget in ipairs(allWidgets) do
+        if widget.Refresh then
+            widget:Refresh()
+        end
+    end
+    RefreshDependencies()
+    Options.RefreshPositionControl()
+end
 
 local function CreateOptionsWindow()
     if optionsWindowFrame then return optionsWindowFrame end
 
     local frame = CreateFrame("Frame", "SimpleScrollingLootOptionsWindow", UIParent, "DialogBoxFrame")
-    frame:SetSize(760, 660)
+    frame.name = ns.L.ADDON_NAME or "Simple Scrolling Loot"
+    frame:SetSize(760, 680)
     frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
     frame:SetMovable(true)
     frame:SetClampedToScreen(true)
@@ -157,208 +537,40 @@ local function CreateOptionsWindow()
     frame:SetScript("OnDragStart", frame.StartMoving)
     frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
     frame:SetFrameStrata("DIALOG")
-    tinsert(UISpecialFrames, "SimpleScrollingLootOptionsWindow") -- ESC closes the window
+    tinsert(UISpecialFrames, "SimpleScrollingLootOptionsWindow")
 
-    -- Header
     local title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
-    title:SetPoint("TOP", frame, "TOP", 0, -14)
-    title:SetText(ns.L.ADDON_NAME or "Simple Scrolling Loot Options")
+    title:SetPoint("TOPLEFT", frame, "TOPLEFT", 28, -17)
+    title:SetText(ns.L.ADDON_NAME or "Simple Scrolling Loot")
 
-    -- -----------------------------------------------------------------------
-    -- Column 1 (Left) – Toggle checkboxes
-    -- -----------------------------------------------------------------------
-    local xLeft = 24
-    local yLeft = -50
+    local subtitle = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+    subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -3)
+    subtitle:SetText(ns.L.OPTIONS_SUBTITLE or "Choose what your loot notifications show and how they look.")
+    subtitle:SetTextColor(0.72, 0.72, 0.72)
 
-    local widgets = {}
+    BuildGeneralPage(frame)
+    BuildAppearancePage(frame)
+    BuildMovementPage(frame)
+    BuildAdvancedPage(frame)
+    CreateTabs(frame)
+    CreateFooter(frame)
+    SelectPage("general")
 
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_ENABLE, "enabled", xLeft, yLeft, ns.L.OPT_ENABLE_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_ITEMS, "showItems", xLeft, yLeft, ns.L.OPT_SHOW_ITEMS_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_MONEY, "showMoney", xLeft, yLeft, ns.L.OPT_SHOW_MONEY_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_VENDOR, "showVendorValue", xLeft, yLeft, ns.L.OPT_SHOW_VENDOR_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_QUANTITY, "showQuantity", xLeft, yLeft, ns.L.OPT_SHOW_QUANTITY_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_OWNED_COUNT, "showOwnedCount", xLeft, yLeft, ns.L.OPT_SHOW_OWNED_COUNT_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_ICONS, "showIcons", xLeft, yLeft, ns.L.OPT_SHOW_ICONS_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_SHOW_BG, "showBackground", xLeft, yLeft, ns.L.OPT_SHOW_BG_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_BG_ROUNDED, "backgroundRounded", xLeft, yLeft, ns.L.OPT_BG_ROUNDED_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_STATIC_MODE, "staticMode", xLeft, yLeft, ns.L.OPT_STATIC_MODE_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_DEBUG, "debug", xLeft, yLeft, ns.L.OPT_DEBUG_DESC)
-    yLeft = yLeft - 25
-    widgets[#widgets + 1] = CreateCheckButton(frame, ns.L.OPT_MOUSE_INTERACTION, "mouseInteraction", xLeft, yLeft, ns.L.OPT_MOUSE_INTERACTION_DESC)
-
-    -- -----------------------------------------------------------------------
-    -- Column 2 – compact sliders
-    -- -----------------------------------------------------------------------
-    local xMiddle = 320
-    local yMiddle = -55
-
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderFontSize", ns.L.OPT_FONT_SIZE, 8, 32, 1, "fontSize", xMiddle, yMiddle, ns.L.OPT_FONT_SIZE_DESC) ; yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderIconSize", ns.L.OPT_ICON_SIZE, 12, 64, 2, "iconSize", xMiddle, yMiddle, ns.L.OPT_ICON_SIZE_DESC) ; yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderScale", ns.L.OPT_SCALE, 5, 30, 1, "scale", xMiddle, yMiddle, ns.L.OPT_SCALE_DESC)
-    -- Note: scale stored as 0.5–3.0 but slider uses 5–30 (×0.1) for step granularity.
-    -- Override OnValueChanged for scale to divide by 10.
-    do
-        local s = widgets[#widgets]
-        s:SetScript("OnValueChanged", function(self, value)
-            value = math.floor(value + 0.5)
-            local realVal = value / 10
-            _G["SSLSliderScaleText"]:SetText(string.format("%s: %.1f", s.labelText, realVal))
-            ns.Database.Set("scale", realVal)
-        end)
-        s.Refresh = function(self)
-            local val = ns.Database.Get("scale") or 1.0
-            self:SetValue(math.floor(val * 10 + 0.5))
-            _G["SSLSliderScaleText"]:SetText(string.format("%s: %.1f", self.labelText, val))
-        end
-        -- Initialise display correctly
-        local initVal = ns.Database.Get("scale") or 1.0
-        s:SetValue(math.floor(initVal * 10 + 0.5))
-        _G["SSLSliderScaleText"]:SetText(string.format("%s: %.1f", s.labelText, initVal))
-        _G["SSLSliderScaleLow"]:SetText("0.5")
-        _G["SSLSliderScaleHigh"]:SetText("3.0")
-    end
-    yMiddle = yMiddle - 42
-
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderDuration", ns.L.OPT_DURATION, 0.5, 15, 0.5, "duration", xMiddle, yMiddle, ns.L.OPT_DURATION_DESC) ; yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderFadeDuration", ns.L.OPT_FADE_DURATION, 0.1, 5, 0.1, "fadeDuration", xMiddle, yMiddle, ns.L.OPT_FADE_DURATION_DESC) ; yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderTravel", ns.L.OPT_TRAVEL_DIST, 10, 300, 10, "travelDistance", xMiddle, yMiddle, ns.L.OPT_TRAVEL_DIST_DESC) ; yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMaxVisible", ns.L.OPT_MAX_VISIBLE, 1, 15, 1, "maxVisible", xMiddle, yMiddle, ns.L.OPT_MAX_VISIBLE_DESC) ; yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderRowSpacing", ns.L.OPT_ROW_SPACING, 0, 30, 1, "rowSpacing", xMiddle, yMiddle, ns.L.OPT_ROW_SPACING_DESC) ; yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMinQuality", ns.L.OPT_MIN_QUALITY, 0, 5, 1, "minQuality", xMiddle, yMiddle, ns.L.OPT_MIN_QUALITY_DESC)
-    yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderMaxWidth", ns.L.OPT_MAX_WIDTH, 160, 800, 20, "maxWidth", xMiddle, yMiddle, ns.L.OPT_MAX_WIDTH_DESC)
-    yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderRowOpacity", ns.L.OPT_ROW_OPACITY, 1, 10, 1, "rowOpacity", xMiddle, yMiddle, ns.L.OPT_ROW_OPACITY_DESC)
-    do
-        local s = widgets[#widgets]
-        s:SetScript("OnValueChanged", function(self, value)
-            value = math.floor(value + 0.5)
-            local realVal = value / 10
-            _G["SSLSliderRowOpacityText"]:SetText(string.format("%s: %.1f", s.labelText, realVal))
-            ns.Database.Set("rowOpacity", realVal)
-        end)
-        s.Refresh = function(self)
-            local val = ns.Database.Get("rowOpacity")
-            self:SetValue(math.floor(val * 10 + 0.5))
-            _G["SSLSliderRowOpacityText"]:SetText(string.format("%s: %.1f", self.labelText, val))
-        end
-        s:Refresh()
-        _G["SSLSliderRowOpacityLow"]:SetText("0.1")
-        _G["SSLSliderRowOpacityHigh"]:SetText("1.0")
-    end
-    yMiddle = yMiddle - 42
-    widgets[#widgets + 1] = CreateSlider(frame, "SSLSliderBgOpacity", ns.L.OPT_BG_OPACITY, 0, 10, 1, "backgroundOpacity", xMiddle, yMiddle, ns.L.OPT_BG_OPACITY_DESC)
-    -- Override for backgroundOpacity (stored 0–1, slider 0–10)
-    do
-        local s = widgets[#widgets]
-        s:SetScript("OnValueChanged", function(self, value)
-            value = math.floor(value + 0.5)
-            local realVal = value / 10
-            _G["SSLSliderBgOpacityText"]:SetText(string.format("%s: %.1f", s.labelText, realVal))
-            ns.Database.Set("backgroundOpacity", realVal)
-        end)
-        s.Refresh = function(self)
-            local val = ns.Database.Get("backgroundOpacity") or 0.35
-            self:SetValue(math.floor(val * 10 + 0.5))
-            _G["SSLSliderBgOpacityText"]:SetText(string.format("%s: %.1f", self.labelText, val))
-        end
-        local initVal = ns.Database.Get("backgroundOpacity") or 0.35
-        s:SetValue(math.floor(initVal * 10 + 0.5))
-        _G["SSLSliderBgOpacityText"]:SetText(string.format("%s: %.1f", s.labelText, initVal))
-        _G["SSLSliderBgOpacityLow"]:SetText("0.0")
-        _G["SSLSliderBgOpacityHigh"]:SetText("1.0")
-    end
-    -- -----------------------------------------------------------------------
-    -- Dropdowns – beneath column 1
-    -- -----------------------------------------------------------------------
-    -- Leave a full row between the final checkbox and the first dropdown;
-    -- the dropdown label otherwise overlaps the Debug Logging text.
-    yLeft = yLeft - 40
-
-    widgets[#widgets + 1] = CreateDropdown(frame,
-        ns.L.OPT_DIRECTION or "Scroll Direction",
-        "direction",
-        {
-            { value = "UP",   label = ns.L.OPT_DIRECTION_UP   or "Upwards"   },
-            { value = "DOWN", label = ns.L.OPT_DIRECTION_DOWN or "Downwards" },
-        },
-        xLeft, yLeft, ns.L.OPT_DIRECTION_DESC)
-    -- -----------------------------------------------------------------------
-    -- Bottom action buttons
-    -- -----------------------------------------------------------------------
-    local btnUnlock = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnUnlock:SetSize(110, 24)
-    btnUnlock:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 20, 50)
-    btnUnlock:SetText(ns.L.OPT_UNLOCK_ANCHOR or "Unlock Anchor")
-    AddTooltip(btnUnlock, ns.L.OPT_UNLOCK_ANCHOR, ns.L.OPT_UNLOCK_ANCHOR_DESC)
-    btnUnlock:SetScript("OnClick", function()
-        ns.NotificationManager.UnlockAnchor()
+    frame:SetScript("OnShow", function()
+        RefreshAllWidgets()
+        SelectPage(selectedPage or "general")
     end)
-
-    local btnLock = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnLock:SetSize(110, 24)
-    btnLock:SetPoint("LEFT", btnUnlock, "RIGHT", 10, 0)
-    btnLock:SetText(ns.L.OPT_LOCK_ANCHOR or "Lock Anchor")
-    AddTooltip(btnLock, ns.L.OPT_LOCK_ANCHOR, ns.L.OPT_LOCK_ANCHOR_DESC)
-    btnLock:SetScript("OnClick", function()
-        ns.NotificationManager.LockAnchor()
-    end)
-
-    local btnTest = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnTest:SetSize(120, 24)
-    btnTest:SetPoint("LEFT", btnLock, "RIGHT", 10, 0)
-    btnTest:SetText(ns.L.OPT_TEST_NOTIF or "Test Loot")
-    AddTooltip(btnTest, ns.L.OPT_TEST_NOTIF, ns.L.OPT_TEST_NOTIF_DESC)
-    btnTest:SetScript("OnClick", function()
-        ns.NotificationManager.ShowTestNotifications()
-    end)
-
-    local btnReset = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnReset:SetSize(110, 24)
-    btnReset:SetPoint("LEFT", btnTest, "RIGHT", 10, 0)
-    btnReset:SetText(ns.L.OPT_RESET_DEFAULTS or "Reset Defaults")
-    AddTooltip(btnReset, ns.L.OPT_RESET_DEFAULTS, ns.L.OPT_RESET_DEFAULTS_DESC)
-    btnReset:SetScript("OnClick", function()
-        StaticPopup_Show("SSL_CONFIRM_RESET")
-    end)
-
-    local btnResetPosition = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-    btnResetPosition:SetSize(120, 24)
-    btnResetPosition:SetPoint("LEFT", btnReset, "RIGHT", 10, 0)
-    btnResetPosition:SetText(ns.L.OPT_RESET_POSITION)
-    AddTooltip(btnResetPosition, ns.L.OPT_RESET_POSITION, ns.L.OPT_RESET_POSITION_DESC)
-    btnResetPosition:SetScript("OnClick", function()
-        ns.NotificationManager.ResetAnchor()
-    end)
-
-    -- Track all widgets for refresh after reset.
-    allWidgets = widgets
 
     optionsWindowFrame = frame
     return optionsWindowFrame
 end
 
--- ---------------------------------------------------------------------------
--- Public API
--- ---------------------------------------------------------------------------
-
 function Options.Initialize()
     local panel = CreateOptionsWindow()
     panel:Hide()
 
-    -- Register with the Blizzard Settings / Interface Options panel.
     if Settings and type(Settings.RegisterCanvasLayoutCategory) == "function" then
-        local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name or "Simple Scrolling Loot")
+        local category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
         Settings.RegisterAddOnCategory(category)
         blizzardOptionsCategory = category
     elseif type(InterfaceOptions_AddCategory) == "function" then
@@ -366,18 +578,21 @@ function Options.Initialize()
     end
 
     ns.Database.RegisterCallback("*", function(key)
-        if key ~= "__reset__" then return end
-        for _, widget in ipairs(allWidgets) do
-            if widget.Refresh then widget:Refresh() end
+        if key == "__reset__" then
+            RefreshAllWidgets()
+            return
+        end
+        if optionsWindowFrame and optionsWindowFrame:IsShown() then
+            RefreshDependencies()
         end
     end)
 end
 
 function Options.Open()
-    local win = CreateOptionsWindow()
-    if win:IsShown() then
-        win:Hide()
+    local window = CreateOptionsWindow()
+    if window:IsShown() then
+        window:Hide()
     else
-        win:Show()
+        window:Show()
     end
 end

@@ -18,7 +18,7 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
 - Includes an optional Blizzard-styled rounded-corner frame with configurable
   opacity.
 - Offers upward, downward, and static-fade notification modes.
-- Includes a movable, previewable anchor and test notifications.
+- Includes simple guided positioning and preview notifications.
 - Never hooks, hides, or otherwise changes the Blizzard loot window.
 - Uses no external libraries and does not depend on Blizzard Scrolling Combat
   Text.
@@ -37,7 +37,8 @@ compatibility problem.
 
 - `/ssloot on` or `/ssloot off` enables or disables notifications.
 - `/ssloot test` shows sample notifications.
-- `/ssloot unlock` and `/ssloot lock` control the notification anchor.
+- `/ssloot unlock` shows the movable notification position; `/ssloot lock`
+  finishes positioning.
 - `/ssloot reset` resets settings after confirmation.
 - `/ssloot debug` toggles diagnostic logging.
 - `/ssloot debug api` prints the client/API compatibility report.
