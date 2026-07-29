@@ -85,8 +85,9 @@ advanced controls:
 
 Every control includes a visible explanation and takes effect immediately.
 Use **Preview Notifications** at any time. To change the starting position,
-click **Move Notifications**, drag the blue box, then click
-**Finish Moving**.
+click **Move Notifications**. The settings window closes so the blue box is
+unobstructed; drag it into place and click **Save** to lock it and return to
+settings.
 
 ## Support
 

@@ -20,6 +20,14 @@ assert(locale:find('OPT_MOVE_NOTIFICATIONS = "Move Notifications"', 1, true),
     "user-facing position control must avoid anchor jargon")
 assert(locale:find('OPT_FINISH_MOVING = "Finish Moving"', 1, true),
     "moving mode must have a clear completion action")
+assert(locale:find('OPT_SAVE_POSITION = "Save"', 1, true),
+    "the standalone moving mode must have a concise save action")
+assert(options:find("SimpleScrollingLootSavePositionButton", 1, true),
+    "moving mode must provide a standalone save button")
+assert(options:find("frame:Hide%(%s*%)%s+ns%.NotificationManager%.UnlockAnchor%(%s*%)"),
+    "settings must close before the notification anchor is unlocked")
+assert(options:find("ns%.NotificationManager%.LockAnchor%(%s*%)%s+if optionsWindowFrame then%s+optionsWindowFrame:Show%(%s*%)"),
+    "saving the notification position must lock the anchor and reopen settings")
 assert(locale:find('QUALITY_UNCOMMON = "|cff1eff00Uncommon or better|r"', 1, true),
     "quality choices must be named and color coded")
 assert(not locale:find('OPT_ROW_OPACITY = "Row Opacity"', 1, true),

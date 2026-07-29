@@ -11,6 +11,7 @@ local tabButtons = {}
 local selectedPage = nil
 local moveButton = nil
 local moveHelpText = nil
+local moveSaveButton = nil
 
 local PAGE_ORDER = {
     "general",
@@ -461,6 +462,29 @@ local function CreateTabs(frame)
     end
 end
 
+local function FinishMovingNotifications()
+    ns.NotificationManager.LockAnchor()
+    if optionsWindowFrame then
+        optionsWindowFrame:Show()
+    end
+end
+
+local function CreateMoveSaveButton()
+    if moveSaveButton then return moveSaveButton end
+
+    local button = CreateFrame("Button", "SimpleScrollingLootSavePositionButton", UIParent, "UIPanelButtonTemplate")
+    button:SetSize(150, 32)
+    button:SetPoint("BOTTOM", UIParent, "BOTTOM", 0, 80)
+    button:SetFrameStrata("TOOLTIP")
+    button:SetText(ns.L.OPT_SAVE_POSITION or "Save")
+    AddTooltip(button, ns.L.OPT_SAVE_POSITION or "Save", ns.L.OPT_LOCK_ANCHOR_DESC)
+    button:SetScript("OnClick", FinishMovingNotifications)
+    button:Hide()
+
+    moveSaveButton = button
+    return moveSaveButton
+end
+
 function Options.RefreshPositionControl()
     if not moveButton or not moveHelpText then return end
 
@@ -468,10 +492,14 @@ function Options.RefreshPositionControl()
         moveButton:SetText(ns.L.OPT_FINISH_MOVING or "Finish Moving")
         moveHelpText:SetText(ns.L.MOVE_HELP_ACTIVE or "Drag the blue box to the desired position, then click Finish Moving.")
         moveHelpText:SetTextColor(1.0, 0.82, 0.0)
+        CreateMoveSaveButton():Show()
     else
         moveButton:SetText(ns.L.OPT_MOVE_NOTIFICATIONS or "Move Notifications")
         moveHelpText:SetText(ns.L.MOVE_HELP_IDLE or "Not sure how it will look? Preview your current settings at any time.")
         moveHelpText:SetTextColor(0.72, 0.72, 0.72)
+        if moveSaveButton then
+            moveSaveButton:Hide()
+        end
     end
 end
 
@@ -487,8 +515,9 @@ local function CreateFooter(frame)
     AddTooltip(moveButton, ns.L.OPT_MOVE_NOTIFICATIONS, ns.L.OPT_MOVE_NOTIFICATIONS_DESC)
     moveButton:SetScript("OnClick", function()
         if ns.NotificationManager.IsAnchorUnlocked() then
-            ns.NotificationManager.LockAnchor()
+            FinishMovingNotifications()
         else
+            frame:Hide()
             ns.NotificationManager.UnlockAnchor()
         end
     end)

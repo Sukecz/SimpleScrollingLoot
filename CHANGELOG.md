@@ -9,6 +9,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
   client.
 
 ### Changed
+- Close the settings window while moving notification position, show a
+  standalone **Save** button, and reopen settings after saving.
 - Redesign the options window into focused General, Appearance, Movement &
   Position, and Advanced pages.
 - Replace technical labels such as `Anchor`, numeric item-quality values, and
