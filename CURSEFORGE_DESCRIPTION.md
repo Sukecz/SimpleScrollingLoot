@@ -4,10 +4,6 @@ Simple Scrolling Loot is a lightweight, standalone loot notification addon for
 World of Warcraft. It shows your own item and money gains near the
 center of the screen without relying on Blizzard Scrolling Combat Text.
 
-<img src="https://raw.githubusercontent.com/Sukecz/SimpleScrollingLoot/main/assets/screenshot.png"
-     alt="Simple Scrolling Loot item notifications in game"
-     width="280">
-
 ## Features
 
 - Shows only loot received by your character; party and raid member loot is
