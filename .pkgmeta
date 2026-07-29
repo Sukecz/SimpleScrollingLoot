@@ -10,4 +10,5 @@ ignore:
   - AGENTS.md
   - CURSEFORGE_DESCRIPTION.md
   - tests
+  - tools
   - "*.code-workspace"
