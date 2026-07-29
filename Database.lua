@@ -142,12 +142,6 @@ local function RunMigrations(db)
         version = 6
     end
 
-    if version < 7 then
-        -- Version 7 adds a one-time, account-wide settings hint. Existing and
-        -- new users see it only after the addon loads on a supported client.
-        version = 7
-    end
-
     db.version = version
 end
 
@@ -222,12 +216,7 @@ function Database.RegisterCallback(key, fn)
 end
 
 function Database.Reset()
-    local welcomeShown = _G.SimpleScrollingLootDB
-        and _G.SimpleScrollingLootDB.welcomeShown
-        and true
-        or false
     _G.SimpleScrollingLootDB = CopyTable(ns.Defaults)
-    _G.SimpleScrollingLootDB.welcomeShown = welcomeShown
     for key, value in pairs(_G.SimpleScrollingLootDB) do
         if callbacks[key] then
             for _, cb in ipairs(callbacks[key]) do

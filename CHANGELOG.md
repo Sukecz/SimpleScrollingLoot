@@ -5,8 +5,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 ## [Unreleased]
 
 ### Added
-- Show a short, account-wide settings hint once after the addon first loads on
-  a supported client. Unsupported clients leave the hint pending.
+- Show a short settings and preview hint after every login on a supported
+  client.
 
 ### Changed
 - Redesign the options window into focused General, Appearance, Movement &

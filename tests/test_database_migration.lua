@@ -19,7 +19,7 @@ SimpleScrollingLootDB = {
 
 ns.Database.Initialize()
 
-assert(SimpleScrollingLootDB.version == 7, "database must migrate to version 7")
+assert(SimpleScrollingLootDB.version == 6, "database must migrate to version 6")
 assert(SimpleScrollingLootDB.backgroundRounded == false, "rounded corners must default safely")
 assert(SimpleScrollingLootDB.backgroundStyle == nil, "obsolete style must be removed")
 assert(SimpleScrollingLootDB.backgroundRed == nil, "obsolete red must be removed")
@@ -31,11 +31,6 @@ assert(SimpleScrollingLootDB.lootFrameMode == nil, "loot frame mode must be remo
 assert(SimpleScrollingLootDB.lootFrameBypassModifier == nil, "loot frame bypass must be removed")
 assert(SimpleScrollingLootDB.showHonor == nil, "unverified honor setting must be removed")
 assert(SimpleScrollingLootDB.showOwnedCount == false, "owned count must default to disabled")
-assert(SimpleScrollingLootDB.welcomeShown == false, "first-run hint must remain pending after migration")
-
-SimpleScrollingLootDB.welcomeShown = true
-ns.Database.Reset()
-assert(SimpleScrollingLootDB.welcomeShown == true, "settings reset must not repeat an acknowledged first-run hint")
 
 print("Database migration tests passed")
 

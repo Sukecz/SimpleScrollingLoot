@@ -12,13 +12,12 @@ function Core.IsOperational()
         and ns.Database.Get("enabled")
 end
 
-function Core.ShowWelcomeIfNeeded(isSupported)
-    if not isSupported or ns.Database.Get("welcomeShown") then
+function Core.ShowLoginHint(isSupported)
+    if not isSupported then
         return false
     end
 
-    ns.Debug.Info(ns.L.WELCOME_MESSAGE)
-    ns.Database.Set("welcomeShown", true)
+    ns.Debug.Info(ns.L.LOGIN_HINT)
     return true
 end
 
@@ -55,7 +54,7 @@ function Core.OnAddonLoaded()
 end
 
 function Core.OnPlayerLogin()
-    Core.ShowWelcomeIfNeeded(clientSupported)
+    Core.ShowLoginHint(clientSupported)
     ns.Debug.Log(
         "Player logged in. Notification processing is %s.",
         Core.IsOperational() and "active" or "inactive"

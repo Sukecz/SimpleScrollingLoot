@@ -1,8 +1,7 @@
 local addonName, ns = ...
 
 ns.Defaults = {
-    version = 7,
-    welcomeShown = false,
+    version = 6,
     enabled = true,
     minQuality = 1,
     showItems = true,
