@@ -9,6 +9,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 - Replace the addon-specific Windows deployer with one shared launcher that
   validates and updates Simple Scrolling Loot, Better Loot Rolls, and Simple
   Arsenal Swap in a single run.
+- Close the Windows deployment window automatically on success and keep it open
+  when an error needs to be read.
 
 ## [0.5.0] - 2026-07-29
 
