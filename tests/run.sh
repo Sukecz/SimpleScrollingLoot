@@ -54,5 +54,7 @@ grep -qx '## Interface: 20506' SimpleScrollingLoot_TBC.toc
 grep -qx '## Version: 0.5.0' SimpleScrollingLoot_TBC.toc
 grep -qx '## X-Flavor: TBC' SimpleScrollingLoot_TBC.toc
 grep -qx '## AllowLoadGameType: tbc' SimpleScrollingLoot_TBC.toc
+test -f tools/windows/Deploy-WoW-Addons.cmd
+test -f tools/windows/Deploy-WoW-Addons.ps1
 
 echo "All Lua 5.1 and TOC checks passed."

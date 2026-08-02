@@ -77,6 +77,19 @@ World of Warcraft/<client>/Interface/AddOns/
 
 Restart WoW or reload UI with `/reload`.
 
+## Windows deployment
+
+Keep these two files together on Windows and double-click the `.cmd` launcher:
+
+- `tools/windows/Deploy-WoW-Addons.cmd`
+- `tools/windows/Deploy-WoW-Addons.ps1`
+
+This is the shared deployment tool for Simple Scrolling Loot, Better Loot
+Rolls, and Simple Arsenal Swap. It uses the existing `ssh minipc` connection,
+tests all three projects on MINIPC, stages and validates all three downloads,
+and then synchronizes their current runtime files into the Classic Era AddOns
+folder. It does not touch WoW SavedVariables.
+
 ## Configuration
 
 Open settings with `/ssloot`. The panel separates everyday choices from
