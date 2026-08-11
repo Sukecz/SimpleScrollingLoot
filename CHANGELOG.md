@@ -4,6 +4,12 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-08-11
+
+### Fixed
+
+- Use a dedicated 256px TGA icon in the in-game AddOns list.
+
 ### Changed
 
 - Replace the addon-specific Windows deployer with one shared launcher that
