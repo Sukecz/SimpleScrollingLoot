@@ -19,6 +19,7 @@ $addons = @(
         PrimaryToc = "SimpleScrollingLoot.toc"
         RequiredFiles = @(
             "SimpleScrollingLoot.toc",
+            "SimpleScrollingLoot_Camelot.toc",
             "SimpleScrollingLoot_TBC.toc",
             "Core.lua",
             "Options.lua",

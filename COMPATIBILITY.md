@@ -1,6 +1,6 @@
 # Compatibility
 
-Simple Scrolling Loot 0.5.0 uses one Lua implementation with client-specific TOC
+Simple Scrolling Loot 0.6.0-beta.1 uses one Lua implementation with client-specific TOC
 metadata.
 
 | Client family | TOC | Interface | Offline checks | Live verification |
@@ -8,9 +8,11 @@ metadata.
 | WoW Classic Era | `SimpleScrollingLoot.toc` | 11509 | Passed | Settings and positioning confirmed; full loot matrix pending |
 | WoW Classic Hardcore | `SimpleScrollingLoot.toc` | 11509 | Passed; shares the Era client | Pending |
 | Burning Crusade Classic Anniversary | `SimpleScrollingLoot_TBC.toc` | 20506 | Passed | Pending |
+| WoW Forever beta | `SimpleScrollingLoot_Camelot.toc` | 16001 | Passed | Pending user beta test |
 
-The interface values were refreshed on 2026-07-26 against current maintained
-Vanilla and TBC addon metadata. They are packaging inputs, not proof of runtime
+The Forever interface value was verified on 2026-09-17 against beta build
+`1.60.1.69893`, current maintained addon metadata, and the CurseForge Forever
+game version. Interface metadata and offline checks are not proof of runtime
 compatibility.
 
 Version 0.4.0 received user confirmation for its redesigned settings,
@@ -31,6 +33,11 @@ test at least:
 - one non-English client locale;
 - normal, automatic, group, quest, gathering, fishing, container, full-bag,
   and combat loot behavior.
+
+For the Forever beta, first capture `/ssloot debug api`, then verify addon
+startup, the settings panel, one single item, one stack, one positive money
+gain, an uncached item, preview/position controls, and the absence of blocked or
+taint errors. Beta APIs and interface numbers may change before launch.
 
 The addon never hooks, hides, closes, or unregisters events from Blizzard's loot
 window. This keeps confirmation, group-loot, quest, and protected UI behavior

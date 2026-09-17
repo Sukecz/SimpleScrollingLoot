@@ -34,10 +34,6 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
 
-    env:
-      CF_API_KEY: ${{ secrets.CF_API_TOKEN }}
-      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,5 +41,88 @@ jobs:
           fetch-depth: 0
           ref: ${{ inputs.release_ref || github.ref }}
 
-      - name: Package and publish addon
+      - name: Package addon
         uses: BigWigsMods/packager@v2
+        with:
+          args: -d
+
+      - name: Upload one multi-client file to CurseForge
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          RELEASE_REF: ${{ inputs.release_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_API_TOKEN:-}" ]; then
+            echo "CF_API_TOKEN secret is not set."
+            exit 1
+          fi
+
+          ZIP=$(find .release -maxdepth 1 -type f -name '*.zip' ! -name '*-nolib.zip' -print -quit)
+          if [ -z "$ZIP" ]; then
+            echo "No release ZIP was created."
+            exit 1
+          fi
+
+          VERSION="${RELEASE_REF#v}"
+          CHANGELOG=$(awk -v version="$VERSION" '
+            index($0, "## [" version "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md)
+          if [ -z "$CHANGELOG" ]; then
+            echo "No changelog section found for $VERSION."
+            exit 1
+          fi
+
+          if echo "$RELEASE_REF" | grep -qi beta; then
+            RELEASE_TYPE="beta"
+          elif echo "$RELEASE_REF" | grep -qi alpha; then
+            RELEASE_TYPE="alpha"
+          else
+            RELEASE_TYPE="release"
+          fi
+
+          VERSIONS=$(curl -fsS \
+            -H "x-api-token: $CF_API_TOKEN" \
+            https://wow.curseforge.com/api/game/wow/versions)
+          VERSION_IDS=$(jq -c '[.[] | select(
+            (.gameVersionTypeID == 67408 and .name == "1.15.9") or
+            (.gameVersionTypeID == 73246 and .name == "2.5.6") or
+            (.gameVersionTypeID == 88568 and .name == "1.60.1")
+          ) | .id] | unique' <<< "$VERSIONS")
+          if [ "$(jq 'length' <<< "$VERSION_IDS")" -ne 3 ]; then
+            echo "Could not resolve all Classic Era, TBC, and Forever CurseForge versions."
+            exit 1
+          fi
+
+          METADATA=$(jq -n \
+            --arg changelog "$CHANGELOG" \
+            --arg displayName "$RELEASE_REF" \
+            --arg releaseType "$RELEASE_TYPE" \
+            --argjson gameVersions "$VERSION_IDS" \
+            '{changelog:$changelog, changelogType:"markdown", displayName:$displayName, gameVersions:$gameVersions, releaseType:$releaseType}')
+          printf '%s\n' "$METADATA" > /tmp/curseforge-metadata.json
+
+          HTTP_STATUS=$(curl -sS -o /tmp/curseforge-response.json -w '%{http_code}' \
+            -H "x-api-token: $CF_API_TOKEN" \
+            -F "metadata=</tmp/curseforge-metadata.json" \
+            -F "file=@${ZIP}" \
+            https://wow.curseforge.com/api/projects/1624616/upload-file)
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "CurseForge upload failed with HTTP $HTTP_STATUS."
+            jq -c '{errorCode, errorMessage}' /tmp/curseforge-response.json 2>/dev/null || true
+            exit 1
+          fi
+          echo "CurseForge accepted the $RELEASE_TYPE file for Classic Era, TBC, and WoW Forever."
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_REF: ${{ inputs.release_ref || github.ref_name }}
+        run: |
+          set -euo pipefail
+          ZIP=$(find .release -maxdepth 1 -type f -name '*.zip' ! -name '*-nolib.zip' -print -quit)
+          gh release create "$RELEASE_REF" "$ZIP" \
+            --verify-tag \
+            --title "Simple Scrolling Loot ${RELEASE_REF#v}" \
+            --generate-notes

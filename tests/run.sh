@@ -33,8 +33,9 @@ done
 
 vanilla_files="$(sed -n '/^[^#[:space:]].*\.lua$/p' SimpleScrollingLoot.toc)"
 tbc_files="$(sed -n '/^[^#[:space:]].*\.lua$/p' SimpleScrollingLoot_TBC.toc)"
-if [[ "$vanilla_files" != "$tbc_files" ]]; then
-    echo "TOC Lua load orders differ between Vanilla and TBC." >&2
+forever_files="$(sed -n '/^[^#[:space:]].*\.lua$/p' SimpleScrollingLoot_Camelot.toc)"
+if [[ "$vanilla_files" != "$tbc_files" || "$vanilla_files" != "$forever_files" ]]; then
+    echo "TOC Lua load orders differ between Vanilla, TBC, and Forever." >&2
     exit 1
 fi
 
@@ -47,15 +48,19 @@ while IFS= read -r toc_file; do
 done <<< "$vanilla_files"
 
 grep -qx '## Interface: 11509' SimpleScrollingLoot.toc
-grep -qx '## Version: 0.5.1' SimpleScrollingLoot.toc
+grep -qx '## Version: 0.6.0-beta.1' SimpleScrollingLoot.toc
 grep -qx '## X-Flavor: Vanilla' SimpleScrollingLoot.toc
 grep -qx '## AllowLoadGameType: vanilla' SimpleScrollingLoot.toc
 grep -Fqx '## IconTexture: Interface\AddOns\SimpleScrollingLoot\assets\addon-icon.tga' SimpleScrollingLoot.toc
 grep -qx '## Interface: 20506' SimpleScrollingLoot_TBC.toc
-grep -qx '## Version: 0.5.1' SimpleScrollingLoot_TBC.toc
+grep -qx '## Version: 0.6.0-beta.1' SimpleScrollingLoot_TBC.toc
 grep -qx '## X-Flavor: TBC' SimpleScrollingLoot_TBC.toc
 grep -qx '## AllowLoadGameType: tbc' SimpleScrollingLoot_TBC.toc
 grep -Fqx '## IconTexture: Interface\AddOns\SimpleScrollingLoot\assets\addon-icon.tga' SimpleScrollingLoot_TBC.toc
+grep -qx '## Interface: 16001' SimpleScrollingLoot_Camelot.toc
+grep -qx '## Version: 0.6.0-beta.1' SimpleScrollingLoot_Camelot.toc
+grep -qx '## X-Flavor: Forever' SimpleScrollingLoot_Camelot.toc
+grep -Fqx '## IconTexture: Interface\AddOns\SimpleScrollingLoot\assets\addon-icon.tga' SimpleScrollingLoot_Camelot.toc
 file assets/addon-icon.tga | grep -Fq '256 x 256 x 32'
 test -f tools/windows/Deploy-WoW-Addons.cmd
 test -f tools/windows/Deploy-WoW-Addons.ps1

@@ -16,6 +16,7 @@ C_Timer = {
     After = function() end,
 }
 local declaredFlavor = nil
+local interfaceVersion = 11509
 C_AddOns = {
     GetAddOnMetadata = function(addonName, field)
         if field == "X-Flavor" then return declaredFlavor end
@@ -31,7 +32,7 @@ HandleModifiedItemClick = function() end
 GetMoney = function() return 0 end
 CreateFrame = function() end
 GetTime = function() return 0 end
-GetBuildInfo = function() return "1.15.9", "60000", "Jul 26 2026", 11509 end
+GetBuildInfo = function() return "1.15.9", "60000", "Jul 26 2026", interfaceVersion end
 GetLocale = function() return "enUS" end
 LOOT_ITEM_SELF = "You receive loot: %s."
 LOOT_ITEM_SELF_MULTIPLE = "You receive loot: %s x%d."
@@ -54,5 +55,17 @@ assert(not ns.ApiCompat.IsSupportedClient(), "Retail must remain unsupported")
 WOW_PROJECT_BURNING_CRUSADE_CLASSIC = nil
 declaredFlavor = "TBC"
 assert(ns.ApiCompat.GetClientFamily() == "TBC_CLASSIC", "TBC TOC metadata must work without a project constant")
+
+WOW_PROJECT_ID = WOW_PROJECT_CLASSIC
+declaredFlavor = "Forever"
+interfaceVersion = 16001
+assert(ns.ApiCompat.GetClientFamily() == "WOW_FOREVER", "Forever TOC metadata must select the Forever family")
+assert(ns.ApiCompat.IsSupportedClient(), "WoW Forever must be supported")
+
+declaredFlavor = nil
+assert(ns.ApiCompat.GetClientFamily() == "WOW_FOREVER", "Forever interface must disambiguate the reused Classic project ID")
+
+WOW_PROJECT_ID = WOW_PROJECT_MAINLINE
+assert(ns.ApiCompat.GetClientFamily() == "WOW_FOREVER", "Forever interface must work when TOC metadata is unavailable")
 
 print("Client compatibility tests passed")

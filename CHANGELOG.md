@@ -4,6 +4,25 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.0-beta.1] - 2026-09-17
+
+### Added
+
+- Add a dedicated `Camelot` TOC for the WoW Forever beta (`1.60.1`,
+  Interface `16001`).
+- Report WoW Forever as its own supported client family in `/ssloot debug api`.
+
+### Changed
+
+- Publish one CurseForge beta file for Classic Era, TBC Anniversary, and WoW
+  Forever while upstream packager flavor detection catches up with Camelot.
+
+### Testing
+
+- Offline Lua 5.1, parser, behavior, and three-client TOC checks passed.
+- WoW Forever startup, loot events, settings, rendering, and taint behavior
+  require validation in the live beta client.
+
 ## [0.5.1] - 2026-08-11
 
 ### Fixed

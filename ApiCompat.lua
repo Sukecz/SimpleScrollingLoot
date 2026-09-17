@@ -26,11 +26,22 @@ end
 
 function ApiCompat.GetClientFamily()
     local declaredFlavor = ApiCompat.GetAddonMetadata("X-Flavor")
+    if declaredFlavor == "Forever" then
+        return "WOW_FOREVER"
+    end
     if declaredFlavor == "Vanilla" then
         return "CLASSIC_ERA"
     end
     if declaredFlavor == "TBC" then
         return "TBC_CLASSIC"
+    end
+
+    -- Forever currently reuses the Classic project ID. Its dedicated Camelot
+    -- TOC supplies X-Flavor, while the interface check keeps diagnostics useful
+    -- if metadata is unavailable during the beta.
+    local _, _, _, interface = GetBuildInfo()
+    if interface == 16001 then
+        return "WOW_FOREVER"
     end
 
     if WOW_PROJECT_CLASSIC and WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
@@ -40,6 +51,7 @@ function ApiCompat.GetClientFamily()
         and WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
         return "TBC_CLASSIC"
     end
+
     return "UNSUPPORTED"
 end
 
