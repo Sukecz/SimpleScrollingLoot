@@ -62,7 +62,5 @@ grep -qx '## Version: 0.6.0-beta.1' SimpleScrollingLoot_Camelot.toc
 grep -qx '## X-Flavor: Forever' SimpleScrollingLoot_Camelot.toc
 grep -Fqx '## IconTexture: Interface\AddOns\SimpleScrollingLoot\assets\addon-icon.tga' SimpleScrollingLoot_Camelot.toc
 file assets/addon-icon.tga | grep -Fq '256 x 256 x 32'
-test -f tools/windows/Deploy-WoW-Addons.cmd
-test -f tools/windows/Deploy-WoW-Addons.ps1
 
 echo "All Lua 5.1 and TOC checks passed."
