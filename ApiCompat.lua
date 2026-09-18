@@ -38,7 +38,7 @@ function ApiCompat.GetClientFamily()
 
     -- Forever currently reuses the Classic project ID. Its dedicated Camelot
     -- TOC supplies X-Flavor, while the interface check keeps diagnostics useful
-    -- if metadata is unavailable during the beta.
+    -- if metadata is unavailable.
     local _, _, _, interface = GetBuildInfo()
     if interface == 16001 then
         return "WOW_FOREVER"

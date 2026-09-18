@@ -26,11 +26,11 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
 ## Client coverage
 
 Simple Scrolling Loot targets WoW Classic Era (including Hardcore realms),
-Burning Crusade Classic Anniversary Edition, and the WoW Forever beta. The
+Burning Crusade Classic Anniversary Edition, and WoW Forever. The
 package contains client-specific TOC metadata and verifies the loaded client
-family and critical APIs before enabling notifications. Forever support is a
-beta build pending live-client testing. Run `/ssloot debug api` when reporting
-a compatibility problem.
+family and critical APIs before enabling notifications. Forever support has
+passed user-confirmed live testing. Run `/ssloot debug api` when reporting a
+compatibility problem.
 
 ## Commands
 

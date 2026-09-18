@@ -11,26 +11,27 @@ Text.
 
 ![Simple Scrolling Loot item notifications in game](assets/screenshot.png)
 
-> Current release: 0.6.0-beta.1.
+> Current release: 0.6.0.
 
 ## Client coverage
 
-Version 0.6.0-beta.1 targets:
+Version 0.6.0 targets:
 
 - WoW Classic Era, including Hardcore realms (`Interface 11509`);
 - Burning Crusade Classic Anniversary Edition (`Interface 20506`);
-- the WoW Forever beta (`Interface 16001`).
+- WoW Forever (`Interface 16001`).
 
 The package contains separate Vanilla, TBC, and Forever (`Camelot`) TOC metadata
 while sharing one Lua implementation. Runtime checks use the loaded TOC flavor,
-Blizzard project constants, and the beta interface fallback, then verify every
+Blizzard project constants, and the Forever interface fallback, then verify every
 critical API before registering loot events. Retail, Mists of Pandaria Classic,
 and other clients remain disabled.
 
 Offline Lua and metadata tests cover all three target families. The settings and
 positioning workflow introduced in 0.4.0 was confirmed in the current Classic
-Era client. The Forever beta metadata and offline compatibility checks pass,
-but the exact build report and live Forever loot matrix remain outstanding. See
+Era client. Live operation in WoW Forever was confirmed by the user after
+testing the beta build, but the exact diagnostic report and complete Forever
+loot matrix were not captured. See
 [`COMPATIBILITY.md`](COMPATIBILITY.md).
 
 ## Features

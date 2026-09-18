@@ -4,6 +4,21 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-18
+
+### Changed
+
+- Promote WoW Forever support from beta to a stable multi-client release.
+- Publish the CurseForge file as a full release for Classic Era, TBC
+  Anniversary, and WoW Forever.
+
+### Testing
+
+- Offline Lua 5.1, parser, behavior, and three-client TOC checks passed.
+- Live WoW Forever operation was confirmed by the user after testing the beta
+  build. The exact diagnostic report and complete loot-scenario matrix were not
+  captured.
+
 ## [0.6.0-beta.1] - 2026-09-17
 
 ### Added
