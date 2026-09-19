@@ -162,6 +162,7 @@ local function CreateDropdown(parent, labelText, dbKey, items, y, description)
     AddTooltip(dropdown, labelText, description)
 
     local function Refresh()
+        local items = type(dropdown.items) == "function" and dropdown.items() or dropdown.items
         local currentValue = ns.Database.Get(dbKey)
         for _, item in ipairs(items) do
             if item.value == currentValue then
@@ -172,9 +173,27 @@ local function CreateDropdown(parent, labelText, dbKey, items, y, description)
         end
     end
 
-    UIDropDownMenu_Initialize(dropdown, function()
+    UIDropDownMenu_Initialize(dropdown, function(_, level, menuList)
+        level = level or 1
+        local items = type(dropdown.items) == "function" and dropdown.items() or dropdown.items
         local currentValue = ns.Database.Get(dbKey)
-        for _, item in ipairs(items) do
+        -- Font packs can register hundreds of names. Keep each menu bounded.
+        if #items > 20 and level == 1 then
+            for first = 1, #items, 15 do
+                local last = math.min(first + 14, #items)
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = items[first].label .. " - " .. items[last].label
+                info.hasArrow = true
+                info.notCheckable = true
+                info.menuList = { first = first, last = last }
+                UIDropDownMenu_AddButton(info, level)
+            end
+            return
+        end
+        local first = menuList and menuList.first or 1
+        local last = menuList and menuList.last or #items
+        for index = first, last do
+            local item = items[index]
             local selectedItem = item
             local info = UIDropDownMenu_CreateInfo()
             info.text = selectedItem.label
@@ -184,7 +203,7 @@ local function CreateDropdown(parent, labelText, dbKey, items, y, description)
                 ns.Database.Set(dbKey, selectedItem.value)
                 Refresh()
             end
-            UIDropDownMenu_AddButton(info)
+            UIDropDownMenu_AddButton(info, level)
         end
     end)
 
@@ -291,11 +310,12 @@ local function BuildAppearancePage(frame)
         ns.L.OPT_ICON_SIZE_DESC
     )
     CreateSlider(page, "SSLSliderScale", ns.L.OPT_SCALE, "scale", -196, 0.5, 3.0, 0.1, ns.L.OPT_SCALE_DESC, FormatScale)
+    CreateDropdown(page, ns.L.OPT_FONT, "fontName", ns.Media.GetFontItems, -246, ns.L.OPT_FONT_DESC)
 
-    CreateSection(page, ns.L.SECTION_BACKGROUND or "Background and transparency", -256)
-    local showBackground = CreateCheckButton(page, ns.L.OPT_SHOW_BG, "showBackground", -282, ns.L.OPT_SHOW_BG_DESC)
-    local rounded = CreateCheckButton(page, ns.L.OPT_BG_ROUNDED, "backgroundRounded", -332, ns.L.OPT_BG_ROUNDED_DESC)
-    local backgroundOpacity = CreateSlider(page, "SSLSliderBgOpacity", ns.L.OPT_BG_OPACITY, "backgroundOpacity", -382, 0, 1, 0.1, ns.L.OPT_BG_OPACITY_DESC, FormatPercent)
+    CreateSection(page, ns.L.SECTION_BACKGROUND or "Background and transparency", -306)
+    local showBackground = CreateCheckButton(page, ns.L.OPT_SHOW_BG, "showBackground", -332, ns.L.OPT_SHOW_BG_DESC)
+    local rounded = CreateCheckButton(page, ns.L.OPT_BG_ROUNDED, "backgroundRounded", -382, ns.L.OPT_BG_ROUNDED_DESC)
+    local backgroundOpacity = CreateSlider(page, "SSLSliderBgOpacity", ns.L.OPT_BG_OPACITY, "backgroundOpacity", -432, 0, 1, 0.1, ns.L.OPT_BG_OPACITY_DESC, FormatPercent)
 
     page.showBackgroundWidget = showBackground
     page.iconWidgets = { iconSize }

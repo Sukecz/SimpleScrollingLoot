@@ -48,6 +48,7 @@ local function GetRowConfig()
         mouseInteraction = ns.Database.Get("mouseInteraction"),
         iconSize = ns.Database.Get("iconSize") or 24,
         fontSize = ns.Database.Get("fontSize") or 14,
+        fontName = ns.Database.Get("fontName"),
         maxWidth = ns.Database.Get("maxWidth") or 480,
         scale = ns.Database.Get("scale") or 1.0,
     }
@@ -176,6 +177,7 @@ function NotificationManager.Initialize()
         "mouseInteraction",
         "iconSize",
         "fontSize",
+        "fontName",
         "maxWidth",
         "scale",
     }

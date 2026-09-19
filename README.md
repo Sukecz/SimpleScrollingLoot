@@ -1,5 +1,11 @@
 # Simple Scrolling Loot
 
+In **Appearance > Font**, choose fonts registered by other enabled addons using
+LibSharedMedia-3.0. Without a provider, the Blizzard default remains available.
+Selections apply immediately to notifications and previews. If a provider is
+disabled, SSL temporarily uses the default while retaining your saved choice.
+SSL does not bundle external libraries or font files.
+
 <p align="center">
   <img src="assets/ssl.png" alt="Simple Scrolling Loot logo" width="280">
 </p>

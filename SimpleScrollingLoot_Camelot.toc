@@ -14,6 +14,7 @@ ApiCompat.lua
 CompatibilityProbe.lua
 Debug.lua
 Database.lua
+Media.lua
 LootParser.lua
 ItemResolver.lua
 MoneyTracker.lua

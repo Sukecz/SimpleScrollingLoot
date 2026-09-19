@@ -1,7 +1,7 @@
 local addonName, ns = ...
 
 ns.Defaults = {
-    version = 6,
+    version = 7,
     enabled = true,
     minQuality = 1,
     showItems = true,
@@ -23,6 +23,7 @@ ns.Defaults = {
     maxVisible = 5,
     iconSize = 30,
     fontSize = 18,
+    fontName = "",
     maxWidth = 480,
     rowSpacing = 1,
     scale = 1.0,

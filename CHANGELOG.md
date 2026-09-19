@@ -4,6 +4,19 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Appearance font selector using fonts registered by enabled addons through
+  LibSharedMedia-3.0. Integration is optional; no library or font files are bundled.
+- Immediate updates to visible notifications, support for late-loading font
+  providers, and a Blizzard fallback that preserves an unavailable selection.
+
+### Testing
+
+- Manual font checks pending on Era, TBC, and Forever: change fonts with preview
+  visible, reload, disable/re-enable the provider, and try a long item name.
+- Capture `/ssloot debug api` with each live-client test.
+
 ## [0.6.1] - 2026-09-19
 
 ### Changed

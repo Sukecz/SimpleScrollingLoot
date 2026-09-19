@@ -137,12 +137,17 @@ function NotificationRow.Create(parent)
         end
 
         -- Font sizing
-        local fontPath, _, fontFlags = GameFontHighlight:GetFont()
-        self.mainText:SetFont(fontPath, fontSize, fontFlags)
-        self.quantityText:SetFont(fontPath, fontSize, fontFlags)
+        local fontPath, fontFlags, defaultPath = ns.Media.GetFontPath(config.fontName or "")
+        local function ApplyFont(region, size)
+            if not region:SetFont(fontPath, size, fontFlags) then
+                region:SetFont(defaultPath, size, fontFlags)
+            end
+        end
+        ApplyFont(self.mainText, fontSize)
+        ApplyFont(self.quantityText, fontSize)
         -- Scale secondary text proportionally; no arbitrary fixed floor.
-        self.ownedText:SetFont(fontPath, math.max(6, fontSize - 2), fontFlags)
-        self.vendorText:SetFont(fontPath, math.max(6, fontSize - 2), fontFlags)
+        ApplyFont(self.ownedText, math.max(6, fontSize - 2))
+        ApplyFont(self.vendorText, math.max(6, fontSize - 2))
 
         self:ApplyBackground(config)
 

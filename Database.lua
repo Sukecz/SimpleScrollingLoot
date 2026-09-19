@@ -142,6 +142,11 @@ local function RunMigrations(db)
         version = 6
     end
 
+    if version < 7 then
+        -- Shared font selection defaults to the existing Blizzard font.
+        version = 7
+    end
+
     db.version = version
 end
 

@@ -17,7 +17,11 @@ local function NewRegion()
     function region:SetWordWrap() end
     function region:SetMaxLines() end
     function region:SetTextColor() end
-    function region:SetFont() end
+    function region:SetFont(path, size)
+        if path == "missing.ttf" then return false end
+        self.fontPath, self.fontSize = path, size
+        return true
+    end
     function region:SetWidth() end
     function region:SetText(text) self.text = text or "" end
     function region:GetStringWidth() return #self.text * 8 end
@@ -67,6 +71,7 @@ local ns = {
     },
 }
 
+assert(loadfile("Media.lua"))("SimpleScrollingLoot", ns)
 assert(loadfile("NotificationRow.lua"))("SimpleScrollingLoot", ns)
 
 local row = ns.NotificationRow.Create({})
@@ -85,5 +90,13 @@ row:SetRecord({
 
 assert(row:GetAlpha() == 0.25, "content refresh must preserve the current fade alpha")
 assert(not row:IsShown(), "content setup must not show a pooled row before positioning")
+
+ns.Media.GetFontPath = function() return "custom.ttf", "", "default.ttf" end
+row:SetRecord({ kind = "money" }, { fontSize = 18 })
+assert(row.mainText.fontPath == "custom.ttf" and row.quantityText.fontPath == "custom.ttf")
+assert(row.ownedText.fontPath == "custom.ttf" and row.vendorText.fontSize == 16)
+ns.Media.GetFontPath = function() return "missing.ttf", "", "default.ttf" end
+row:SetRecord({ kind = "money" }, { fontSize = 18 })
+assert(row.mainText.fontPath == "default.ttf" and row.vendorText.fontPath == "default.ttf")
 
 print("Notification row visual-state tests passed")
