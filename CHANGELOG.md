@@ -6,6 +6,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ### Added
 
+- Built-in Arial Narrow, Friz Quadrata TT, Morpheus, and Skurri choices, available
+  without a shared-font provider. These use existing WoW font assets.
 - Appearance font selector using fonts registered by enabled addons through
   LibSharedMedia-3.0. Integration is optional; no library or font files are bundled.
 - Immediate updates to visible notifications, support for late-loading font

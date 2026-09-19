@@ -1,7 +1,8 @@
 # Simple Scrolling Loot
 
-In **Appearance > Font**, choose fonts registered by other enabled addons using
-LibSharedMedia-3.0. Without a provider, the Blizzard default remains available.
+In **Appearance > Font**, choose Arial Narrow, Friz Quadrata TT, Morpheus, or
+Skurri directly from WoW, alongside the Blizzard default. Other enabled addons
+can add more choices through LibSharedMedia-3.0.
 Selections apply immediately to notifications and previews. If a provider is
 disabled, SSL temporarily uses the default while retaining your saved choice.
 SSL does not bundle external libraries or font files.

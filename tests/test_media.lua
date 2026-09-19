@@ -17,7 +17,11 @@ local ns = {
 assert(loadfile("Media.lua"))("SimpleScrollingLoot", ns)
 ns.Media.Initialize()
 assert(ns.Media.GetFontPath(selected) == "default.ttf")
-assert(#ns.Media.GetFontItems() == 2)
+assert(#ns.Media.GetFontItems() == 6, "four built-in fonts, default, and missing selection")
+assert(ns.Media.GetFontPath("Arial Narrow") == "Fonts\\ARIALN.TTF")
+assert(ns.Media.GetFontPath("Friz Quadrata TT") == "Fonts\\FRIZQT__.TTF")
+assert(ns.Media.GetFontPath("Morpheus") == "Fonts\\MORPHEUS.TTF")
+assert(ns.Media.GetFontPath("Skurri") == "Fonts\\SKURRI.TTF")
 local fonts = { Custom = "custom.ttf" }
 local callbacks = {}
 local library = {
@@ -25,7 +29,7 @@ local library = {
         assert(kind == "font" and noDefault)
         return fonts[name]
     end,
-    List = function() return { "Custom" } end,
+    List = function() return { "Custom", "Arial Narrow" } end,
     RegisterCallback = function(owner, event, method)
         callbacks[event] = function(kind) owner[method](owner, event, kind) end
     end,
@@ -38,7 +42,7 @@ assert(refreshes == 1, "connection is only made once")
 selected = "Custom"
 assert(ns.Media.GetFontPath(selected) == "custom.ttf")
 assert(ns.Media.GetFontPath("") == "default.ttf", "default ignores shared fonts")
-assert(#ns.Media.GetFontItems() == 2)
+assert(#ns.Media.GetFontItems() == 6, "shared and built-in names are deduplicated")
 callbacks.LibSharedMedia_Registered("sound")
 assert(refreshes == 1)
 fonts.Missing = "restored.ttf"

@@ -2,7 +2,7 @@ local addonName, ns = ...
 
 ns.L = {
     OPT_FONT = "Font",
-    OPT_FONT_DESC = "Choose a font shared by other enabled addons through LibSharedMedia. Missing fonts use the default until available again.",
+    OPT_FONT_DESC = "Choose a built-in WoW font or a font shared by other enabled addons. Missing fonts use the default until available again.",
     FONT_DEFAULT = "Default (Blizzard)",
     FONT_UNAVAILABLE = "%s (unavailable)",
     ADDON_NAME = "Simple Scrolling Loot",
