@@ -12,7 +12,7 @@ assert(options:find('TAB_GENERAL', 1, true), "options must provide simple page n
 assert(options:find('TAB_APPEARANCE', 1, true), "options must include an appearance page")
 assert(options:find('TAB_MOVEMENT', 1, true), "options must include a movement and position page")
 assert(options:find('TAB_ADVANCED', 1, true), "options must keep technical controls separate")
-assert(options:find('CreateDescription', 1, true), "controls must support always-visible descriptions")
+assert(options:find('AddTooltip', 1, true), "controls must provide help on hover")
 assert(options:find('QUALITY_ALL', 1, true), "quality selection must use named choices")
 assert(options:find('RefreshDependencies', 1, true), "irrelevant controls must be visually disabled")
 

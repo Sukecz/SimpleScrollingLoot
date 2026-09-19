@@ -43,16 +43,6 @@ local function SetEnabledText(text, enabled, normalColor)
     end
 end
 
-local function CreateDescription(parent, anchor, description)
-    local text = parent:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    text:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -2)
-    text:SetWidth(640)
-    text:SetJustifyH("LEFT")
-    text:SetText(description or "")
-    text:SetTextColor(0.72, 0.72, 0.72)
-    return text
-end
-
 local function CreateSection(parent, titleText, y)
     local title = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     title:SetPoint("TOPLEFT", parent, "TOPLEFT", 18, y)
@@ -69,10 +59,12 @@ local function CreateCheckButton(parent, labelText, dbKey, y, description)
     local button = CreateFrame("CheckButton", nil, parent, "InterfaceOptionsCheckButtonTemplate")
     button:SetPoint("TOPLEFT", parent, "TOPLEFT", 18, y)
     button.Text:SetText(labelText)
-    button.Text:SetWidth(620)
+    button.Text:SetWidth(math.max(1, parent:GetWidth() - 70))
+    parent:HookScript("OnSizeChanged", function(self, width)
+        button.Text:SetWidth(math.max(1, width - 70))
+    end)
     button.Text:SetJustifyH("LEFT")
     button.dbKey = dbKey
-    button.description = CreateDescription(parent, button.Text, description)
     AddTooltip(button, labelText, description)
 
     button:SetScript("OnClick", function(self)
@@ -90,7 +82,6 @@ local function CreateCheckButton(parent, labelText, dbKey, y, description)
             self:Disable()
         end
         SetEnabledText(self.Text, enabled, { 1.0, 0.82, 0.0 })
-        SetEnabledText(self.description, enabled, { 0.72, 0.72, 0.72 })
     end
 
     button:Refresh()
@@ -101,21 +92,17 @@ end
 local function CreateSlider(parent, name, labelText, dbKey, y, minValue, maxValue, step, description, formatValue)
     local label = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, y)
-    label:SetWidth(330)
+    label:SetWidth(220)
     label:SetJustifyH("LEFT")
-
-    local descriptionText = CreateDescription(parent, label, description)
-    descriptionText:SetWidth(350)
 
     local slider = CreateFrame("Slider", name, parent, "OptionsSliderTemplate")
     slider:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -28, y - 5)
-    slider:SetWidth(285)
+    slider:SetPoint("TOPLEFT", parent, "TOPLEFT", 270, y - 5)
     slider:SetMinMaxValues(minValue, maxValue)
     slider:SetValueStep(step)
     slider:SetObeyStepOnDrag(true)
     slider.dbKey = dbKey
     slider.label = label
-    slider.description = descriptionText
     slider.formatValue = formatValue or tostring
     AddTooltip(slider, labelText, description)
 
@@ -152,7 +139,6 @@ local function CreateSlider(parent, name, labelText, dbKey, y, minValue, maxValu
             self:SetAlpha(0.45)
         end
         SetEnabledText(self.label, enabled, { 1.0, 0.82, 0.0 })
-        SetEnabledText(self.description, enabled, { 0.72, 0.72, 0.72 })
     end
 
     slider:Refresh()
@@ -163,20 +149,16 @@ end
 local function CreateDropdown(parent, labelText, dbKey, items, y, description)
     local label = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     label:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, y)
-    label:SetWidth(330)
+    label:SetWidth(220)
     label:SetJustifyH("LEFT")
     label:SetText(labelText)
-
-    local descriptionText = CreateDescription(parent, label, description)
-    descriptionText:SetWidth(350)
 
     local dropdown = CreateFrame("Frame", nil, parent, "UIDropDownMenuTemplate")
     dropdown:SetPoint("TOPRIGHT", parent, "TOPRIGHT", -12, y + 8)
     dropdown.dbKey = dbKey
     dropdown.label = label
-    dropdown.description = descriptionText
     dropdown.items = items
-    UIDropDownMenu_SetWidth(dropdown, 245)
+    UIDropDownMenu_SetWidth(dropdown, 190)
     AddTooltip(dropdown, labelText, description)
 
     local function Refresh()
@@ -216,7 +198,6 @@ local function CreateDropdown(parent, labelText, dbKey, items, y, description)
             self:SetAlpha(0.45)
         end
         SetEnabledText(self.label, enabled, { 1.0, 0.82, 0.0 })
-        SetEnabledText(self.description, enabled, { 0.72, 0.72, 0.72 })
     end
 
     dropdown:Refresh()
@@ -225,15 +206,25 @@ local function CreateDropdown(parent, labelText, dbKey, items, y, description)
 end
 
 local function CreatePage(parent)
-    local page = CreateFrame("Frame", nil, parent)
-    page:SetPoint("TOPLEFT", parent, "TOPLEFT", 20, -96)
-    page:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -20, 126)
+    local viewport = CreateFrame("ScrollFrame", nil, parent, "UIPanelScrollFrameTemplate")
+    viewport:SetPoint("TOPLEFT", parent, "TOPLEFT", 20, -96)
+    viewport:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", -42, 126)
+    local page = CreateFrame("Frame", nil, viewport)
+    page:SetSize(500, 510)
+    viewport:SetScrollChild(page)
+    viewport:HookScript("OnSizeChanged", function(self, width)
+        page:SetWidth(math.max(1, width))
+    end)
+    viewport:HookScript("OnShow", function(self)
+        page:SetWidth(math.max(1, self:GetWidth()))
+    end)
+    page.viewport = viewport
 
     local background = page:CreateTexture(nil, "BACKGROUND")
     background:SetAllPoints(page)
     background:SetColorTexture(0.02, 0.02, 0.02, 0.25)
 
-    page:Hide()
+    viewport:Hide()
     return page
 end
 
@@ -319,7 +310,7 @@ local function BuildMovementPage(frame)
     CreateSection(page, ns.L.SECTION_POSITION or "Position on your screen", -16)
     local help = page:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
     help:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -43)
-    help:SetWidth(650)
+    help:SetPoint("TOPRIGHT", page, "TOPRIGHT", -24, -43)
     help:SetJustifyH("LEFT")
     help:SetText(ns.L.POSITION_EXPLANATION or "Use Move Notifications below, drag the blue box, then click Finish Moving.")
     help:SetTextColor(0.9, 0.9, 0.9)
@@ -377,7 +368,7 @@ local function BuildAdvancedPage(frame)
     CreateSection(page, ns.L.SECTION_RESET or "Start over", -218)
     local resetDescription = page:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     resetDescription:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -246)
-    resetDescription:SetWidth(640)
+    resetDescription:SetPoint("TOPRIGHT", page, "TOPRIGHT", -24, -246)
     resetDescription:SetJustifyH("LEFT")
     resetDescription:SetText(ns.L.OPT_RESET_DEFAULTS_DESC)
     resetDescription:SetTextColor(0.72, 0.72, 0.72)
@@ -425,11 +416,11 @@ local function SelectPage(pageKey)
     selectedPage = pageKey
     for _, key in ipairs(PAGE_ORDER) do
         if key == pageKey then
-            pages[key]:Show()
+            pages[key].viewport:Show()
             tabButtons[key]:Disable()
             tabButtons[key]:LockHighlight()
         else
-            pages[key]:Hide()
+            pages[key].viewport:Hide()
             tabButtons[key]:Enable()
             tabButtons[key]:UnlockHighlight()
         end
@@ -448,7 +439,7 @@ local function CreateTabs(frame)
     for _, key in ipairs(PAGE_ORDER) do
         local tabKey = key
         local button = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-        button:SetSize(tabKey == "movement" and 178 or 156, 26)
+        button:SetSize(120, 26)
         if previous then
             button:SetPoint("LEFT", previous, "RIGHT", 8, 0)
         else
@@ -461,6 +452,14 @@ local function CreateTabs(frame)
         tabButtons[tabKey] = button
         previous = button
     end
+    local function ResizeTabs()
+        local width = math.max(1, (frame:GetWidth() - 80) / #PAGE_ORDER)
+        for _, button in pairs(tabButtons) do
+            button:SetWidth(width)
+        end
+    end
+    frame:HookScript("OnSizeChanged", ResizeTabs)
+    ResizeTabs()
 end
 
 local function FinishMovingNotifications()
@@ -533,7 +532,7 @@ end
 local function CreateFooter(frame)
     moveHelpText = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     moveHelpText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 98)
-    moveHelpText:SetWidth(690)
+    moveHelpText:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -28, 98)
     moveHelpText:SetJustifyH("LEFT")
 
     moveButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")

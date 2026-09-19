@@ -4,6 +4,19 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fit navigation tabs inside the Blizzard Settings panel and scroll long pages
+  so controls do not collide with the footer.
+- Remove overlapping inline descriptions; keep help in control tooltips and
+  shorten everyday setting labels.
+
+### Testing
+
+- Manual check pending in live clients: open SSL through Blizzard Settings and
+  `/ssl`, visit all tabs, scroll to the last control, and check quality selection,
+  bags/bank counts, tooltips, preview, and moving/saving the position.
+
 ## [0.6.0] - 2026-09-18
 
 ### Changed

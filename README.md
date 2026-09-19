@@ -95,11 +95,13 @@ advanced controls:
 
 - **General** chooses what appears and which item qualities are shown.
 - **Appearance** controls icons, text size, overall size, and background.
-- **Movement & Position** controls placement, direction, timing, and spacing.
+- **Movement** controls placement, direction, timing, and spacing.
 - **Advanced** contains optional mouse interaction, transparency, diagnostics,
   and reset.
 
-Every control includes a visible explanation and takes effect immediately.
+Controls use short labels, provide help on hover, and take effect immediately.
+Tabs fit the available panel width, and pages scroll when space is limited
+inside Blizzard Settings.
 Use **Preview Notifications** at any time. To change the starting position,
 click **Move Notifications**. The settings window closes so the blue box is
 unobstructed. Use **Test Notifications** as often as needed, drag the blue box
