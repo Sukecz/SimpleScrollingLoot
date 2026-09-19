@@ -15,12 +15,14 @@ center of the screen without relying on Blizzard Scrolling Combat Text.
 - Shows positive money gains with gold, silver, and copper formatting.
 - Supports configurable minimum item quality, icon size, font size, opacity,
   spacing, duration, travel distance, scale, and maximum visible rows.
+- Offers four built-in font choices and optional fonts shared by other enabled
+  addons through LibSharedMedia, with immediate preview updates.
 - Includes an optional Blizzard-styled rounded-corner frame with configurable
   opacity.
 - Offers upward, downward, and static-fade notification modes.
 - Includes simple guided positioning and preview notifications.
 - Never hooks, hides, or otherwise changes the Blizzard loot window.
-- Uses no external libraries and does not depend on Blizzard Scrolling Combat
+- Requires no external libraries and does not depend on Blizzard Scrolling Combat
   Text.
 
 ## Client coverage

@@ -1,7 +1,12 @@
 # Compatibility
 
-Simple Scrolling Loot 0.6.1 uses one Lua implementation with client-specific TOC
+Simple Scrolling Loot 0.7.0 uses one Lua implementation with client-specific TOC
 metadata.
+
+Version 0.7.0 adds built-in and optional LibSharedMedia font selection. Offline
+font and fallback checks passed. Live font rendering, selection persistence,
+and provider disable/re-enable checks remain pending on each client family;
+prior live confirmations below do not verify the new font controls.
 
 | Client family | TOC | Interface | Offline checks | Live verification |
 | --- | --- | ---: | --- | --- |

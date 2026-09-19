@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-19
+
 ### Added
 
 - Built-in Arial Narrow, Friz Quadrata TT, Morpheus, and Skurri choices, available
@@ -15,6 +17,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ### Testing
 
+- Offline Lua 5.1, font selection/fallback, late-provider, database migration,
+  notification rendering, and all three client TOC checks passed.
 - Manual font checks pending on Era, TBC, and Forever: change fonts with preview
   visible, reload, disable/re-enable the provider, and try a long item name.
 - Capture `/ssloot debug api` with each live-client test.
