@@ -1,6 +1,6 @@
 # Compatibility
 
-Simple Scrolling Loot 0.6.0 uses one Lua implementation with client-specific TOC
+Simple Scrolling Loot 0.6.1 uses one Lua implementation with client-specific TOC
 metadata.
 
 | Client family | TOC | Interface | Offline checks | Live verification |

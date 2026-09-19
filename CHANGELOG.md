@@ -4,6 +4,8 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-09-19
+
 ### Changed
 
 - Move width, travel distance, fade-out time, and spacing to Advanced.
@@ -19,6 +21,7 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ### Testing
 
+- Offline Lua 5.1, behavior, and three-client TOC checks passed.
 - Manual check pending in live clients: open SSL through Blizzard Settings and
   `/ssl`, visit all tabs, scroll to the last control, and check quality selection,
   bags/bank counts, tooltips, preview, and moving/saving the position.
