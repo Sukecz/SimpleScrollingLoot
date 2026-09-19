@@ -36,8 +36,8 @@ assert(options:find("frame:Hide%(%s*%)%s+ns%.NotificationManager%.UnlockAnchor%(
     "settings must close before the notification anchor is unlocked")
 assert(options:find("ns%.NotificationManager%.LockAnchor%(%s*%)%s+if optionsWindowFrame then%s+optionsWindowFrame:Show%(%s*%)"),
     "saving the notification position must lock the anchor and reopen settings")
-assert(options:find('previewButton:SetPoint%("BOTTOMRIGHT", frame, "BOTTOMRIGHT", %-28, 60%)'),
-    "preview must occupy its own row above the bottom-right close action")
+assert(options:find('previewButton:SetPoint%("LEFT", moveButton, "RIGHT", 10, 0%)'),
+    "preview and move actions must stay together")
 assert(options:find('closeButton:SetPoint%("BOTTOMRIGHT", frame, "BOTTOMRIGHT", %-28, 24%)'),
     "close must remain on the bottom row below preview")
 assert(locale:find('QUALITY_UNCOMMON = "|cff1eff00Uncommon or better|r"', 1, true),

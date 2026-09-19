@@ -291,12 +291,11 @@ local function BuildAppearancePage(frame)
         ns.L.OPT_ICON_SIZE_DESC
     )
     CreateSlider(page, "SSLSliderScale", ns.L.OPT_SCALE, "scale", -196, 0.5, 3.0, 0.1, ns.L.OPT_SCALE_DESC, FormatScale)
-    CreateSlider(page, "SSLSliderMaxWidth", ns.L.OPT_MAX_WIDTH, "maxWidth", -246, 160, 800, 20, ns.L.OPT_MAX_WIDTH_DESC)
 
-    CreateSection(page, ns.L.SECTION_BACKGROUND or "Background and transparency", -306)
-    local showBackground = CreateCheckButton(page, ns.L.OPT_SHOW_BG, "showBackground", -332, ns.L.OPT_SHOW_BG_DESC)
-    local rounded = CreateCheckButton(page, ns.L.OPT_BG_ROUNDED, "backgroundRounded", -382, ns.L.OPT_BG_ROUNDED_DESC)
-    local backgroundOpacity = CreateSlider(page, "SSLSliderBgOpacity", ns.L.OPT_BG_OPACITY, "backgroundOpacity", -432, 0, 1, 0.1, ns.L.OPT_BG_OPACITY_DESC, FormatPercent)
+    CreateSection(page, ns.L.SECTION_BACKGROUND or "Background and transparency", -256)
+    local showBackground = CreateCheckButton(page, ns.L.OPT_SHOW_BG, "showBackground", -282, ns.L.OPT_SHOW_BG_DESC)
+    local rounded = CreateCheckButton(page, ns.L.OPT_BG_ROUNDED, "backgroundRounded", -332, ns.L.OPT_BG_ROUNDED_DESC)
+    local backgroundOpacity = CreateSlider(page, "SSLSliderBgOpacity", ns.L.OPT_BG_OPACITY, "backgroundOpacity", -382, 0, 1, 0.1, ns.L.OPT_BG_OPACITY_DESC, FormatPercent)
 
     page.showBackgroundWidget = showBackground
     page.iconWidgets = { iconSize }
@@ -338,22 +337,9 @@ local function BuildMovementPage(frame)
     )
     CreateCheckButton(page, ns.L.OPT_STATIC_MODE, "staticMode", -204, ns.L.OPT_STATIC_MODE_DESC)
     CreateSlider(page, "SSLSliderDuration", ns.L.OPT_DURATION, "duration", -258, 0.5, 15, 0.5, ns.L.OPT_DURATION_DESC)
-    CreateSlider(page, "SSLSliderFadeDuration", ns.L.OPT_FADE_DURATION, "fadeDuration", -308, 0.1, 5, 0.1, ns.L.OPT_FADE_DURATION_DESC)
-    local travel = CreateSlider(
-        page,
-        "SSLSliderTravel",
-        ns.L.OPT_TRAVEL_DIST,
-        "travelDistance",
-        -358,
-        10,
-        300,
-        10,
-        ns.L.OPT_TRAVEL_DIST_DESC
-    )
-    CreateSlider(page, "SSLSliderMaxVisible", ns.L.OPT_MAX_VISIBLE, "maxVisible", -408, 1, 15, 1, ns.L.OPT_MAX_VISIBLE_DESC)
-    CreateSlider(page, "SSLSliderRowSpacing", ns.L.OPT_ROW_SPACING, "rowSpacing", -458, 0, 30, 1, ns.L.OPT_ROW_SPACING_DESC)
+    CreateSlider(page, "SSLSliderMaxVisible", ns.L.OPT_MAX_VISIBLE, "maxVisible", -308, 1, 15, 1, ns.L.OPT_MAX_VISIBLE_DESC)
 
-    page.scrollingWidgets = { direction, travel }
+    page.scrollingWidgets = { direction }
 end
 
 local function BuildAdvancedPage(frame)
@@ -362,20 +348,25 @@ local function BuildAdvancedPage(frame)
 
     CreateSection(page, ns.L.SECTION_ADVANCED or "Optional controls", -16)
     CreateCheckButton(page, ns.L.OPT_MOUSE_INTERACTION, "mouseInteraction", -42, ns.L.OPT_MOUSE_INTERACTION_DESC)
-    CreateSlider(page, "SSLSliderRowOpacity", ns.L.OPT_ROW_OPACITY, "rowOpacity", -96, 0.1, 1, 0.1, ns.L.OPT_ROW_OPACITY_DESC, FormatPercent)
-    CreateCheckButton(page, ns.L.OPT_DEBUG, "debug", -150, ns.L.OPT_DEBUG_DESC)
+    CreateSlider(page, "SSLSliderRowOpacity", ns.L.OPT_ROW_OPACITY, "rowOpacity", -86, 0.1, 1, 0.1, ns.L.OPT_ROW_OPACITY_DESC, FormatPercent)
+    CreateSlider(page, "SSLSliderMaxWidth", ns.L.OPT_MAX_WIDTH, "maxWidth", -130, 160, 800, 20, ns.L.OPT_MAX_WIDTH_DESC)
+    CreateSlider(page, "SSLSliderFadeDuration", ns.L.OPT_FADE_DURATION, "fadeDuration", -174, 0.1, 5, 0.1, ns.L.OPT_FADE_DURATION_DESC)
+    local travel = CreateSlider(page, "SSLSliderTravel", ns.L.OPT_TRAVEL_DIST, "travelDistance", -218, 10, 300, 10, ns.L.OPT_TRAVEL_DIST_DESC)
+    CreateSlider(page, "SSLSliderRowSpacing", ns.L.OPT_ROW_SPACING, "rowSpacing", -262, 0, 30, 1, ns.L.OPT_ROW_SPACING_DESC)
+    CreateCheckButton(page, ns.L.OPT_DEBUG, "debug", -306, ns.L.OPT_DEBUG_DESC)
+    pages.movement.scrollingWidgets[#pages.movement.scrollingWidgets + 1] = travel
 
-    CreateSection(page, ns.L.SECTION_RESET or "Start over", -218)
+    CreateSection(page, ns.L.SECTION_RESET or "Start over", -358)
     local resetDescription = page:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    resetDescription:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -246)
-    resetDescription:SetPoint("TOPRIGHT", page, "TOPRIGHT", -24, -246)
+    resetDescription:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -386)
+    resetDescription:SetPoint("TOPRIGHT", page, "TOPRIGHT", -24, -386)
     resetDescription:SetJustifyH("LEFT")
     resetDescription:SetText(ns.L.OPT_RESET_DEFAULTS_DESC)
     resetDescription:SetTextColor(0.72, 0.72, 0.72)
 
     local resetButton = CreateFrame("Button", nil, page, "UIPanelButtonTemplate")
     resetButton:SetSize(170, 24)
-    resetButton:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -280)
+    resetButton:SetPoint("TOPLEFT", page, "TOPLEFT", 24, -430)
     resetButton:SetText(ns.L.OPT_RESET_DEFAULTS)
     AddTooltip(resetButton, ns.L.OPT_RESET_DEFAULTS, ns.L.OPT_RESET_DEFAULTS_DESC)
     resetButton:SetScript("OnClick", function()
@@ -389,22 +380,28 @@ local function RefreshDependencies()
     local movementPage = pages.movement
     if not generalPage or not appearancePage or not movementPage then return end
 
-    local itemsEnabled = ns.Database.Get("showItems") and true or false
+    local enabled = ns.Database.Get("enabled") and true or false
+    for _, widget in ipairs(allWidgets) do
+        -- Keep the master switch and diagnostics available while disabled.
+        widget:SetSettingEnabled(enabled or widget.dbKey == "enabled" or widget.dbKey == "debug")
+    end
+
+    local itemsEnabled = enabled and ns.Database.Get("showItems") and true or false
     for _, widget in ipairs(generalPage.itemWidgets or {}) do
         widget:SetSettingEnabled(itemsEnabled)
     end
 
-    local backgroundEnabled = ns.Database.Get("showBackground") and true or false
+    local backgroundEnabled = enabled and ns.Database.Get("showBackground") and true or false
     for _, widget in ipairs(appearancePage.backgroundWidgets or {}) do
         widget:SetSettingEnabled(backgroundEnabled)
     end
 
-    local iconsEnabled = ns.Database.Get("showIcons") and true or false
+    local iconsEnabled = itemsEnabled and ns.Database.Get("showIcons") and true or false
     for _, widget in ipairs(appearancePage.iconWidgets or {}) do
         widget:SetSettingEnabled(iconsEnabled)
     end
 
-    local scrollingEnabled = not ns.Database.Get("staticMode")
+    local scrollingEnabled = enabled and not ns.Database.Get("staticMode")
     for _, widget in ipairs(movementPage.scrollingWidgets or {}) do
         widget:SetSettingEnabled(scrollingEnabled)
     end
@@ -537,7 +534,7 @@ local function CreateFooter(frame)
 
     moveButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     moveButton:SetSize(165, 26)
-    moveButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 24)
+    moveButton:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 28, 60)
     AddTooltip(moveButton, ns.L.OPT_MOVE_NOTIFICATIONS, ns.L.OPT_MOVE_NOTIFICATIONS_DESC)
     moveButton:SetScript("OnClick", function()
         if ns.NotificationManager.IsAnchorUnlocked() then
@@ -550,7 +547,7 @@ local function CreateFooter(frame)
 
     local previewButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     previewButton:SetSize(165, 26)
-    previewButton:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -28, 60)
+    previewButton:SetPoint("LEFT", moveButton, "RIGHT", 10, 0)
     previewButton:SetText(ns.L.OPT_TEST_NOTIF or "Preview Notifications")
     AddTooltip(previewButton, ns.L.OPT_TEST_NOTIF, ns.L.OPT_TEST_NOTIF_DESC)
     previewButton:SetScript("OnClick", function()

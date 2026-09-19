@@ -95,13 +95,15 @@ advanced controls:
 
 - **General** chooses what appears and which item qualities are shown.
 - **Appearance** controls icons, text size, overall size, and background.
-- **Movement** controls placement, direction, timing, and spacing.
-- **Advanced** contains optional mouse interaction, transparency, diagnostics,
-  and reset.
+- **Movement** controls placement, direction, duration, and maximum visible notifications.
+- **Advanced** contains width, travel distance, fade-out time, spacing, optional
+  mouse interaction, transparency, diagnostics, and reset.
 
 Controls use short labels, provide help on hover, and take effect immediately.
 Tabs fit the available panel width, and pages scroll when space is limited
 inside Blizzard Settings.
+Turning the addon off disables notification settings; the master switch and
+diagnostics remain available. Preview and position actions sit together.
 Use **Preview Notifications** at any time. To change the starting position,
 click **Move Notifications**. The settings window closes so the blue box is
 unobstructed. Use **Test Notifications** as often as needed, drag the blue box

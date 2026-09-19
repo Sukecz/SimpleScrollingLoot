@@ -4,6 +4,12 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- Move width, travel distance, fade-out time, and spacing to Advanced.
+- Place preview and move actions side by side and grey out notification settings
+  when the addon is disabled, preserving access to its master switch and diagnostics.
+
 ### Fixed
 
 - Fit navigation tabs inside the Blizzard Settings panel and scroll long pages
