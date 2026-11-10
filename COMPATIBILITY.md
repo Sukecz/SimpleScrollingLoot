@@ -1,7 +1,12 @@
 # Compatibility
 
-Simple Scrolling Loot 0.7.0 uses one Lua implementation with client-specific TOC
+Simple Scrolling Loot 0.8.0 uses one Lua implementation with client-specific TOC
 metadata.
+
+Version 0.8.0 adds an optional startup chat message. Offline preference/default,
+upgrade, and reload-persistence checks passed. Manual checkbox layout and startup
+checks remain pending; this release adds no newly verified live build or locale.
+The existing interface metadata and historical verification below are unchanged.
 
 Version 0.7.0 adds built-in and optional LibSharedMedia font selection. Offline
 font and fallback checks passed. Live font rendering, selection persistence,

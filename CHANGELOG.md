@@ -4,10 +4,19 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-10
+
 ### Added
 
 - Optional startup chat hint: turn off **Show login message** at the bottom of
   General settings. The preference persists across logins and UI reloads.
+
+### Testing
+
+- Lua 5.1, saved preference persistence, default/upgrade behavior, and TOC checks passed.
+- Deployed to installed Classic Era and Forever clients. Manual in-game checkbox,
+  layout, login, and reload checks remain pending; no new live build or locale
+  validation is claimed. Existing interface metadata is unchanged.
 
 ## [0.7.0] - 2026-09-19
 
