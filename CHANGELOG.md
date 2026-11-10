@@ -4,6 +4,11 @@ All notable changes to Simple Scrolling Loot will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Optional startup chat hint: turn off **Show login message** at the bottom of
+  General settings. The preference persists across logins and UI reloads.
+
 ## [0.7.0] - 2026-09-19
 
 ### Added

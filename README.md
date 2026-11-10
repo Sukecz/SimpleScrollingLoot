@@ -100,7 +100,8 @@ repository; client targets and compatibility flags are maintained centrally.
 Open settings with `/ssloot`. The panel separates everyday choices from
 advanced controls:
 
-- **General** chooses what appears and which item qualities are shown.
+- **General** chooses what appears and which item qualities are shown. Disable
+  **Show login message** at the bottom of this tab to hide the startup chat hint.
 - **Appearance** controls icons, text size, overall size, and background.
 - **Movement** controls placement, direction, duration, and maximum visible notifications.
 - **Advanced** contains width, travel distance, fade-out time, spacing, optional

@@ -280,6 +280,8 @@ local function BuildGeneralPage(frame)
     local vendor = CreateCheckButton(page, ns.L.OPT_SHOW_VENDOR, "showVendorValue", -334, ns.L.OPT_SHOW_VENDOR_DESC)
     local owned = CreateCheckButton(page, ns.L.OPT_SHOW_OWNED_COUNT, "showOwnedCount", -384, ns.L.OPT_SHOW_OWNED_COUNT_DESC)
 
+    CreateCheckButton(page, ns.L.OPT_SHOW_LOGIN_MESSAGE, "showLoginMessage", -434, ns.L.OPT_SHOW_LOGIN_MESSAGE_DESC)
+
     page.itemWidgets = { minimumQuality, quantity, vendor, owned }
 end
 
@@ -402,8 +404,8 @@ local function RefreshDependencies()
 
     local enabled = ns.Database.Get("enabled") and true or false
     for _, widget in ipairs(allWidgets) do
-        -- Keep the master switch and diagnostics available while disabled.
-        widget:SetSettingEnabled(enabled or widget.dbKey == "enabled" or widget.dbKey == "debug")
+        -- Keep startup preferences, the master switch, and diagnostics available while disabled.
+        widget:SetSettingEnabled(enabled or widget.dbKey == "enabled" or widget.dbKey == "debug" or widget.dbKey == "showLoginMessage")
     end
 
     local itemsEnabled = enabled and ns.Database.Get("showItems") and true or false

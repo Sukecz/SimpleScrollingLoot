@@ -3,6 +3,7 @@ local addonName, ns = ...
 ns.Defaults = {
     version = 7,
     enabled = true,
+    showLoginMessage = true,
     minQuality = 1,
     showItems = true,
     showMoney = false,

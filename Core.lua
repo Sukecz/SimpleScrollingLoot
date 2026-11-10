@@ -13,7 +13,7 @@ function Core.IsOperational()
 end
 
 function Core.ShowLoginHint(isSupported)
-    if not isSupported then
+    if not isSupported or not ns.Database.Get("showLoginMessage") then
         return false
     end
 
